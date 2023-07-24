@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath("../src"))
 
 # -- Project information -----------------------------------------------------
 
-project = "sysml2py"
+project = "windstorm"
 copyright = "2023, Christopher Cox"
 author = "Christopher Cox"
 

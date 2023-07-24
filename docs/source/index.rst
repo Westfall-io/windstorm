@@ -1,7 +1,7 @@
-Welcome to sysml2py's documentation!
+Welcome to windstorm's documentation!
 ====================================
 
-.. automodule:: sysml2py
+.. automodule:: windstorm
     :members:
 
 .. toctree::

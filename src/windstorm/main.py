@@ -37,8 +37,11 @@ def main(template_filepath, model_filepath, auth_token=False):
         except FileNotFoundError:
             print('File was not found.')
             return False
+        
+    a = sysml2py.loads(model)
+    a.dump()
     
-    print(sysml2py.loads(model))
+    print(a.dump())
         
     return True
     

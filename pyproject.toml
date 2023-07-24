@@ -5,6 +5,7 @@ description = "Tool to support SysMLv2 model templating for any text based file.
 authors = ["Christopher Cox"]
 license = "MIT"
 readme = "README.md"
+packages = [{ include = "windstorm", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -14,3 +15,33 @@ sysml2py = "0.4.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.semantic_release]
+branch = "main"
+version_variable = "pyproject.toml:version"
+version_source = "tag"
+commit_version_number = true # required for version_source = "tag"
+tag_commit = true
+commit_parser = "semantic_release.history.emoji_parser"
+patch_without_tag = true
+build_command = "pip install poetry && poetry build"
+
+[project.urls]
+"Homepage" = "https://github.com/Westfall-io/windstorm"
+"Bug Tracker" = "https://github.com/Westfall-io/windstorm/issues"
+
+[project]
+name = "windstorm"
+version = "0.1.0"
+authors = [
+  { name="Christopher Cox", email="chris.cox@westfall.io" },
+]
+description = "SysML v2.0 Parser"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
