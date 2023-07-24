@@ -2,7 +2,13 @@
 
 
 
+
 ## v0.1.0-rc.1 (2023-07-24)
+
+### :sparkles:
+
+* :sparkles: Updates for semantic-release v0.8 ([`3d20ea4`](https://github.com/Westfall-io/windstorm/commit/3d20ea46e6ef721cf69e68ea61c74384dc7c3ab6))
+
 
 ### :construction:
 
@@ -15,10 +21,6 @@
 ### :memo:
 
 * :memo: Updates to documentation. ([`642e0a5`](https://github.com/Westfall-io/windstorm/commit/642e0a5001d8268eca5473060c440831e22f52e0))
-
-### :sparkles:
-
-* :sparkles: Updates for semantic-release v0.8 ([`3d20ea4`](https://github.com/Westfall-io/windstorm/commit/3d20ea46e6ef721cf69e68ea61c74384dc7c3ab6))
 
 ### :white_check_mark:
 
