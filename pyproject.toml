@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sysml-windstorm"
-version = "0.1.0"
+version = "0.0.0"
 description = "Tool to support SysMLv2 model templating for any text based file."
 authors = ["Christopher Cox"]
 license = "MIT"
@@ -11,36 +11,32 @@ packages = [{ include = "windstorm", from = "src" }]
 python = "^3.9"
 sysml2py = "0.4.1"
 
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.semantic_release]
-branch = "main"
+version_variable = [
+    "src/windstorm/__init__.py:version",
+]
 
+version_toml=[
+    "pyproject.toml:tool.poetry.version",
+    "pyproject.toml:project.version",
+]
+
+[tool.semantic_release.changelog]
+exclude_commit_patterns = [":robot:"]
 
 [tool.semantic_release.branches.main]
 match = "(main|master)"
 prerelease = false
-version_variable = "pyproject.toml:version"
-version_source = "tag"
-commit_version_number = true # required for version_source = "tag"
-tag_commit = true
-commit_parser = "semantic_release.history.emoji_parser"
-patch_without_tag = true
 build_command = "pip install poetry && poetry build"
 
 [tool.semantic_release.branches."dev0.1.x"]
 match = "dev0.1.x"
 prerelease = true
 prerelease_token = "rc"
-version_variable = "pyproject.toml:version"
-version_source = "tag"
-commit_version_number = true # required for version_source = "tag"
-tag_commit = true
-commit_parser = "semantic_release.history.emoji_parser"
-patch_without_tag = true
 build_command = "pip install poetry && poetry build"
 
 [project.urls]
@@ -49,7 +45,7 @@ build_command = "pip install poetry && poetry build"
 
 [project]
 name = "sysml-windstorm"
-version = "0.1.0"
+version = "0.0.0"
 authors = [
   { name="Christopher Cox", email="chris.cox@westfall.io" },
 ]
