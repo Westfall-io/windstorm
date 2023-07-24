@@ -18,6 +18,23 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.semantic_release]
 branch = "main"
+
+
+[tool.semantic_release.branches.main]
+match = "(main|master)"
+prerelease = false
+version_variable = "pyproject.toml:version"
+version_source = "tag"
+commit_version_number = true # required for version_source = "tag"
+tag_commit = true
+commit_parser = "semantic_release.history.emoji_parser"
+patch_without_tag = true
+build_command = "pip install poetry && poetry build"
+
+[tool.semantic_release.branches."dev0.1.x"]
+match = "dev0.1.x"
+prerelease = true
+prerelease_token = "rc"
 version_variable = "pyproject.toml:version"
 version_source = "tag"
 commit_version_number = true # required for version_source = "tag"
