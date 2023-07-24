@@ -26,7 +26,8 @@ version_toml=[
 ]
 
 [tool.semantic_release.changelog]
-exclude_commit_patterns = [":robot:"]
+exclude_commit_patterns = [":robot:",
+":poop:"]
 
 [tool.semantic_release.branches.main]
 match = "(main|master)"
