@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "windstorm"
 version = "0.1.0"
-description = "Tool to support mSysMLv2 model templating for any text based file."
+description = "Tool to support SysMLv2 model templating for any text based file."
 authors = ["Christopher Cox"]
 license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.9"
 sysml2py = "0.4.1"
 
 
