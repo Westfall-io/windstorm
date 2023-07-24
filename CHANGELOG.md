@@ -15,6 +15,8 @@
 
 #### :memo:
 
+* :memo: Adding template for CHANGELOG for semantic release ([`6685f66`](https://github.com/Westfall-io/windstorm/commit/6685f66b62162b03fdff96c597ebf3dd8d32eb23))
+
 * :memo: Updates to documentation. ([`642e0a5`](https://github.com/Westfall-io/windstorm/commit/642e0a5001d8268eca5473060c440831e22f52e0))
 
 #### :white_check_mark:
