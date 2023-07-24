@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sysml-windstorm"
-version = "0.1.0"
+version = "0.0.0"
 description = "Tool to support SysMLv2 model templating for any text based file."
 authors = ["Christopher Cox"]
 license = "MIT"
@@ -14,6 +14,18 @@ sysml2py = "0.4.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+#[tool.semantic_release]
+#branch = "dev0.1.x"
+#version_toml = ["pyproject.toml:tool.poetry.version",
+#"pyproject.toml:project.version",]
+#version_variable = "src/windstorm/__init__.py:version"
+#version_source = "tag"
+#commit_version_number = true # required for version_source = "tag"
+#tag_commit = true
+#commit_parser = "semantic_release.history.emoji_parser"
+#patch_without_tag = true
+#build_command = "pip install poetry && poetry build"
 
 [tool.semantic_release]
 version_variable = [
@@ -46,7 +58,7 @@ build_command = "pip install poetry && poetry build"
 
 [project]
 name = "sysml-windstorm"
-version = "0.1.0"
+version = "0.0.0"
 authors = [
   { name="Christopher Cox", email="chris.cox@westfall.io" },
 ]
