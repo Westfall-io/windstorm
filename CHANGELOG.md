@@ -10,7 +10,9 @@
 * :sparkles: Updates for semantic-release v0.8 ([`3d20ea4`](https://github.com/Westfall-io/windstorm/commit/3d20ea46e6ef721cf69e68ea61c74384dc7c3ab6))
 
 ### Fixes
+
 ### Tests and Documentation
+
 #### :memo:
 
 * :memo: Updates to documentation. ([`642e0a5`](https://github.com/Westfall-io/windstorm/commit/642e0a5001d8268eca5473060c440831e22f52e0))
