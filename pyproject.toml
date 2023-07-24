@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "windstorm"
+name = "sysml-windstorm"
 version = "0.1.0"
 description = "Tool to support SysMLv2 model templating for any text based file."
 authors = ["Christopher Cox"]
@@ -31,7 +31,7 @@ build_command = "pip install poetry && poetry build"
 "Bug Tracker" = "https://github.com/Westfall-io/windstorm/issues"
 
 [project]
-name = "windstorm"
+name = "sysml-windstorm"
 version = "0.1.0"
 authors = [
   { name="Christopher Cox", email="chris.cox@westfall.io" },
