@@ -2,7 +2,7 @@
 
 
 
-## v0.1.0 (2023-07-24)
+## v0.0.0 (2023-07-24)
 
 ### Unknown
 
@@ -11,8 +11,6 @@
 * :white_check_mark: Adding null test. ([`749fd48`](https://github.com/Westfall-io/windstorm/commit/749fd48a7b2d4f304bace4b7f17f1cc44d39c50f))
 
 * :heavy_plus_sign: Adding requirements.txt ([`3208fa0`](https://github.com/Westfall-io/windstorm/commit/3208fa059fea3440061aad8c1294964aeb924cb2))
-
-* :robot: Format code with black ([`ae97f60`](https://github.com/Westfall-io/windstorm/commit/ae97f6095295c3fc8f73b951f0060188f12d46ef))
 
 * :memo: Updates to documentation. ([`642e0a5`](https://github.com/Westfall-io/windstorm/commit/642e0a5001d8268eca5473060c440831e22f52e0))
 
