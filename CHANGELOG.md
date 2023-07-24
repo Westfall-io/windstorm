@@ -2,11 +2,13 @@
 
 
 
-## v0.0.0 (2023-07-24)
+## v0.1.0-rc.1 (2023-07-24)
 
-### Unknown
+### :sparkles:
 
 * :sparkles: Updates for semantic-release v0.8 ([`3d20ea4`](https://github.com/Westfall-io/windstorm/commit/3d20ea46e6ef721cf69e68ea61c74384dc7c3ab6))
+
+### Other
 
 * :white_check_mark: Adding null test. ([`749fd48`](https://github.com/Westfall-io/windstorm/commit/749fd48a7b2d4f304bace4b7f17f1cc44d39c50f))
 
