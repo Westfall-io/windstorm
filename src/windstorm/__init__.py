@@ -5,3 +5,5 @@ Created on Sun Jul 23 20:12:45 2023
 
 @author: christophercox
 """
+
+version = "0.0.0"
