@@ -46,7 +46,7 @@ jobs:
     - name: Test ${{ github.event.push.head }} docstring coverage
       run: |
         pip install docstr-coverage
-        docstr-coverage src/sysml2py --badge=doc-cov --fail-under=0 -e ".*/(docs|tests)"
+        docstr-coverage src/windstorm --badge=doc-cov --fail-under=0 -e ".*/(docs|tests)"
     - name: Commit changes
       uses: EndBug/add-and-commit@v4
       with:
