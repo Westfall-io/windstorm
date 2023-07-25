@@ -3,6 +3,18 @@
 
 
 
+## v0.1.1 (2023-07-25)
+### Features
+### Fixes
+
+### Tests and Documentation
+
+#### :memo:
+
+* :memo: Removing merge commits from CHANGELOG ([`55b9ece`](https://github.com/Westfall-io/windstorm/commit/55b9ece5ec1da4e59532b934bdbee61c68bd0f1e))
+
+### Others (CI/CD, Dependencies)
+
 ## v0.1.0 (2023-07-25)
 ### Features
 #### :sparkles:
@@ -36,7 +48,5 @@
 * :heavy_plus_sign: Adding requirements.txt ([`3208fa0`](https://github.com/Westfall-io/windstorm/commit/3208fa059fea3440061aad8c1294964aeb924cb2))
 
 #### Other
-
-* :twisted_rightwards_arrows: Merge updates. ([`a3968eb`](https://github.com/Westfall-io/windstorm/commit/a3968eb785ec82e87fd8e47206b93936c018f1bd))
 
 * :tada: Adding build support with poetry. ([`b093812`](https://github.com/Westfall-io/windstorm/commit/b093812e6fe5454868507ba23683fe25dc3deded))
