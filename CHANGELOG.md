@@ -3,6 +3,24 @@
 
 
 
+## v0.2.1 (2024-06-26)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: Command-line interface. ([`0a2a4af`](https://github.com/Westfall-io/windstorm/commit/0a2a4afb737070f95eaaf6ce59b26843e790f06d))
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
+#### Other
+
+* :green_heart: Updates to build to give command to poetry. ([`3824c72`](https://github.com/Westfall-io/windstorm/commit/3824c72c34aa8194be29edf893c31c14a20e722d))
+
+* :green_heart: Updates to build to give command to poetry. ([`5a2e4f7`](https://github.com/Westfall-io/windstorm/commit/5a2e4f7b88c92645a3ead072c4eacc093af2864d))
+
 ## v0.2.0 (2024-06-26)
 ### Features
 #### :sparkles:
