@@ -3,6 +3,18 @@
 
 
 
+## v0.2.6 (2024-06-26)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: Revert pyproject.toml change. ([`e14a4ae`](https://github.com/Westfall-io/windstorm/commit/e14a4aec734696ae945c200dac95192c803a8708))
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
 ## v0.2.5 (2024-06-26)
 ### Features
 ### Fixes
