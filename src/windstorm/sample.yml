@@ -11,7 +11,7 @@ Spacecraft_Meta:
         type: Satellite
         epoch: "2015-08-26T10:03:00.01Z"
         format: classical
-        sma_km: 
+        sma_km: {{sma_km}}
         ecc_unitless: 0
         inc_deg: 50
         raan_deg: 0
