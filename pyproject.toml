@@ -9,7 +9,12 @@ packages = [{ include = "windstorm", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-sysml2py = "0.4.1"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src/windstorm", "src"]
 
 [build-system]
 requires = ["poetry-core"]
