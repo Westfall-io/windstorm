@@ -7,7 +7,7 @@ from pathlib import Path
 
 import fire
 from jinja2 import Template
-from api.functions import check_for_api, query_for_element, build_query
+from windstorm.api.functions import check_for_api, query_for_element, build_query
 
 
 def setup_logging(debug):
