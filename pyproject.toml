@@ -16,7 +16,7 @@ requests = "2.32.3"
 [tool.poetry.plugins] # Optional super table
 
 [tool.poetry.plugins."poetry.application.plugin"]
-windstorm = "windstorm/windstorm:main"
+windstorm = "windstorm.windstorm:main"
 
 [tool.setuptools]
 include-package-data = true
