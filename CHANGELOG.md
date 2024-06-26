@@ -3,6 +3,18 @@
 
 
 
+## v0.2.3 (2024-06-26)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: Trying flask methodology. ([`c294aae`](https://github.com/Westfall-io/windstorm/commit/c294aae68136f32607e90a8b635f6d0e2ae66245))
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
 ## v0.2.2 (2024-06-26)
 ### Features
 ### Fixes
