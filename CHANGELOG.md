@@ -3,6 +3,18 @@
 
 
 
+## v0.2.5 (2024-06-26)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: Update to function. ([`1b39c59`](https://github.com/Westfall-io/windstorm/commit/1b39c5984faf077bf9c97a09116c7214c05bcb91))
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
 ## v0.2.4 (2024-06-26)
 ### Features
 ### Fixes
