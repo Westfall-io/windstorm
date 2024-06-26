@@ -3,6 +3,20 @@
 
 
 
+## v0.2.2 (2024-06-26)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: Incorrect semantics. ([`d87d6c4`](https://github.com/Westfall-io/windstorm/commit/d87d6c43f89f42125c733097f08a519e7b6e8409))
+
+* :bug: More poetry changes. ([`9eaa77c`](https://github.com/Westfall-io/windstorm/commit/9eaa77c7b1fc9dadd98781dd6768a3b7529ce5ab))
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
 ## v0.2.1 (2024-06-26)
 ### Features
 ### Fixes
