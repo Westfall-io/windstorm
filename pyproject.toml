@@ -18,6 +18,9 @@ requests = "2.32.3"
 [tool.poetry.plugins."poetry.application.plugin"]
 windstorm = "windstorm.windstorm:main"
 
+[project.scripts]
+flask = "flask.cli:main"
+
 [tool.setuptools]
 include-package-data = true
 
