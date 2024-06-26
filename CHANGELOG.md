@@ -3,6 +3,18 @@
 
 
 
+## v0.2.4 (2024-06-26)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: Fixing script method. ([`2dc391a`](https://github.com/Westfall-io/windstorm/commit/2dc391ad6c6ed5935825f29624139e09f5b4b732))
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
 ## v0.2.3 (2024-06-26)
 ### Features
 ### Fixes
