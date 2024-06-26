@@ -19,7 +19,7 @@ windstorm = "windstorm:main"
 include-package-data = true
 
 [tool.setuptools.packages.find]
-where = ["src/windstorm", "src"]
+where = ["src/windstorm"]
 
 [build-system]
 requires = ["poetry-core"]
