@@ -3,6 +3,26 @@
 
 
 
+## v0.2.0 (2024-06-26)
+### Features
+#### :sparkles:
+
+* :sparkles: Using API over sysml2py for now ([`2aa8be2`](https://github.com/Westfall-io/windstorm/commit/2aa8be2bb95343c5293ab48ff26f4ded3928a892))
+
+### Fixes
+
+#### :bug:
+
+* :bug: Fixing removed template ([`3e8b868`](https://github.com/Westfall-io/windstorm/commit/3e8b8681b0c316a7f72521123891d037c72b55ce))
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
+#### Other
+
+* :green_heart: Updates to release workflow. ([`11a914e`](https://github.com/Westfall-io/windstorm/commit/11a914e6a63dd8a48b7f365f50d7e2251ea6b5c4))
+
 ## v0.1.1 (2023-07-25)
 ### Features
 ### Fixes
