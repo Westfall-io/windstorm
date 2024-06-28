@@ -1,3 +1,4 @@
+import sys
 import json
 import logging
 
@@ -5,12 +6,17 @@ logger = logging.getLogger(__name__)
 
 import requests
 
+headers = {"Content-type": "application/json", "Accept": "text/plain"}
+
 
 def api_error():
-    import sys
-
     logger.error("Failed to connect to the API")
     sys.exit()
+
+
+def github_issue_error():
+    logger.error("Unknown error. Please submit a issue on github.")
+    raise NotImplementedError
 
 
 def handle_request_response(r, verify_first_element=True):
@@ -99,7 +105,18 @@ def query_for_element(api, project, base_query):
     logger.debug(base_query)
 
     url = api + "/projects/" + project["@id"] + "/query-results"
-    headers = {"Content-type": "application/json", "Accept": "text/plain"}
     r = requests.post(url, data=base_query, headers=headers)
     response = handle_request_response(r, False)
-    return response[0]
+
+    if type(response) != type(list()):
+        logger.error(response)
+        github_issue_error()
+
+    if len(response) == 1:
+        return response[0]
+    elif len(response) == 0:
+        logger.error("Failed to find this element name.")
+        sys.exit()
+    else:
+        logger.error(response)
+        github_issue_error()
