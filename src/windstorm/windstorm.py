@@ -39,6 +39,7 @@ def setup_logging(debug):
         logger.addHandler(handler)
         logger.propagate = False
 
+
 def is_valid_uuid(val):
     if val == "":
         return val
@@ -47,8 +48,9 @@ def is_valid_uuid(val):
             uuid.UUID(str(val))
             return val
         except ValueError:
-            logger.error('The project id was not passed as a valid uuid.')
+            logger.error("The project id was not passed as a valid uuid.")
             sys.exit()
+
 
 def galestorm(
     element_name: str,

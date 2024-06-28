@@ -8,13 +8,15 @@ import requests
 
 headers = {"Content-type": "application/json", "Accept": "text/plain"}
 
+
 def github_issue_error():
     logger.error("Unknown error. Please submit a issue on github.")
     raise NotImplementedError
 
+
 def handle_request_response(r):
     if r.status_code == 404:
-        logger.error('The project id could not be found.')
+        logger.error("The project id could not be found.")
         sys.exit()
     if r.status_code != 200:
         # The address is reachable
@@ -36,6 +38,7 @@ def handle_request_response(r):
         r2 = [response]
 
     return r2
+
 
 def check_for_api(api, project_id):
     r = requests.get(api + "/projects?page%5Bsize%5D=1")
