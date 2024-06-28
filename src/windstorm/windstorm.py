@@ -341,7 +341,9 @@ def galestorm(
         elif default is not None:
             return default
         else:
-            logger.error('Key: {} was not found in the model and no default value was given for template.')
+            logger.error(
+                "Key: {} was not found in the model and no default value was given for template."
+            )
             sys.exit()
 
     logger.info("Replacing variables in files with values.")
