@@ -331,7 +331,10 @@ def galestorm(
 
     output = {}
     for v in vars:
-        output[v["name"]] = v["value"]
+        if "value" in v:
+            output[v["name"]] = v["value"]
+        else:
+            logger.warn('Key: {} had no value associated to it, it might not be parsable.'.format(v["name"]))
 
     logger.info(output)
 
