@@ -334,7 +334,11 @@ def galestorm(
         if "value" in v:
             output[v["name"]] = v["value"]
         else:
-            logger.warn('Key: {} had no value associated to it, it might not be parsable.'.format(v["name"]))
+            logger.warn(
+                "Key: {} had no value associated to it, it might not be parsable.".format(
+                    v["name"]
+                )
+            )
 
     logger.info(output)
 
@@ -345,7 +349,9 @@ def galestorm(
             return default
         else:
             logger.error(
-                "Key: {} was not found in the model and no default value was given for template.".format(string)
+                "Key: {} was not found in the model and no default value was given for template.".format(
+                    string
+                )
             )
             sys.exit()
 
