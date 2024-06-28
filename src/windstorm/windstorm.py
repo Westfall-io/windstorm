@@ -318,10 +318,11 @@ def galestorm(
                     # No chaining feature
                     logger.error("No ownedElement found.")
                     raise AttributeError
+
+                vars.append(thisvar)
             else:
                 logger.info("      Input had no metadata to associate to name.")
 
-            vars.append(thisvar)
         ###### END LOOP for each input
 
     ###### END LOOP for action in metadata'd actions
