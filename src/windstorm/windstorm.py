@@ -7,6 +7,7 @@ from pathlib import Path
 
 import fire
 from jinja2 import Template
+
 try:
     # Installed from PyPI
     from windstorm.api.functions import check_for_api, query_for_element, build_query
@@ -15,8 +16,9 @@ except ModuleNotFoundError:
         # Local Dev
         from api.functions import check_for_api, query_for_element, build_query
     except ModuleNotFoundError as e:
-        logger.error('Module import error. Please submit a issue on github.')
+        logger.error("Module import error. Please submit a issue on github.")
         raise e
+
 
 def setup_logging(debug):
     handler = logging.StreamHandler(sys.stdout)

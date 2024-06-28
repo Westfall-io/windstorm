@@ -8,13 +8,16 @@ import requests
 
 headers = {"Content-type": "application/json", "Accept": "text/plain"}
 
+
 def api_error():
     logger.error("Failed to connect to the API")
     sys.exit()
 
+
 def github_issue_error():
-    logger.error('Unknown error. Please submit a issue on github.')
+    logger.error("Unknown error. Please submit a issue on github.")
     raise NotImplementedError
+
 
 def handle_request_response(r, verify_first_element=True):
     if r.status_code != 200:
@@ -112,7 +115,7 @@ def query_for_element(api, project, base_query):
     if len(response) == 1:
         return response[0]
     elif len(response) == 0:
-        logger.error('Failed to find this element name.')
+        logger.error("Failed to find this element name.")
         sys.exit()
     else:
         logger.error(response)
