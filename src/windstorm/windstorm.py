@@ -8,6 +8,7 @@ from pathlib import Path
 
 import fire
 from jinja2 import Template
+from jinja2.exceptions import TemplateSyntaxError
 
 try:
     # Installed from PyPI
@@ -59,6 +60,7 @@ def galestorm(
     element_type: str = "AnalysisCaseDefinition",
     in_directory: str = ".",
     out_directory: str = ".",
+    force_render_error_continue: bool = False,
     debug: bool = False,
 ):
     """
@@ -377,6 +379,35 @@ def galestorm(
                             "Skipping file {}/{} because it was not text-based.".format(
                                 dir_path, name
                             )
+                        )
+                        continue
+                    except TemplateSyntaxError as e:
+                        if not force_render_error_continue:
+                            user = input(
+                                "The file {}/{} has template errors, do you wish to proceed?\n[y/n] ".format(
+                                    dir_path, name
+                                )
+                            )
+                            while user != "y":
+                                if user == "n":
+                                    sys.exit()
+                                logger.warning("Please enter [y/n] to continue.")
+                                user = input(
+                                    "The file {}/{} has template errors, do you wish to proceed?\n[y/n] ".format(
+                                        dir_path, name
+                                    )
+                                )
+
+                        if in_directory != out_directory:
+                            with open(outfile, "w") as f2:
+                                f2.write(f.read())
+                        logger.warning(
+                            "Skipping file {}/{} because it had a template error.".format(
+                                dir_path, name
+                            )
+                        )
+                        logger.warning(
+                            "   The template error was reported as: {}".format(e)
                         )
                         continue
 
