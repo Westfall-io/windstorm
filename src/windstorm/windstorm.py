@@ -383,12 +383,20 @@ def galestorm(
                         continue
                     except TemplateSyntaxError as e:
                         if not force_render_error_continue:
-                            user = input('The file {}/{} has template errors, do you wish to proceed?\n[y/n] '.format(dir_path, name))
-                            while user != 'y':
-                                if user == 'n':
+                            user = input(
+                                "The file {}/{} has template errors, do you wish to proceed?\n[y/n] ".format(
+                                    dir_path, name
+                                )
+                            )
+                            while user != "y":
+                                if user == "n":
                                     sys.exit()
-                                logger.warning('Please enter [y/n] to continue.')
-                                user = input('The file {}/{} has template errors, do you wish to proceed?\n[y/n] '.format(dir_path, name))
+                                logger.warning("Please enter [y/n] to continue.")
+                                user = input(
+                                    "The file {}/{} has template errors, do you wish to proceed?\n[y/n] ".format(
+                                        dir_path, name
+                                    )
+                                )
 
                         if in_directory != out_directory:
                             with open(outfile, "w") as f2:
@@ -398,7 +406,9 @@ def galestorm(
                                 dir_path, name
                             )
                         )
-                        logger.warning('   The template error was reported as: {}'.format(e))
+                        logger.warning(
+                            "   The template error was reported as: {}".format(e)
+                        )
                         continue
 
                     # Overwrite anything in the current folder with the artifact
