@@ -9,57 +9,60 @@ import requests
 headers = {"Content-type": "application/json", "Accept": "text/plain"}
 
 
-def api_error():
-    logger.error("Failed to connect to the API")
-    sys.exit()
-
-
 def github_issue_error():
     logger.error("Unknown error. Please submit a issue on github.")
     raise NotImplementedError
 
 
-def handle_request_response(r, verify_first_element=True):
+def handle_request_response(r):
+    if r.status_code == 404:
+        logger.error("The project id could not be found.")
+        sys.exit()
     if r.status_code != 200:
         # The address is reachable
-        api_error()
-    logger.debug("Server found.")
+        logger.error(r.response)
+        github_issue_error()
+
+    logger.debug("Response was correctly received.")
 
     try:
         response = r.json()
-    except:
-        # Response was not json
-        api_error()
+    except Exception as e:
+        logger.error(e)
+        github_issue_error()
     logger.debug("Response received in proper format.")
 
-    if verify_first_element:
-        if type(response) == type(list()):
-            # Convert to a dictionary
-            r2 = response[0]
-            logger.debug("Converting to dictionary")
-        else:
-            r2 = response
-            logger.debug("Response not a list.")
-
-        if type(r2) != type(dict()):
-            # Make sure this is a proper response now
-            print(type(r2), r2, response)
-            api_error()
-        logger.debug("Response was a dictionary.")
-
-        return r2
+    if type(response) == type(list()):
+        r2 = response
     else:
-        return response
+        r2 = [response]
+
+    return r2
 
 
 def check_for_api(api, project_id):
-    if project_id == "":
-        r = requests.get(api + "/projects?page%5Bsize%5D=1")
-        # This will always get the most recent project, at least, I hope
-    else:
+    r = requests.get(api + "/projects?page%5Bsize%5D=1")
+    if r.status_code == 200:
+        logger.info("API Server found.")
+
+    if project_id != "":
         r = requests.get(api + "/projects/" + project_id)
         # Grab a specific project
     response = handle_request_response(r)
+
+    if type(response) != type(list()):
+        logger.error(response)
+        github_issue_error()
+
+    if len(response) == 1:
+        return response[0]
+    elif len(response) == 0:
+        logger.error("Failed to find this project name.")
+        sys.exit()
+    else:
+        logger.error(response)
+        github_issue_error()
+
     return response
 
 
@@ -106,7 +109,7 @@ def query_for_element(api, project, base_query):
 
     url = api + "/projects/" + project["@id"] + "/query-results"
     r = requests.post(url, data=base_query, headers=headers)
-    response = handle_request_response(r, False)
+    response = handle_request_response(r)
 
     if type(response) != type(list()):
         logger.error(response)
@@ -117,6 +120,3 @@ def query_for_element(api, project, base_query):
     elif len(response) == 0:
         logger.error("Failed to find this element name.")
         sys.exit()
-    else:
-        logger.error(response)
-        github_issue_error()

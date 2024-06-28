@@ -1,5 +1,6 @@
 import os
 import sys
+import uuid
 import logging
 
 logger = logging.getLogger(__name__)
@@ -39,10 +40,22 @@ def setup_logging(debug):
         logger.propagate = False
 
 
+def is_valid_uuid(val):
+    if val == "":
+        return val
+    else:
+        try:
+            uuid.UUID(str(val))
+            return val
+        except ValueError:
+            logger.error("The project id was not passed as a valid uuid.")
+            sys.exit()
+
+
 def galestorm(
-    project_id: str,
     element_name: str,
     api: str = "http://sysml2.intercax.com:9000",
+    project_id: str = "",
     element_type: str = "AnalysisCaseDefinition",
     in_directory: str = ".",
     out_directory: str = ".",
@@ -55,7 +68,7 @@ def galestorm(
     setup_logging(debug)
 
     # Grab the project from the API - either the latest or a specific one
-    project = check_for_api(api, project_id)
+    project = check_for_api(api, is_valid_uuid(project_id))
     logger.info('Found project "{}" - {}'.format(project["name"], project["@id"]))
 
     # Check for analysis in the model
