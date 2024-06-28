@@ -301,8 +301,46 @@ def galestorm(
                                             "         Value: {}".format(v2["value"])
                                         )
                                         thisvar["value"] = v2["value"]
-                                    else:
+                                    elif v2["@type"] == "OperatorExpression":
+                                        for arg in v2["argument"]:
+                                            q = build_query(
+                                                {
+                                                    "property": ["@id"],
+                                                    "operator": ["="],
+                                                    "value": [arg["@id"]],
+                                                }
+                                            )
+                                            v3 = query_for_element(api, project, q)
+
+                                            if v3["@type"] == "LiteralInteger":
+                                                logger.info(
+                                                    "         Value: {}".format(
+                                                        v3["value"]
+                                                    )
+                                                )
+                                                thisvar["value"] = v3["value"]
+                                            elif v3["@type"] == "LiteralString":
+                                                logger.info(
+                                                    "         Value: {}".format(
+                                                        v3["value"]
+                                                    )
+                                                )
+                                                thisvar["value"] = v3["value"]
+                                            else:
+                                                continue
+                                        ###### END LOOP for each argument
+                                    elif v2["@type"] == "Multiplicity":
+                                        # Don't do anything for this right now.
                                         pass
+                                    else:
+                                        logger.warning(
+                                            "Could not find a valid type for this toolvariable, skipping."
+                                        )
+                                        logger.warning(
+                                            "Please consider submitting this issue to github. The type was {}".format(
+                                                v2["@type"]
+                                            )
+                                        )
                                 ###### END LOOP for each element in attribute
                             else:
                                 # No chaining feature
