@@ -1,5 +1,6 @@
 import os
 import sys
+import uuid
 import logging
 
 logger = logging.getLogger(__name__)
@@ -7,7 +8,18 @@ from pathlib import Path
 
 import fire
 from jinja2 import Template
-from windstorm.api.functions import check_for_api, query_for_element, build_query
+from jinja2.exceptions import TemplateSyntaxError
+
+try:
+    # Installed from PyPI
+    from windstorm.api.functions import check_for_api, query_for_element, build_query
+except ModuleNotFoundError:
+    try:
+        # Local Dev
+        from api.functions import check_for_api, query_for_element, build_query
+    except ModuleNotFoundError as e:
+        logger.error("Module import error. Please submit a issue on github.")
+        raise e
 
 
 def setup_logging(debug):
@@ -29,13 +41,26 @@ def setup_logging(debug):
         logger.propagate = False
 
 
+def is_valid_uuid(val):
+    if val == "":
+        return val
+    else:
+        try:
+            uuid.UUID(str(val))
+            return val
+        except ValueError:
+            logger.error("The project id was not passed as a valid uuid.")
+            sys.exit()
+
+
 def galestorm(
-    project_id: str,
     element_name: str,
     api: str = "http://sysml2.intercax.com:9000",
+    project_id: str = "",
     element_type: str = "AnalysisCaseDefinition",
     in_directory: str = ".",
     out_directory: str = ".",
+    force_render_error_continue: bool = False,
     debug: bool = False,
 ):
     """
@@ -45,7 +70,7 @@ def galestorm(
     setup_logging(debug)
 
     # Grab the project from the API - either the latest or a specific one
-    project = check_for_api(api, project_id)
+    project = check_for_api(api, is_valid_uuid(project_id))
     logger.info('Found project "{}" - {}'.format(project["name"], project["@id"]))
 
     # Check for analysis in the model
@@ -276,8 +301,46 @@ def galestorm(
                                             "         Value: {}".format(v2["value"])
                                         )
                                         thisvar["value"] = v2["value"]
-                                    else:
+                                    elif v2["@type"] == "OperatorExpression":
+                                        for arg in v2["argument"]:
+                                            q = build_query(
+                                                {
+                                                    "property": ["@id"],
+                                                    "operator": ["="],
+                                                    "value": [arg["@id"]],
+                                                }
+                                            )
+                                            v3 = query_for_element(api, project, q)
+
+                                            if v3["@type"] == "LiteralInteger":
+                                                logger.info(
+                                                    "         Value: {}".format(
+                                                        v3["value"]
+                                                    )
+                                                )
+                                                thisvar["value"] = v3["value"]
+                                            elif v3["@type"] == "LiteralString":
+                                                logger.info(
+                                                    "         Value: {}".format(
+                                                        v3["value"]
+                                                    )
+                                                )
+                                                thisvar["value"] = v3["value"]
+                                            else:
+                                                continue
+                                        ###### END LOOP for each argument
+                                    elif v2["@type"] == "Multiplicity":
+                                        # Don't do anything for this right now.
                                         pass
+                                    else:
+                                        logger.warning(
+                                            "Could not find a valid type for this toolvariable, skipping."
+                                        )
+                                        logger.warning(
+                                            "Please consider submitting this issue to github. The type was {}".format(
+                                                v2["@type"]
+                                            )
+                                        )
                                 ###### END LOOP for each element in attribute
                             else:
                                 # No chaining feature
@@ -295,23 +358,42 @@ def galestorm(
                     # No chaining feature
                     logger.error("No ownedElement found.")
                     raise AttributeError
+
+                vars.append(thisvar)
             else:
                 logger.info("      Input had no metadata to associate to name.")
+
         ###### END LOOP for each input
-        vars.append(thisvar)
 
     ###### END LOOP for action in metadata'd actions
-    logger.debug(vars)
+    if len(aj) > 0:
+        logger.debug(vars)
 
     output = {}
     for v in vars:
-        output[v["name"]] = v["value"]
+        if "value" in v:
+            output[v["name"]] = v["value"]
+        else:
+            logger.warn(
+                "Key: {} had no value associated to it, it might not be parsable.".format(
+                    v["name"]
+                )
+            )
 
     logger.info(output)
 
-    def windstorm(string):
-        # This function is prep for using units
-        return output[string]
+    def windstorm(string, default=None):
+        if string in output:
+            return output[string]
+        elif default is not None:
+            return default
+        else:
+            logger.error(
+                "Key: {} was not found in the model and no default value was given for template.".format(
+                    string
+                )
+            )
+            sys.exit()
 
     logger.info("Replacing variables in files with values.")
     for dir_path, dir_names, file_names in os.walk(in_directory):
@@ -335,6 +417,35 @@ def galestorm(
                             "Skipping file {}/{} because it was not text-based.".format(
                                 dir_path, name
                             )
+                        )
+                        continue
+                    except TemplateSyntaxError as e:
+                        if not force_render_error_continue:
+                            user = input(
+                                "The file {}/{} has template errors, do you wish to proceed?\n[y/n] ".format(
+                                    dir_path, name
+                                )
+                            )
+                            while user != "y":
+                                if user == "n":
+                                    sys.exit()
+                                logger.warning("Please enter [y/n] to continue.")
+                                user = input(
+                                    "The file {}/{} has template errors, do you wish to proceed?\n[y/n] ".format(
+                                        dir_path, name
+                                    )
+                                )
+
+                        if in_directory != out_directory:
+                            with open(outfile, "w") as f2:
+                                f2.write(f.read())
+                        logger.warning(
+                            "Skipping file {}/{} because it had a template error.".format(
+                                dir_path, name
+                            )
+                        )
+                        logger.warning(
+                            "   The template error was reported as: {}".format(e)
                         )
                         continue
 
