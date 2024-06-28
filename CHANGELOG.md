@@ -3,6 +3,38 @@
 
 
 
+## v0.3.0 (2024-06-28)
+### Features
+#### :sparkles:
+
+* :sparkles: Added capability to parse attributes with units, it can&#39;t do anything with the units however. ([`27477cd`](https://github.com/Westfall-io/windstorm/commit/27477cddbacc17e3e94bb7044d55e129b1662a8c))
+
+* :sparkles: Added capability to complete through template parsing errors. ([`89a634d`](https://github.com/Westfall-io/windstorm/commit/89a634deed215cfadfa98ed0dd390852598a3da5))
+
+* :sparkles: Adding default value to windstorm render template function. ([`78ba6a6`](https://github.com/Westfall-io/windstorm/commit/78ba6a623a78b940359ac580ded0b52ce4d4e6ec))
+
+### Fixes
+
+#### :ambulance:
+
+* :ambulance: Updating github action dependency ([`ae7abfe`](https://github.com/Westfall-io/windstorm/commit/ae7abfe9bd9828c53e6224c9ba0b27163defe69c))
+
+#### :bug:
+
+* :bug: Fixed an issue where it would fail if the value could not be parsed correctly. ([`37c10e6`](https://github.com/Westfall-io/windstorm/commit/37c10e6d7bdcc220bff761efefced750d70ba0b2))
+
+* :bug: Fixed an issue where the key used in the template would not be output upon error. ([`1d73006`](https://github.com/Westfall-io/windstorm/commit/1d730063359d5e9ba896a562b5018ddb4cc18627))
+
+* :bug: Fixed an issue where it failed when other elements could be found without metadata associating to a toolvariable. ([`64f48e0`](https://github.com/Westfall-io/windstorm/commit/64f48e074b7b0d78c2d7d596efa57c2c79ddc5a4))
+
+* :bug: Handling missing project id with appropriate error notification. ([`c5ffb32`](https://github.com/Westfall-io/windstorm/commit/c5ffb32d6ae4d5d8882bf6dcc0b710f4e3d94aa9))
+
+* :bug: Better handling for element name not found error ([`ee7aa9a`](https://github.com/Westfall-io/windstorm/commit/ee7aa9a78980cbd25af1a16ca9fec13dcef73edf))
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
 ## v0.2.6 (2024-06-26)
 ### Features
 ### Fixes
