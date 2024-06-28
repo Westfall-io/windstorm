@@ -318,10 +318,11 @@ def galestorm(
                     # No chaining feature
                     logger.error("No ownedElement found.")
                     raise AttributeError
+
+                vars.append(thisvar)
             else:
                 logger.info("      Input had no metadata to associate to name.")
 
-            vars.append(thisvar)
         ###### END LOOP for each input
 
     ###### END LOOP for action in metadata'd actions
@@ -334,9 +335,16 @@ def galestorm(
 
     logger.info(output)
 
-    def windstorm(string):
-        # This function is prep for using units
-        return output[string]
+    def windstorm(string, default=None):
+        if string in output:
+            return output[string]
+        elif default is not None:
+            return default
+        else:
+            logger.error(
+                "Key: {} was not found in the model and no default value was given for template."
+            )
+            sys.exit()
 
     logger.info("Replacing variables in files with values.")
     for dir_path, dir_names, file_names in os.walk(in_directory):
