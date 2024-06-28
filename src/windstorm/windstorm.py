@@ -342,7 +342,7 @@ def galestorm(
             return default
         else:
             logger.error(
-                "Key: {} was not found in the model and no default value was given for template."
+                "Key: {} was not found in the model and no default value was given for template.".format(string)
             )
             sys.exit()
 
