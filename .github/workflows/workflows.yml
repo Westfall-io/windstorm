@@ -36,9 +36,8 @@ jobs:
           pip install jupyter
           wget https://github.com/Systems-Modeling/SysML-v2-Pilot-Implementation/releases/download/2024-05/jupyter-sysml-kernel-0.42.0.zip
           unzip jupyter-sysml-kernel-0.42.0.zip -d /tmp
-          which python
-          which jupyter
-          python3 /tmp/install.py
+          ./tmp/install.sh
+          python /tmp/install.py
           pip install pytest-timeout pytest-html papermill
           pytest --timeout=300 tests --doctest-modules --html=report-${{ matrix.python-version }}.html --self-contained-html --junitxml=junit/test-results-${{ matrix.python-version }}.xml
       - name: Upload pytest test results
