@@ -9,18 +9,20 @@ def test_1_analysis():
     # Create a notebook with the test sysml
     nb = nbf.v4.new_notebook()
     cells = []
-    print(os.getcwd())
-    #for dir_path, dir_names, file_names in os.walk(os.path.join('./tests', test_name)):
-    #    if '.sysml' in file_names:
-    #        cells.append(os.path.join(file_names)
+    for dir_path, dir_names, file_names in os.walk(os.path.join('./tests', test_name)):
+        if '.sysml' in file_names:
+            cells.append(os.path.join(file_names)
 
-    # nb['cells'] = [nbf.v4.new_markdown_cell(text),
-    #               nbf.v4.new_code_cell(code)]
-    # fname = 'test.ipynb'
+    nb['cells'] = []
+    for cell in cells:
+        with open(cell, 'r') as f:
+            nb['cells'].append(nbf.v4.new_code_cell(f.read()))
 
-    # with open(fname, 'w') as f:
-    #    nbf.write(nb, f)
+    fname = 'test.ipynb'
 
-    # pm.execute_notebook(fname,fname,kernel_name="sysml")
+    with open(fname, 'w') as f:
+        nbf.write(nb, f)
+
+    pm.execute_notebook(fname,fname,kernel_name="sysml")
 
     assert None == None
