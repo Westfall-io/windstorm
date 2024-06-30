@@ -8,7 +8,7 @@ def test_1_analysis():
     # Create a notebook with the test sysml
     nb = nbf.v4.new_notebook()
     cells = []
-    pring(os.getcwd())
+    print(os.getcwd())
     #for dir_path, dir_names, file_names in os.walk(os.path.join('./tests', test_name)):
     #    if '.sysml' in file_names:
     #        cells.append(os.path.join(file_names)
