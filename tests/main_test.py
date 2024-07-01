@@ -14,7 +14,12 @@ import requests
 def request_callback(request_id):
     print(request_id.body)
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
+<<<<<<< HEAD
     return (200, headers, json.dumps({"@id": request_id.body['@id']}))
+=======
+    return (200, headers, json.dumps({"@id": request_id["@id"]}))
+
+>>>>>>> refs/remotes/origin/33-add-support-for-testing
 
 @responses.activate
 def test_simple():
@@ -73,7 +78,9 @@ def test3_simple():
         content_type="application/json",
     )
 
-    resp2 = requests.post("http://twitter.com/api/1/foobar", {'@id': str(uuid_gen.uuid4())})
+    resp2 = requests.post(
+        "http://twitter.com/api/1/foobar", {"@id": str(uuid_gen.uuid4())}
+    )
 
     assert resp2.status_code == 200
     assert resp2.request.method == "POST"
