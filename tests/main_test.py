@@ -78,7 +78,7 @@ def test3_simple():
         status=200,
     )
 
-    resp2 = requests.post("http://twitter.com/api/1/foobar", str(uuid_gen.uuid4())
+    resp2 = requests.post("http://twitter.com/api/1/foobar", str(uuid_gen.uuid4()))
 
     assert resp2.status_code == 200
     assert resp2.request.method == "POST"
