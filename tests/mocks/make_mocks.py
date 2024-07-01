@@ -28,7 +28,7 @@ for test_name in mocks:
 
     pm.execute_notebook(fname, fname, kernel_name="sysml")
 
-    with open(fname, 'r') as f:
+    with open(fname, "r") as f:
         # Read the notebook
         nb = json.loads(f.read())
         for cell in nb["cells"]:
@@ -40,9 +40,15 @@ for test_name in mocks:
                     if "data" in out.keys():
                         if "text/html" in out["data"]:
                             html = out["data"]["text/html"][0]
-                            data = json.loads(base64.b64decode(html[html.find('href=')+35:-14]))
-                            with open(fname.replace('.ipynb', '.json')) as g:
-                                print('Creating mock api file: {}'.format(fname.replace('.ipynb', '.json')))
+                            data = json.loads(
+                                base64.b64decode(html[html.find("href=") + 35 : -14])
+                            )
+                            with open(fname.replace(".ipynb", ".json")) as g:
+                                print(
+                                    "Creating mock api file: {}".format(
+                                        fname.replace(".ipynb", ".json")
+                                    )
+                                )
                                 g.write(json.dumps(data))
                             ## End if valid name, otherwise can't export
                         ## End for name
