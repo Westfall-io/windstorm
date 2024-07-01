@@ -76,7 +76,7 @@ def test3_simple():
     )
 
     resp2 = requests.post(
-        "http://twitter.com/api/1/foobar", {"@id": str(uuid_gen.uuid4())}
+        "http://twitter.com/api/1/foobar", json.dumps({"@id": str(uuid_gen.uuid4())})
     )
 
     assert resp2.status_code == 200
