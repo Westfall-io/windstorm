@@ -23,6 +23,7 @@ def test_simple():
     assert resp.json() == {"error": "not found"}
     assert resp.status_code == 404
 
+
 @responses.activate
 def test2_simple():
     # Register via 'Response' object
@@ -44,8 +45,10 @@ def test2_simple():
     assert resp2.status_code == 200
     assert resp2.request.method == "PUT"
 
+
 def return_json():
     return {"error": "not found"}
+
 
 @responses.activate
 def test2_simple():
