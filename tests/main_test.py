@@ -1,6 +1,18 @@
+import uuid as uuid_gen
+
 import responses
 import requests
 
+# Both of these return the parent element
+#r = requests.get(api + "/projects?page%5Bsize%5D=1")
+#r = requests.get(api + "/projects/" + project_id)
+# This will return the element
+#url = api + "/projects/" + project["@id"] + "/query-results"
+
+def request_callback(request_id):
+    print(request_id)
+    headers = {"Content-type": "application/json", "Accept": "text/plain"}
+    return (200, headers, json.dumps({'@id': request_id}))
 
 @responses.activate
 def test_simple():
@@ -60,13 +72,13 @@ def test3_simple():
     responses.add(rsp1)
     # register via direct arguments
     responses.add(
-        responses.GET,
+        responses.POST,
         "http://twitter.com/api/1/foobar",
-        json=return_json(),
-        status=404,
+        callback=request_callback,
+        status=200,
     )
 
-    resp2 = requests.put("http://example.com")
+    resp2 = requests.post("http://twitter.com/api/1/foobar", str(uuid_gen.uuid4())
 
     assert resp2.status_code == 200
-    assert resp2.request.method == "PUT"
+    assert resp2.request.method == "POST"
