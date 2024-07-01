@@ -39,6 +39,8 @@ def test_simple():
     assert resp.json() == {"error": "not found"}
     assert resp.status_code == 404
 
+def return_json():
+    return {"error": "not found"}
 
 @responses.activate
 def test2_simple():
@@ -52,7 +54,7 @@ def test2_simple():
     responses.add(
         responses.GET,
         "http://twitter.com/api/1/foobar",
-        json={"error": "not found"},
+        json=return_json(),
         status=404,
     )
 
@@ -60,11 +62,6 @@ def test2_simple():
 
     assert resp2.status_code == 200
     assert resp2.request.method == "PUT"
-
-
-def return_json():
-    return {"error": "not found"}
-
 
 @responses.activate
 def test3_simple():
