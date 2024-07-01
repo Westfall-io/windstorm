@@ -64,18 +64,11 @@ def return_json():
 
 @responses.activate
 def test3_simple():
-    # Register via 'Response' object
-    rsp1 = responses.Response(
-        method="PUT",
-        url="http://example.com",
-    )
-    responses.add(rsp1)
-    # register via direct arguments
-    responses.add(
+    responses.add_callback(
         responses.POST,
         "http://twitter.com/api/1/foobar",
         callback=request_callback,
-        status=200,
+        content_type="application/json",
     )
 
     resp2 = requests.post("http://twitter.com/api/1/foobar", str(uuid_gen.uuid4()))
