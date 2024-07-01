@@ -4,15 +4,17 @@ import responses
 import requests
 
 # Both of these return the parent element
-#r = requests.get(api + "/projects?page%5Bsize%5D=1")
-#r = requests.get(api + "/projects/" + project_id)
+# r = requests.get(api + "/projects?page%5Bsize%5D=1")
+# r = requests.get(api + "/projects/" + project_id)
 # This will return the element
-#url = api + "/projects/" + project["@id"] + "/query-results"
+# url = api + "/projects/" + project["@id"] + "/query-results"
+
 
 def request_callback(request_id):
     print(request_id)
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
-    return (200, headers, json.dumps({'@id': request_id}))
+    return (200, headers, json.dumps({"@id": request_id}))
+
 
 @responses.activate
 def test_simple():
