@@ -14,12 +14,7 @@ import requests
 def request_callback(request_id):
     print(request_id.body)
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
-<<<<<<< HEAD
     return (200, headers, json.dumps({"@id": request_id.body['@id']}))
-=======
-    return (200, headers, json.dumps({"@id": request_id["@id"]}))
-
->>>>>>> refs/remotes/origin/33-add-support-for-testing
 
 @responses.activate
 def test_simple():
