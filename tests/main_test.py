@@ -48,7 +48,7 @@ def return_json():
     return {"error": "not found"}
 
 @responses.activate
-def test2_simple():
+def test3_simple():
     # Register via 'Response' object
     rsp1 = responses.Response(
         method="PUT",
