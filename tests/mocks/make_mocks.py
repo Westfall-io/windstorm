@@ -17,7 +17,7 @@ for test_name in mocks:
     # Create a notebook with the test sysml
     nb = nbf.v4.new_notebook()
     nb["cells"] = []
-    for cell in mocks[test_name]:
+    for cell in sorted(mocks[test_name]):
         with open(cell, "r") as f:
             nb["cells"].append(nbf.v4.new_code_cell(f.read()))
 
@@ -31,29 +31,31 @@ for test_name in mocks:
     with open(fname, "r") as f:
         # Read the notebook
         nb = json.loads(f.read())
-        for cell in nb["cells"]:
-            # Check for the SysML cells
-            if cell["metadata"]["kernel"] == "SysML" and cell["cell_type"] == "code":
-                # Find the output which must exist now
-                for out in cell["outputs"]:
-                    # Find the right output to continue
-                    if "data" in out.keys():
-                        if "text/html" in out["data"]:
-                            html = out["data"]["text/html"][0]
-                            data = json.loads(
-                                base64.b64decode(html[html.find("href=") + 35 : -14])
-                            )
-                            with open(fname.replace(".ipynb", ".json")) as g:
-                                print(
-                                    "Creating mock api file: {}".format(
-                                        fname.replace(".ipynb", ".json")
-                                    )
+        if nb["metadata"]["language_info"]["name"] == "SysML":
+            for cell in nb["cells"]:
+                # Check for the SysML cells
+                if cell["cell_type"] == "code":
+                    # Find the output which must exist now
+                    for out in cell["outputs"]:
+                        # Find the right output to continue
+                        if "data" in out.keys():
+                            if "text/html" in out["data"]:
+                                html = out["data"]["text/html"][0]
+                                data = json.loads(
+                                    base64.b64decode(html[html.find("href=") + 35 : -14])
                                 )
-                                g.write(json.dumps(data))
-                            ## End if valid name, otherwise can't export
-                        ## End for name
-                    ## End check correct data output
-                ## End for each cell output
-            ## End this cell is SysML
-        ## End for each cell
+                                with open(fname.replace(".ipynb", ".json"),'w') as g:
+                                    print(
+                                        "Creating mock api file: {}".format(
+                                            fname.replace(".ipynb", ".json")
+                                        )
+                                    )
+                                    g.write(json.dumps(data))
+                                ## End if valid name, otherwise can't export
+                            ## End for name
+                        ## End check correct data output
+                    ## End for each cell output
+                ## End this cell is SysML
+            ## End for each cell
+        ## End if SysML
     ## Close file

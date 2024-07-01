@@ -41,7 +41,7 @@ jobs:
           wget https://github.com/Systems-Modeling/SysML-v2-Pilot-Implementation/releases/download/2024-05/jupyter-sysml-kernel-0.42.0.zip
           unzip jupyter-sysml-kernel-0.42.0.zip -d /tmp
           python /tmp/install.py --prefix=/opt/hostedtoolcache/Python/3.12.4/x64/
-          pip install pytest-timeout pytest-html papermill nbformat
+          pip install pytest-timeout pytest-html papermill nbformat responses
           python ./tests/mocks/make_mocks.py
           pytest --timeout=300 tests --doctest-modules --html=report-${{ matrix.python-version }}.html --self-contained-html --junitxml=junit/test-results-${{ matrix.python-version }}.xml
       - name: Upload pytest test results
