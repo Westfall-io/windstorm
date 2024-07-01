@@ -14,7 +14,8 @@ import requests
 def request_callback(request_id):
     print(request_id.body)
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
-    return (200, headers, json.dumps({"@id": request_id.body['@id']}))
+    return (200, headers, json.dumps({"@id": request_id.body["@id"]}))
+
 
 @responses.activate
 def test_simple():
