@@ -42,9 +42,11 @@ for test_name in mocks:
                             if "text/html" in out["data"]:
                                 html = out["data"]["text/html"][0]
                                 data = json.loads(
-                                    base64.b64decode(html[html.find("href=") + 35 : -14])
+                                    base64.b64decode(
+                                        html[html.find("href=") + 35 : -14]
+                                    )
                                 )
-                                with open(fname.replace(".ipynb", ".json"),'w') as g:
+                                with open(fname.replace(".ipynb", ".json"), "w") as g:
                                     print(
                                         "Creating mock api file: {}".format(
                                             fname.replace(".ipynb", ".json")

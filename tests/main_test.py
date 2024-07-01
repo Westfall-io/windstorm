@@ -1,6 +1,7 @@
 import responses
 import requests
 
+
 @responses.activate
 def test_simple():
     # Register via 'Response' object
