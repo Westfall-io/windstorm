@@ -163,9 +163,14 @@ def galestorm(
                                             )
                                         )
                                         aj.append(eid)
+                            if len(aj) > 0:
+                                break
                 else:
                     # This owned element is not a MetaData
                     logger.info("      Skipping non-metadata element.")
+
+                if len(aj) > 0:
+                    break
             ###### END LOOP for each element in owned element
         else:
             # This element doesn't own others
