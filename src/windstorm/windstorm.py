@@ -413,7 +413,7 @@ def galestorm(
                 with open(thisfile, "r") as f:
                     # Skip the .git folder
                     try:
-                        template = Template(f.read())
+                        template = Template(f.read(), keep_trailing_newline=True)
                     except UnicodeDecodeError:
                         if in_directory != out_directory:
                             with open(outfile, "w") as f2:
