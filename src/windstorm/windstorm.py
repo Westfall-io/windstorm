@@ -163,9 +163,14 @@ def galestorm(
                                             )
                                         )
                                         aj.append(eid)
+                            if len(aj) > 0:
+                                break
                 else:
                     # This owned element is not a MetaData
                     logger.info("      Skipping non-metadata element.")
+
+                if len(aj) > 0:
+                    break
             ###### END LOOP for each element in owned element
         else:
             # This element doesn't own others
@@ -271,17 +276,26 @@ def galestorm(
                                 "         TargetElement: {}".format(valid["@type"])
                             )
                             if "chainingFeature" in valid:
-                                q = build_query(
-                                    {
-                                        "property": ["@id"],
-                                        "operator": ["="],
-                                        "value": [valid["chainingFeature"][-1]["@id"]],
-                                    }
-                                )
-                                chainid = query_for_element(api, project, q)
-                                logger.debug(
-                                    "         ChainElement: {}".format(chainid["@type"])
-                                )
+
+                                if len(valid["chainingFeature"]) == 0:
+                                    chainid = valid
+                                else:
+                                    q = build_query(
+                                        {
+                                            "property": ["@id"],
+                                            "operator": ["="],
+                                            "value": [
+                                                valid["chainingFeature"][-1]["@id"]
+                                            ],
+                                        }
+                                    )
+                                    chainid = query_for_element(api, project, q)
+                                    logger.debug(
+                                        "         ChainElement: {}".format(
+                                            chainid["@type"]
+                                        )
+                                    )
+
                                 for key in chainid["ownedElement"]:
                                     q = build_query(
                                         {
@@ -408,7 +422,7 @@ def galestorm(
                 with open(thisfile, "r") as f:
                     # Skip the .git folder
                     try:
-                        template = Template(f.read())
+                        template = Template(f.read(), keep_trailing_newline=True)
                     except UnicodeDecodeError:
                         if in_directory != out_directory:
                             with open(outfile, "w") as f2:
