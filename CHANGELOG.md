@@ -3,6 +3,24 @@
 
 
 
+## v0.3.1 (2024-07-10)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: Fixed an issue where the chaining method changed when only one deep ([`5a3fb42`](https://github.com/Westfall-io/windstorm/commit/5a3fb429543f4ea958ff436890692a7488bc90e8))
+
+* :bug: Fixing issue where newline characters would be missing from files edited on windows before a commit and all files would be changed making it harder to compare ([`381674f`](https://github.com/Westfall-io/windstorm/commit/381674fc802e42203effbfa259db220c87036f76))
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
+#### :zap:
+
+* :zap: Stop looking for windstorm when found ([`4d6599c`](https://github.com/Westfall-io/windstorm/commit/4d6599cd240ca1d1b9aaf47d26df00d386038557))
+
 ## v0.3.0 (2024-06-28)
 ### Features
 #### :sparkles:
