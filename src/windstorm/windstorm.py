@@ -276,17 +276,22 @@ def galestorm(
                                 "         TargetElement: {}".format(valid["@type"])
                             )
                             if "chainingFeature" in valid:
-                                q = build_query(
-                                    {
-                                        "property": ["@id"],
-                                        "operator": ["="],
-                                        "value": [valid["chainingFeature"][-1]["@id"]],
-                                    }
-                                )
-                                chainid = query_for_element(api, project, q)
-                                logger.debug(
-                                    "         ChainElement: {}".format(chainid["@type"])
-                                )
+                                
+                                if len(valid["chainingFeature"]) == 0:
+                                    chainid = valid
+                                else:
+                                    q = build_query(
+                                        {
+                                            "property": ["@id"],
+                                            "operator": ["="],
+                                            "value": [valid["chainingFeature"][-1]["@id"]],
+                                        }
+                                    )
+                                    chainid = query_for_element(api, project, q)
+                                    logger.debug(
+                                        "         ChainElement: {}".format(chainid["@type"])
+                                    )
+
                                 for key in chainid["ownedElement"]:
                                     q = build_query(
                                         {
