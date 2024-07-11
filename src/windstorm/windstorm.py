@@ -315,6 +315,11 @@ def galestorm(
                                             "         Value: {}".format(v2["value"])
                                         )
                                         thisvar["value"] = v2["value"]
+                                    elif v2["@type"] == "LiteralRational":
+                                        logger.info(
+                                            "         Value: {}".format(v2["value"])
+                                        )
+                                        thisvar["value"] = v2["value"]
                                     elif v2["@type"] == "OperatorExpression":
                                         for arg in v2["argument"]:
                                             q = build_query(
@@ -327,6 +332,13 @@ def galestorm(
                                             v3 = query_for_element(api, project, q)
 
                                             if v3["@type"] == "LiteralInteger":
+                                                logger.info(
+                                                    "         Value: {}".format(
+                                                        v3["value"]
+                                                    )
+                                                )
+                                                thisvar["value"] = v3["value"]
+                                            elif v3["@type"] == "LiteralRational":
                                                 logger.info(
                                                     "         Value: {}".format(
                                                         v3["value"]
