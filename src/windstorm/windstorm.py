@@ -465,7 +465,7 @@ def galestorm(
 
                     # Overwrite anything in the current folder with the artifact
                     with open(outfile, "w") as f:
-                        f.write(template.render(windstorm=windstorm, **output))
+                        f.write(template.render(windstorm=windstorm, keep_trailing_newline=True, **output))
 
 
 def main():
