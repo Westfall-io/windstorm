@@ -53,6 +53,22 @@ def is_valid_uuid(val):
             sys.exit()
 
 
+def handle_literals(element, variables):
+    if element["@type"] == "LiteralInteger":
+        logger.info("         Value: {}".format(element["value"]))
+        variables["value"] = element["value"]
+    elif element["@type"] == "LiteralString":
+        logger.info("         Value: {}".format(element["value"]))
+        variables["value"] = element["value"]
+    elif element["@type"] == "LiteralRational":
+        logger.info("         Value: {}".format(element["value"]))
+        variables["value"] = element["value"]
+    else:
+        return False, variables
+
+    return True, variables
+
+
 def galestorm(
     element_name: str,
     api: str = "http://sysml2.intercax.com:9000",
@@ -263,6 +279,12 @@ def galestorm(
                         if ename is None:
                             ename = voeid.get("@type", None)
                         logger.info("      Element: {}".format(ename))
+
+                        literal, thisvar = handle_literals(voeid, thisvar)
+                        if literal:
+                            # Just go to the next element, it's been handled.
+                            continue
+
                         if voeid["@type"] == "FeatureChainExpression":
                             q = build_query(
                                 {
@@ -305,17 +327,13 @@ def galestorm(
                                         }
                                     )
                                     v2 = query_for_element(api, project, q)
-                                    if v2["@type"] == "LiteralInteger":
-                                        logger.info(
-                                            "         Value: {}".format(v2["value"])
-                                        )
-                                        thisvar["value"] = v2["value"]
-                                    elif v2["@type"] == "LiteralString":
-                                        logger.info(
-                                            "         Value: {}".format(v2["value"])
-                                        )
-                                        thisvar["value"] = v2["value"]
-                                    elif v2["@type"] == "OperatorExpression":
+
+                                    literal, thisvar = handle_literals(v2, thisvar)
+                                    if literal:
+                                        # Skip the rest of this code if it's been handled.
+                                        continue
+
+                                    if v2["@type"] == "OperatorExpression":
                                         for arg in v2["argument"]:
                                             q = build_query(
                                                 {
@@ -325,22 +343,11 @@ def galestorm(
                                                 }
                                             )
                                             v3 = query_for_element(api, project, q)
+                                            literal, thisvar = handle_literals(
+                                                v3, thisvar
+                                            )
 
-                                            if v3["@type"] == "LiteralInteger":
-                                                logger.info(
-                                                    "         Value: {}".format(
-                                                        v3["value"]
-                                                    )
-                                                )
-                                                thisvar["value"] = v3["value"]
-                                            elif v3["@type"] == "LiteralString":
-                                                logger.info(
-                                                    "         Value: {}".format(
-                                                        v3["value"]
-                                                    )
-                                                )
-                                                thisvar["value"] = v3["value"]
-                                            else:
+                                            if not literal:
                                                 continue
                                         ###### END LOOP for each argument
                                     elif v2["@type"] == "Multiplicity":
@@ -355,6 +362,7 @@ def galestorm(
                                                 v2["@type"]
                                             )
                                         )
+                                    ###### END IF @type
                                 ###### END LOOP for each element in attribute
                             else:
                                 # No chaining feature
@@ -465,7 +473,13 @@ def galestorm(
 
                     # Overwrite anything in the current folder with the artifact
                     with open(outfile, "w") as f:
-                        f.write(template.render(windstorm=windstorm, **output))
+                        f.write(
+                            template.render(
+                                windstorm=windstorm,
+                                keep_trailing_newline=True,
+                                **output,
+                            )
+                        )
 
 
 def main():
