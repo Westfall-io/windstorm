@@ -52,27 +52,21 @@ def is_valid_uuid(val):
             logger.error("The project id was not passed as a valid uuid.")
             sys.exit()
 
+
 def handle_literals(element, variables):
     if element["@type"] == "LiteralInteger":
-        logger.info(
-            "         Value: {}".format(element["value"])
-        )
+        logger.info("         Value: {}".format(element["value"]))
         variables["value"] = element["value"]
     elif element["@type"] == "LiteralString":
-        logger.info(
-            "         Value: {}".format(element["value"])
-        )
+        logger.info("         Value: {}".format(element["value"]))
         variables["value"] = element["value"]
     elif element["@type"] == "LiteralRational":
-        logger.info(
-            "         Value: {}".format(element["value"])
-        )
+        logger.info("         Value: {}".format(element["value"]))
         variables["value"] = element["value"]
     else:
         return False, variables
 
     return True, variables
-
 
 
 def galestorm(
@@ -339,7 +333,9 @@ def galestorm(
                                                     }
                                                 )
                                                 v3 = query_for_element(api, project, q)
-                                                literal, thisvar = handle_literals(v3, thisvar)
+                                                literal, thisvar = handle_literals(
+                                                    v3, thisvar
+                                                )
 
                                                 if not literal:
                                                     continue
