@@ -3,6 +3,30 @@
 
 
 
+## v0.3.2 (2024-07-12)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: Fixed an issue where direct references to strings/integers/etc were not handled. ([`460e391`](https://github.com/Westfall-io/windstorm/commit/460e391d8fa272bc445169a3b193651307003c27))
+
+* :bug: Adding LiteralRational to handled types. ([`2a55917`](https://github.com/Westfall-io/windstorm/commit/2a55917e0ae4df87ff319cc9da466f2ab61d8558))
+
+* :bug: Ensuring that the newline character is placed. ([`4267e27`](https://github.com/Westfall-io/windstorm/commit/4267e2747d0d73c76d9af673ac47ff19f5a81209))
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
+#### :zap:
+
+* :zap: Moving literals to one function. ([`6893802`](https://github.com/Westfall-io/windstorm/commit/68938029a68362aae394c241a7b0bddf7b953230))
+
+#### Other
+
+* :arrow_up: Updating semantic release to see if it will fix git fast forward issue ([`f14daf1`](https://github.com/Westfall-io/windstorm/commit/f14daf110fed56f2ad2eb07e3b591783e1554a00))
+
 ## v0.3.1 (2024-07-10)
 ### Features
 ### Fixes
