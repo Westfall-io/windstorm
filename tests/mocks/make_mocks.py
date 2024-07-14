@@ -5,15 +5,18 @@ import base64
 import papermill as pm
 import nbformat as nbf
 
+# Find all .sysml files
 mocks = {}
 for dir_path, dir_names, file_names in os.walk("./tests/mocks"):
     for file in file_names:
         if ".sysml" in file:
             if not dir_path in mocks:
                 mocks[dir_path] = []
+                print(dir_path)
             mocks[dir_path].append(os.path.join(dir_path, file))
             print(os.path.join(dir_path, file))
 
+# For each sysml
 for test_name in mocks:
     # Create a notebook with the test sysml
     nb = nbf.v4.new_notebook()
