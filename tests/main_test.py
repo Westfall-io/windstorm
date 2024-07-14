@@ -44,6 +44,12 @@ def are_dir_trees_equal(dir1, dir2):
     return True
 
 def request_callback(request_id, mock_dir):
+    """
+    This function handles reading json files to prepare the response like
+    it's coming from the API.
+
+
+    """
     payload = json.loads(request_id.body)
     # Sample Query
     # {
@@ -76,18 +82,21 @@ def request_callback(request_id, mock_dir):
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
     return (200, headers, data)
 
-@responses.activate
-def test_1_analysis():
-    # Static response for projects
-    with open('./tests/mocks/api_projects_response/projects.json', 'r') as f:
-        project_response = f.read()
+## These are examples from responses. This one does a static response from a
+## file.
 
-    responses.add(
-        responses.GET,
-        "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
-        json=project_response,
-        status=200,
-    )
+#@responses.activate
+#def test_1_analysis():
+#    # Static response for projects
+#    with open('./tests/mocks/api_projects_response/projects.json', 'r') as f:
+#        project_response = f.read()
+#
+#    responses.add(
+#        responses.GET,
+#        "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
+#        json=project_response,
+#        status=200,
+#    )
 
     # responses.add(
         # responses.GET,
@@ -96,42 +105,38 @@ def test_1_analysis():
         # status=200,
     # )
 
-<<<<<<< HEAD
-    # Dynamic response for element search, project defined by json response
-=======
-    assert resp.json() == {"error": "not found"}
-    assert resp.status_code == 404
+#    assert resp.json() == {"error": "not found"}
+#    assert resp.status_code == 404
 
 
-def return_json():
-    return {"error": "not found"}
+#def return_json():
+#    return {"error": "not found"}
 
-
-@responses.activate
-def test2_simple():
+## This one just uses a function to return a response.
+#@responses.activate
+#def test2_simple():
     # Register via 'Response' object
-    rsp1 = responses.Response(
-        method="PUT",
-        url="http://example.com",
-    )
-    responses.add(rsp1)
-    # register via direct arguments
-    responses.add(
-        responses.GET,
-        "http://twitter.com/api/1/foobar",
-        json=return_json(),
-        status=404,
-    )
+#    rsp1 = responses.Response(
+#        method="PUT",
+#        url="http://example.com",
+#    )
+#    responses.add(rsp1)
+#    # register via direct arguments
+#    responses.add(
+#        responses.GET,
+#        "http://twitter.com/api/1/foobar",
+#        json=return_json(),
+#        status=404,
+#    )
 
-    resp2 = requests.put("http://example.com")
+#    resp2 = requests.put("http://example.com")
 
-    assert resp2.status_code == 200
-    assert resp2.request.method == "PUT"
+#    assert resp2.status_code == 200
+#    assert resp2.request.method == "PUT"
 
 
 @responses.activate
 def test3_simple():
->>>>>>> refs/remotes/origin/33-add-support-for-testing
     responses.add_callback(
         responses.POST,
         "http://sysml2.intercax.com:9000/projects/00270ef6-e518-455a-b59e-324ffeb1c9da/query-results",
