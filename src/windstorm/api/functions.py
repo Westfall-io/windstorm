@@ -107,10 +107,6 @@ def query_for_element(api, project, base_query):
     r = requests.post(url, data=base_query, headers=headers)
     response = handle_request_response(r)
 
-    if type(response) != type(list()):
-        logger.error(response)
-        github_issue_error()
-
     if len(response) == 1:
         return response[0]
     elif len(response) == 0:
