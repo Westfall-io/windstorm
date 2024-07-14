@@ -138,7 +138,7 @@ def galestorm(
                     logger.info("   Element: {}".format(oid["declaredName"]))
                 else:
                     logger.info("   Element Type: {}".format(oid["@type"]))
-                    
+
                 if oid["@type"].lower() == "MetadataUsage".lower():
                     logger.info("      Found metadata.")
                     q = build_query(
@@ -210,12 +210,12 @@ def galestorm(
     logger.info("Searching for input values.")
     logger.info("---------------------------------")
     # Now we have actions with windstorm tool execution metadata
+    vars = []
     for a in aj:
         # Reset to base element
         q = build_query({"property": ["@id"], "operator": ["="], "value": [a["@id"]]})
         eid = query_for_element(api, project, q)
         logger.info("Action: {}".format(eid["declaredName"]))
-        vars = []
         for var in eid["input"]:
             # Check each input
             q = build_query(
@@ -401,8 +401,7 @@ def galestorm(
         ###### END LOOP for each input
 
     ###### END LOOP for action in metadata'd actions
-    if len(aj) > 0:
-        logger.debug(vars)
+    logger.debug(vars)
 
     output = {}
     for v in vars:
