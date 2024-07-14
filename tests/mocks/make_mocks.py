@@ -76,10 +76,7 @@ for test_name in mocks:
                         + ".json"
                     )
                     with open(
-                        test_name
-                        + "/"
-                        + i["payload"]["@id"]
-                        + ".json",
+                        test_name + "/" + i["payload"]["@id"] + ".json",
                         "w",
                     ) as g:
                         g.write(json.dumps(i["payload"]))
