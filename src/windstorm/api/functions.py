@@ -20,7 +20,7 @@ def handle_request_response(r):
         sys.exit()
     if r.status_code != 200:
         # The address is reachable
-        logger.error(r.response)
+        logger.error('API returned {} status code'.format(r.status_code))
         github_issue_error()
 
     logger.debug("Response was correctly received.")
