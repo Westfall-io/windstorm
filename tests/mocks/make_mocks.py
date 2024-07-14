@@ -69,18 +69,10 @@ for test_name in mocks:
         for i in json.loads(f.read()):
             try:
                 if "@id" in i["payload"]:
-                    print(
-                        test_name
-                        + "/"
-                        + i["payload"]["@id"]
-                        + ".json"
-                    )
+                    print(test_name + "/" + i["payload"]["@id"] + ".json")
 
                     with open(
-                        test_name
-                        + "/"
-                        + i["payload"]["@id"]
-                        + ".json",
+                        test_name + "/" + i["payload"]["@id"] + ".json",
                         "w",
                     ) as g:
                         g.write(json.dumps(i["payload"]))
