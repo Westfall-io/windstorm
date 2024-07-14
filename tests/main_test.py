@@ -160,14 +160,15 @@ def test_500_response():
 
 @responses.activate
 def test_wrong_type_response_response():
-    responses.add(
-        responses.GET,
-        "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
-        json={},
-        status=200,
-    )
+    with pytest.raises(KeyError) as e_info:
+        responses.add(
+            responses.GET,
+            "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
+            json={},
+            status=200,
+        )
 
-    galestorm("case1", api="http://sysml2.intercax.com:9000")
+        galestorm("case1", api="http://sysml2.intercax.com:9000")
 
 
 @responses.activate
