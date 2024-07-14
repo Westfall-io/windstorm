@@ -92,7 +92,7 @@ def test3_simple():
     )
 
     galestorm('case1',
-        api = "http://sysml2.intercax.com:9000"
+        api = "http://sysml2.intercax.com:9000",
         in_directory = "./tests/mocks/1_analysis/input",
         out_directory = "./tests/mocks/1_analysis/output"
     )
