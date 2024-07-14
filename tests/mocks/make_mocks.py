@@ -5,6 +5,7 @@ import base64
 import papermill as pm
 import nbformat as nbf
 
+
 def make_mocks():
     # Find all .sysml files
     mocks = {}
@@ -50,7 +51,9 @@ def make_mocks():
                                             html[html.find("href=") + 35 : -14]
                                         )
                                     )
-                                    with open(fname.replace(".ipynb", ".json"), "w") as g:
+                                    with open(
+                                        fname.replace(".ipynb", ".json"), "w"
+                                    ) as g:
                                         print(
                                             "Creating mock api file: {}".format(
                                                 fname.replace(".ipynb", ".json")
@@ -108,5 +111,5 @@ def make_mocks():
         # End open large json file with all elements
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     make_mocks()
