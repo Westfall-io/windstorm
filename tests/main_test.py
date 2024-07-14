@@ -155,13 +155,32 @@ def test_500_response():
 
 
 @responses.activate
-def test_wrong_type_response_response():
+def test_wrong_type_response():
     with pytest.raises(KeyError) as e_info:
         responses.add(
             responses.GET,
             "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
             json={},
             status=200,
+        )
+
+        galestorm("case1", api="http://sysml2.intercax.com:9000")
+
+@responses.activate
+def test_no_element_found():
+    with pytest.raises(SystemExit) as e_info:
+        responses.add(
+            responses.GET,
+            "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
+            json=project_response,
+            status=200,
+        )
+
+        responses.add_callback(
+            responses.POST,
+            "http://sysml2.intercax.com:9000/projects/00270ef6-e518-455a-b59e-324ffeb1c9da/query-results",
+            json={},
+            content_type="application/json",
         )
 
         galestorm("case1", api="http://sysml2.intercax.com:9000")
