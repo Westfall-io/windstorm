@@ -98,12 +98,24 @@ def request_callback(request_id, mock_dir):
     else:
         raise ValueError("The input query was not a Query type")
 
-    if t1:
-        with open("./tests/mocks/" + mock_dir + "/" + eid + ".json", "r") as f:
-            data = f.read()
-    else:
-        with open("./tests/mocks/" + mock_dir + "/" + t + "_" + dn + ".json", "r") as f:
-            data = f.read()
+    try:
+        if t1:
+            with open("./tests/mocks/" + mock_dir + "/" + eid + ".json", "r") as f:
+                data = f.read()
+        else:
+            with open("./tests/mocks/" + mock_dir + "/" + t + "_" + dn + ".json", "r") as f:
+                data = f.read()
+    except:
+        if t1:
+            print("./tests/mocks/" + mock_dir + "/" + eid + ".json")
+        else:
+            print("./tests/mocks/" + mock_dir + "/" + t + "_" + dn + ".json")
+
+        from os import walk
+
+        for (dirpath, dirnames, filenames) in walk("./tests/mocks/" + mock_dir + "/"):
+            print(filenames)
+
 
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
     return (200, headers, data)
