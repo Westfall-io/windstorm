@@ -73,7 +73,7 @@ for test_name in mocks:
                         "w",
                     ) as g:
                         g.write(i["payload"])
-                        
+
                 if "@type" in i["payload"] and "declaredName" in i["payload"]:
                     with open(
                         test_name[: test_name.find("/")]
