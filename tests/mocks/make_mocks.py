@@ -12,7 +12,6 @@ for dir_path, dir_names, file_names in os.walk("./tests/mocks"):
         if ".sysml" in file:
             if not dir_path in mocks:
                 mocks[dir_path] = []
-                print(dir_path)
             mocks[dir_path].append(os.path.join(dir_path, file))
             print(os.path.join(dir_path, file))
 
@@ -71,13 +70,15 @@ for test_name in mocks:
             try:
                 if "@id" in i["payload"]:
                     print(
-                        test_name[: test_name.rfind("/") + 1]
+                        test_name
+                        + "/"
                         + i["payload"]["@id"]
                         + ".json"
                     )
 
                     with open(
-                        test_name[: test_name.rfind("/") + 1]
+                        test_name
+                        + "/"
                         + i["payload"]["@id"]
                         + ".json",
                         "w",
@@ -86,14 +87,16 @@ for test_name in mocks:
 
                 if "@type" in i["payload"] and "declaredName" in i["payload"]:
                     print(
-                        test_name[: test_name.rfind("/") + 1]
+                        test_name
+                        + "/"
                         + i["payload"]["@type"]
                         + "_"
                         + i["payload"]["declaredName"]
                         + ".json"
                     )
                     with open(
-                        test_name[: test_name.rfind("/") + 1]
+                        test_name
+                        + "/"
                         + i["payload"]["@type"]
                         + "_"
                         + i["payload"]["declaredName"]
