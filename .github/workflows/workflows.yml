@@ -44,6 +44,7 @@ jobs:
           coverage html
           coveralls
       - name: Test with pytest
+        run: |
           pytest -rP --timeout=300 tests --doctest-modules --html=report-${{ matrix.python-version }}.html --self-contained-html --junitxml=junit/test-results-${{ matrix.python-version }}.xml
       - name: Upload test coverage results
         uses: actions/upload-artifact@v3
