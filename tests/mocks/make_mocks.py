@@ -66,7 +66,8 @@ for test_name in mocks:
         for i in json.loads(f.read()):
             try:
                 with open(
-                    test_name[: test_name.find("/")] + i["payload"]["@id"] + ".json", "w"
+                    test_name[: test_name.find("/")] + i["payload"]["@id"] + ".json",
+                    "w",
                 ) as g:
                     g.write(i["payload"])
             except Exception as e:
