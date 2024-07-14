@@ -82,6 +82,23 @@ def request_callback(request_id, mock_dir):
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
     return (200, headers, data)
 
+@responses.activate
+def test3_simple():
+    responses.add_callback(
+        responses.POST,
+        "http://sysml2.intercax.com:9000/projects/00270ef6-e518-455a-b59e-324ffeb1c9da/query-results",
+        callback=partial(request_callback, mock_dir='1_analysis'),
+        content_type="application/json",
+    )
+
+    galestorm('case1',
+        api = "http://sysml2.intercax.com:9000"
+        in_directory = "./tests/mocks/1_analysis/input",
+        out_directory = "./tests/mocks/1_analysis/output"
+    )
+
+    assert are_dir_trees_equal("./tests/mocks/1_analysis/input", "./tests/mocks/1_analysis/output") == True
+
 ## These are examples from responses. This one does a static response from a
 ## file.
 
@@ -133,21 +150,3 @@ def request_callback(request_id, mock_dir):
 
 #    assert resp2.status_code == 200
 #    assert resp2.request.method == "PUT"
-
-
-@responses.activate
-def test3_simple():
-    responses.add_callback(
-        responses.POST,
-        "http://sysml2.intercax.com:9000/projects/00270ef6-e518-455a-b59e-324ffeb1c9da/query-results",
-        callback=partial(request_callback, mock_dir='1_analysis'),
-        content_type="application/json",
-    )
-
-    galestorm('case1',
-        api = "http://sysml2.intercax.com:9000"
-        in_directory = "./tests/mocks/1_analysis/input",
-        out_directory = "./tests/mocks/1_analysis/output"
-    )
-
-    assert are_dir_trees_equal("./tests/mocks/1_analysis/input", "./tests/mocks/1_analysis/output") == True
