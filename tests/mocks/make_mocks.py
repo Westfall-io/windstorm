@@ -68,9 +68,10 @@ for test_name in mocks:
                 with open(
                     test_name[: test_name.find("/")] + i["payload"]["@id"] + ".json", "w"
                 ) as g:
-                    g.write(i)
-            except:
-                print(i)
+                    g.write(i["payload"])
+            except Exception as e:
+                print(i["payload"])
+                raise e
             # End open file for this element
         # For each element
     # End open large json file with all elements
