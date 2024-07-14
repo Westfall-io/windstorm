@@ -94,6 +94,16 @@ def request_callback(request_id, mock_dir):
 
 @responses.activate
 def test3_simple():
+    with open('./tests/mocks/api_projects_response/projects.json', 'r') as f:
+            project_response = f.read()
+
+    responses.add(
+        responses.GET,
+        "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
+        json=project_response,
+        status=200,
+    )
+    
     responses.add_callback(
         responses.POST,
         "http://sysml2.intercax.com:9000/projects/00270ef6-e518-455a-b59e-324ffeb1c9da/query-results",
