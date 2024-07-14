@@ -65,11 +65,15 @@ for test_name in mocks:
     with open(fname.replace(".ipynb", ".json"), "r") as f:
         for i in json.loads(f.read()):
             try:
-                with open(
-                    test_name[: test_name.find("/")] + i["payload"]["@id"] + ".json",
-                    "w",
-                ) as g:
-                    g.write(i["payload"])
+                if "@id" in i["payload"]:
+                    with open(
+                        test_name[: test_name.find("/")] + i["payload"]["@id"] + ".json",
+                        "w",
+                    ) as g:
+                        g.write(i["payload"])
+                else:
+                    # No way to reference this object in the future, just skip.
+                    continue
             except Exception as e:
                 print(i["payload"])
                 raise e
