@@ -74,19 +74,36 @@ def request_callback(request_id, mock_dir):
     # }
     # }
     # This doesn't handle all possible cases
+    t1 = True
     if payload["@type"] == "Query":
         if payload["where"]["@type"] == "PrimitiveConstraint":
             if payload["where"]["property"] == "@id":
                 eid = payload["where"]["value"]
             else:
                 raise ValueError("The input query was not an @id")
+        elif payload["where"]["@type"] == "CompositeConstraint":
+            t1 = False
+            if payload["where"]["operator"] == "and":
+                for c in payload["where"]["constraint"]:
+                    if c["where"]["property"] == "@type":
+                        t = c["where"]["value"]
+                    elif c["where"]["property"] == "declaredName"
+                        dn = c["where"]["value"]
+                    else:
+                        raise ValueError("The input query was not handled")
+            else:
+                raise ValueError("The input query was not handled")
         else:
             raise ValueError("The input query was not a PrimitiveConstraint")
     else:
         raise ValueError("The input query was not a Query type")
 
-    with open("./tests/mocks/" + mock_dir + "/" + eid + ".json", "r") as f:
-        data = f.read()
+    if t1:
+        with open("./tests/mocks/" + mock_dir + "/" + eid + ".json", "r") as f:
+            data = f.read()
+    else:
+        with open("./tests/mocks/" + mock_dir + "/" + t + "_"+ dn + ".json", "r") as f:
+            data = f.read()
 
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
     return (200, headers, data)
