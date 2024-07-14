@@ -106,7 +106,7 @@ def galestorm(
                 {"property": ["@id"], "operator": ["="], "value": [a["@id"]]}
             )
         except KeyError:
-            print("{}".format(list(a.keys())))
+            print("{}".format(sorted(list(a.keys()))))
             raise KeyError
         eid = query_for_element(api, project, q)
         logger.info("Action: {}".format(eid["declaredName"]))
