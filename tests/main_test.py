@@ -184,8 +184,8 @@ def test_no_element_found():
         responses.add_callback(
             responses.POST,
             "http://sysml2.intercax.com:9000/projects/00270ef6-e518-455a-b59e-324ffeb1c9da/query-results",
-            json={},
-            content_type="application/json",
+            json=[],
+            status=200,
         )
 
         galestorm("case1", api="http://sysml2.intercax.com:9000")
