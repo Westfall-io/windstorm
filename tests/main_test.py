@@ -123,12 +123,11 @@ def request_callback(request_id, mock_dir):
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
     return (200, headers, data)
 
+with open("./tests/mocks/api_projects_response/projects.json", "r") as f:
+    project_response = json.loads(f.read())
 
 @responses.activate
-def test3_simple():
-    with open("./tests/mocks/api_projects_response/projects.json", "r") as f:
-        project_response = json.loads(f.read())
-
+def analysis_simple():
     responses.add(
         responses.GET,
         "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
@@ -143,19 +142,21 @@ def test3_simple():
         content_type="application/json",
     )
 
-    galestorm(
-        "case1",
-        api="http://sysml2.intercax.com:9000",
-        in_directory="./tests/mocks/1_analysis/input",
-        out_directory="./tests/mocks/1_analysis/output",
-    )
-
-    assert (
-        are_dir_trees_equal(
-            "./tests/mocks/1_analysis/input", "./tests/mocks/1_analysis/output"
+    analysis = ["case1", "case2"]
+    for a in analysis:
+        galestorm(
+            a,
+            api="http://sysml2.intercax.com:9000",
+            in_directory="./tests/mocks/1_analysis/input",
+            out_directory="./tests/mocks/1_analysis/output",
         )
-        == True
-    )
+
+        assert (
+            are_dir_trees_equal(
+                "./tests/mocks/1_analysis/input", "./tests/mocks/1_analysis/output"
+            )
+            == True
+        )
 
 
 ## These are examples from responses. This one does a static response from a
