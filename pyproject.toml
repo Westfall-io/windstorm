@@ -38,6 +38,12 @@ build-backend = "poetry.core.masonry.api"
 #patch_without_tag = true
 #build_command = "pip install poetry && poetry build"
 
+[tool.coverage.run]
+omit = [
+    "src/api/__init__.py",
+    "src/main.py"
+]
+
 [tool.semantic_release]
 version_variable = [
     "src/windstorm/__init__.py:version",
