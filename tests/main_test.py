@@ -95,7 +95,7 @@ def request_callback(request_id, mock_dir):
 @responses.activate
 def test3_simple():
     with open("./tests/mocks/api_projects_response/projects.json", "r") as f:
-        project_response = f.read()
+        project_response = json.loads(f.read())
 
     responses.add(
         responses.GET,
