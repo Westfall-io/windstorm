@@ -76,7 +76,7 @@ def galestorm(
     except TypeError:
         logger.info(project)
         raise TypeError
-    
+
     # Check for analysis in the model
     q = build_query(
         {
