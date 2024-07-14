@@ -52,6 +52,7 @@ def is_valid_uuid(val):
             logger.error("The project id was not passed as a valid uuid.")
             sys.exit()
 
+<<<<<<< HEAD
 def handle_literals(element, variables):
     if element["@type"] == "LiteralInteger":
         logger.info("         Value: {}".format(element["value"]))
@@ -66,6 +67,8 @@ def handle_literals(element, variables):
         return False, variables
 
     return True, variables
+=======
+>>>>>>> 2e3e549 (:robot: Format code with black)
 
 def init_variables(api, project, aj):
     logger.info("---------------------------------")
@@ -279,6 +282,7 @@ def init_variables(api, project, aj):
     logger.info(output)
     return output
 
+
 def template_files(in_directory, out_directory, output):
     def windstorm(string, default=None):
         if string in output:
@@ -349,6 +353,7 @@ def template_files(in_directory, out_directory, output):
 
                     # Overwrite anything in the current folder with the artifact
                     with open(outfile, "w") as f:
+<<<<<<< HEAD
                         f.write(
                             template.render(
                                 windstorm=windstorm,
@@ -356,6 +361,11 @@ def template_files(in_directory, out_directory, output):
                                 **output,
                             )
                         )
+=======
+                        f.write(template.render(windstorm=windstorm, **output))
+
+
+>>>>>>> 2e3e549 (:robot: Format code with black)
 def galestorm(
     element_name: str,
     api: str = "http://sysml2.intercax.com:9000",
@@ -504,8 +514,10 @@ def galestorm(
         output = init_variables(api, project, aj)
         template_files(in_directory, out_directory, output)
 
+
 def main():
     fire.Fire(galestorm)
+
 
 if __name__ == "__main__":
     main()
