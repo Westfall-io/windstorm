@@ -129,7 +129,7 @@ with open("./tests/mocks/api_projects_response/projects.json", "r") as f:
 
 
 @responses.activate
-def analysis_simple():
+def test_analysis_simple():
     responses.add(
         responses.GET,
         "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
