@@ -68,13 +68,13 @@ for test_name in mocks:
             try:
                 if "@id" in i["payload"]:
                     print(
-                        test_name[: test_name.rfind("/")+1]
+                        test_name[: test_name.rfind("/") + 1]
                         + i["payload"]["@id"]
                         + ".json"
                     )
 
                     with open(
-                        test_name[: test_name.rfind("/")+1]
+                        test_name[: test_name.rfind("/") + 1]
                         + i["payload"]["@id"]
                         + ".json",
                         "w",
@@ -83,14 +83,14 @@ for test_name in mocks:
 
                 if "@type" in i["payload"] and "declaredName" in i["payload"]:
                     print(
-                        test_name[: test_name.rfind("/")+1]
+                        test_name[: test_name.rfind("/") + 1]
                         + i["payload"]["@type"]
                         + "_"
                         + i["payload"]["declaredName"]
                         + ".json"
                     )
                     with open(
-                        test_name[: test_name.rfind("/")+1]
+                        test_name[: test_name.rfind("/") + 1]
                         + i["payload"]["@type"]
                         + "_"
                         + i["payload"]["declaredName"]
