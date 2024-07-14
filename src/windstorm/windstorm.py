@@ -87,8 +87,12 @@ def galestorm(
 
     # Grab the project from the API - either the latest or a specific one
     project = check_for_api(api, is_valid_uuid(project_id))
-    logger.info('Found project "{}" - {}'.format(project["name"], project["@id"]))
-
+    try:
+        logger.info('Found project "{}" - {}'.format(project["name"], project["@id"]))
+    except TypeError:
+        logger.info(project)
+        raise TypeError
+    
     # Check for analysis in the model
     q = build_query(
         {
