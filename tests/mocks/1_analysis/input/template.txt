@@ -1,1 +1,1 @@
-{{ windstorm('deltaT', 5)}}
+{{ windstorm('deltaT') }}
