@@ -12,6 +12,7 @@ for dir_path, dir_names, file_names in os.walk("./tests/mocks"):
             if not dir_path in mocks:
                 mocks[dir_path] = []
             mocks[dir_path].append(os.path.join(dir_path, file))
+            print(os.path.join(dir_path, file))
 
 for test_name in mocks:
     # Create a notebook with the test sysml
