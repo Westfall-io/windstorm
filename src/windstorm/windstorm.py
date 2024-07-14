@@ -118,7 +118,9 @@ def galestorm(
     aj = []
     for a in actions:
         try:
-            q = build_query({"property": ["@id"], "operator": ["="], "value": [a["@id"]]})
+            q = build_query(
+                {"property": ["@id"], "operator": ["="], "value": [a["@id"]]}
+            )
         except KeyError:
             print(a)
             raise KeyError
