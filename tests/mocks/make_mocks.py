@@ -63,7 +63,7 @@ for test_name in mocks:
     ## Close file
 
     with open(fname.replace(".ipynb", ".json"), "r") as f:
-        for i in f.read():
+        for i in json.loads(f.read()):
             with open(test_name[:test_name.find("/")]+i['@id']+'.json', 'w') as g:
                 g.write(i)
             # End open file for this element
