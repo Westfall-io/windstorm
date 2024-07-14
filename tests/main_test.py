@@ -3,11 +3,13 @@ import uuid as uuid_gen
 from functools import partial
 import filecmp
 import os.path
+import sys
+sys.path.append(path.join(path.dirname(__file__), "../src/windstorm"))
 
 import responses
 import requests
 
-from src.windstorm.windstorm import galestorm
+from windstorm import galestorm
 
 # Both of these return the parent element
 # r = requests.get(api + "/projects?page%5Bsize%5D=1")
