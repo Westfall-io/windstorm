@@ -359,7 +359,7 @@ def galestorm(
     if "name" in project and "@id" in project:
         logger.info('Found project "{}" - {}'.format(project["name"], project["@id"]))
     else:
-        logger.info('Response was {}.'.format(project))
+        logger.info("Response was {}.".format(project))
         raise KeyError
 
     # Check for analysis in the model
