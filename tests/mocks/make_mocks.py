@@ -72,8 +72,8 @@ def make_mocks():
         with open(fname.replace(".ipynb", ".json"), "r") as f:
             for i in json.loads(f.read()):
                 if "@id" not in i["payload"]:
-                    print(i)
-                    
+                    i["payload"]["@id"] = i["identity"]["@id"]
+
                 try:
                     if "@id" in i["payload"]:
                         print(test_name + "/" + i["payload"]["@id"] + ".json")
