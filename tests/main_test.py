@@ -44,6 +44,12 @@ def are_dir_trees_equal(dir1, dir2):
     return True
 
 def request_callback(request_id, mock_dir):
+    """
+    This function handles reading json files to prepare the response like
+    it's coming from the API.
+
+
+    """
     payload = json.loads(request_id.body)
     # Sample Query
     # {
@@ -76,18 +82,21 @@ def request_callback(request_id, mock_dir):
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
     return (200, headers, data)
 
-@responses.activate
-def test_1_analysis():
-    # Static response for projects
-    with open('./tests/mocks/api_projects_response/projects.json', 'r') as f:
-        project_response = f.read()
+## These are examples from responses. This one does a static response from a
+## file.
 
-    responses.add(
-        responses.GET,
-        "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
-        json=project_response,
-        status=200,
-    )
+#@responses.activate
+#def test_1_analysis():
+#    # Static response for projects
+#    with open('./tests/mocks/api_projects_response/projects.json', 'r') as f:
+#        project_response = f.read()
+#
+#    responses.add(
+#        responses.GET,
+#        "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
+#        json=project_response,
+#        status=200,
+#    )
 
     # responses.add(
         # responses.GET,
