@@ -64,8 +64,11 @@ for test_name in mocks:
 
     with open(fname.replace(".ipynb", ".json"), "r") as f:
         for i in json.loads(f.read()):
-            with open(test_name[:test_name.find("/")]+i['@id']+'.json', 'w') as g:
-                g.write(i)
+            try:
+                with open(test_name[:test_name.find("/")]+i['@id']+'.json', 'w') as g:
+                    g.write(i)
+            except:
+                print(i)
             # End open file for this element
         # For each element
     # End open large json file with all elements
