@@ -72,8 +72,8 @@ for test_name in mocks:
                         + ".json",
                         "w",
                     ) as g:
-                        g.write(i["payload"])
-                        
+                        g.write(json.dumps(i["payload"]))
+
                 if "@type" in i["payload"] and "declaredName" in i["payload"]:
                     with open(
                         test_name[: test_name.find("/")]
@@ -83,7 +83,7 @@ for test_name in mocks:
                         + ".json",
                         "w",
                     ) as g:
-                        g.write(i["payload"])
+                        g.write(json.dumps(i["payload"]))
                 else:
                     # No way to reference this object in the future, just skip.
                     continue
