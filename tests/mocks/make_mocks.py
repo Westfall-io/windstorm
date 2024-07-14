@@ -66,11 +66,11 @@ for test_name in mocks:
         for i in json.loads(f.read()):
             try:
                 if "@id" in i["payload"]:
-                    print(test_name[: test_name.find("/")]
+                    print(test_name[: test_name.rfind("/")]
                     + i["payload"]["@id"]
                     + ".json")
                     with open(
-                        test_name[: test_name.find("/")]
+                        test_name[: test_name.rfind("/")]
                         + i["payload"]["@id"]
                         + ".json",
                         "w",
@@ -78,13 +78,13 @@ for test_name in mocks:
                         g.write(json.dumps(i["payload"]))
 
                 if "@type" in i["payload"] and "declaredName" in i["payload"]:
-                    print(test_name[: test_name.find("/")]
+                    print(test_name[: test_name.rfind("/")]
                     + i["payload"]["@type"]
                     + "_"
                     + i["payload"]["declaredName"]
                     + ".json")
                     with open(
-                        test_name[: test_name.find("/")]
+                        test_name[: test_name.rfind("/")]
                         + i["payload"]["@type"]
                         + "_"
                         + i["payload"]["declaredName"]
