@@ -69,6 +69,7 @@ for test_name in mocks:
                     print(test_name[: test_name.rfind("/")]
                     + i["payload"]["@id"]
                     + ".json")
+
                     with open(
                         test_name[: test_name.rfind("/")]
                         + i["payload"]["@id"]
