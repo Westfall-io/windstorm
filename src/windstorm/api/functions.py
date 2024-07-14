@@ -50,10 +50,6 @@ def check_for_api(api, project_id):
         # Grab a specific project
     response = handle_request_response(r)
 
-    if type(response) != type(list()):
-        logger.error(response)
-        github_issue_error()
-
     if len(response) == 1:
         return response[0]
     elif len(response) == 0:
