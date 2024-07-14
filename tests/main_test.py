@@ -87,7 +87,7 @@ def request_callback(request_id, mock_dir):
                 for c in payload["where"]["constraint"]:
                     if c["where"]["property"] == "@type":
                         t = c["where"]["value"]
-                    elif c["where"]["property"] == "declaredName"
+                    elif c["where"]["property"] == "declaredName":
                         dn = c["where"]["value"]
                     else:
                         raise ValueError("The input query was not handled")
