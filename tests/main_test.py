@@ -181,7 +181,7 @@ def test_no_element_found():
             status=200,
         )
 
-        responses.add_callback(
+        responses.add(
             responses.POST,
             "http://sysml2.intercax.com:9000/projects/00270ef6-e518-455a-b59e-324ffeb1c9da/query-results",
             json=[],
