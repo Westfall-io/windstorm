@@ -122,7 +122,7 @@ def galestorm(
                     logger.info("   Element: {}".format(oid["declaredName"]))
                 else:
                     logger.info("   Element Type: {}".format(oid["@type"]))
-                    
+
                 if oid["@type"].lower() == "MetadataUsage".lower():
                     logger.info("      Found metadata.")
                     q = build_query(
