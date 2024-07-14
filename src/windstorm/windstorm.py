@@ -206,6 +206,10 @@ def galestorm(
             logger.warning("Could not find ownedElement in action.")
     ###### END LOOP for each action
 
+    if len(aj) == 0:
+        logger.info('Nothing to do, closing...')
+        sys.exit()
+
     logger.info("---------------------------------")
     logger.info("Searching for input values.")
     logger.info("---------------------------------")
