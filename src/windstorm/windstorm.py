@@ -353,7 +353,6 @@ def template_files(in_directory, out_directory, output):
 
                     # Overwrite anything in the current folder with the artifact
                     with open(outfile, "w") as f:
-<<<<<<< HEAD
                         f.write(
                             template.render(
                                 windstorm=windstorm,
@@ -361,11 +360,6 @@ def template_files(in_directory, out_directory, output):
                                 **output,
                             )
                         )
-=======
-                        f.write(template.render(windstorm=windstorm, **output))
-
-
->>>>>>> 2e3e549 (:robot: Format code with black)
 def galestorm(
     element_name: str,
     api: str = "http://sysml2.intercax.com:9000",

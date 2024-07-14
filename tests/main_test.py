@@ -137,10 +137,8 @@ def test_404_response():
         status=404,
     )
 
-    galestorm(
-        "case1",
-        api="http://sysml2.intercax.com:9000"
-    )
+    galestorm("case1", api="http://sysml2.intercax.com:9000")
+
 
 @responses.activate
 def test_500_response():
@@ -166,10 +164,8 @@ def test_wrong_type_response_response():
         status=500,
     )
 
-    galestorm(
-        "case1",
-        api="http://sysml2.intercax.com:9000"
-    )
+    galestorm("case1", api="http://sysml2.intercax.com:9000")
+
 
 @responses.activate
 def test_analysis_simple():
