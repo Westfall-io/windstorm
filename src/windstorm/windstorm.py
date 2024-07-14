@@ -186,7 +186,7 @@ def galestorm(
     ###### END LOOP for each action
 
     if len(aj) == 0:
-        logger.info('Nothing to do, closing...')
+        logger.info("Nothing to do, closing...")
         sys.exit()
 
     logger.info("---------------------------------")
