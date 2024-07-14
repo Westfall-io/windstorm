@@ -505,10 +505,11 @@ def galestorm(
 
     if len(aj) == 0:
         if in_directory == out_directory:
-            logger.info('Nothing to do, closing...')
+            logger.info("Nothing to do, closing...")
         else:
-            logger.info('Copying all files from input to output, no changes...')
+            logger.info("Copying all files from input to output, no changes...")
             from distutils.dir_util import copy_tree
+
             copy_tree(in_directory, out_directory)
     else:
         output = init_variables(api, project, aj)
