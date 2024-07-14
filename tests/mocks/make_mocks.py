@@ -67,7 +67,9 @@ for test_name in mocks:
             try:
                 if "@id" in i["payload"]:
                     with open(
-                        test_name[: test_name.find("/")] + i["payload"]["@id"] + ".json",
+                        test_name[: test_name.find("/")]
+                        + i["payload"]["@id"]
+                        + ".json",
                         "w",
                     ) as g:
                         g.write(i["payload"])
