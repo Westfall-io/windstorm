@@ -123,8 +123,10 @@ def request_callback(request_id, mock_dir):
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
     return (200, headers, data)
 
+
 with open("./tests/mocks/api_projects_response/projects.json", "r") as f:
     project_response = json.loads(f.read())
+
 
 @responses.activate
 def analysis_simple():
