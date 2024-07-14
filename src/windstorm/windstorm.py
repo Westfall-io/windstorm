@@ -52,6 +52,7 @@ def is_valid_uuid(val):
             logger.error("The project id was not passed as a valid uuid.")
             sys.exit()
 
+
 def init_variables(api, project, aj):
     logger.info("---------------------------------")
     logger.info("Searching for input values.")
@@ -263,6 +264,7 @@ def init_variables(api, project, aj):
     logger.info(output)
     return output
 
+
 def template_files(in_directory, out_directory, output):
     def windstorm(string, default=None):
         if string in output:
@@ -334,6 +336,7 @@ def template_files(in_directory, out_directory, output):
                     # Overwrite anything in the current folder with the artifact
                     with open(outfile, "w") as f:
                         f.write(template.render(windstorm=windstorm, **output))
+
 
 def galestorm(
     element_name: str,
@@ -468,13 +471,15 @@ def galestorm(
     ###### END LOOP for each action
 
     if len(aj) == 0:
-        logger.info('Nothing to do, closing...')
+        logger.info("Nothing to do, closing...")
     else:
         output = init_variables(api, project, aj)
         template_files(in_directory, out_directory, output)
 
+
 def main():
     fire.Fire(galestorm)
+
 
 if __name__ == "__main__":
     main()
