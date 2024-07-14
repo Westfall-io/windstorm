@@ -130,12 +130,15 @@ def galestorm(
         # Check if this is a valid action with associated metadata
         if "ownedElement" in eid:
             for oe in eid["ownedElement"]:
-                q = build_query(
-                    {"property": ["@id"], "operator": ["="], "value": [oe["@id"]]}
-                )
-                oid = query_for_element(api, project, q)
-                logger.info("   Element: {}".format(oid["declaredName"]))
-
+                try:
+                    q = build_query(
+                        {"property": ["@id"], "operator": ["="], "value": [oe["@id"]]}
+                    )
+                    oid = query_for_element(api, project, q)
+                    logger.info("   Element: {}".format(oid["declaredName"]))
+                except KeyError:
+                    print("{}".format(sorted(list(a.keys()))))
+                    raise KeyError
                 if oid["@type"].lower() == "MetadataUsage".lower():
                     logger.info("      Found metadata.")
                     q = build_query(

@@ -76,8 +76,6 @@ def make_mocks():
 
                 try:
                     if "@id" in i["payload"]:
-                        print(test_name + "/" + i["payload"]["@id"] + ".json")
-
                         with open(
                             test_name + "/" + i["payload"]["@id"] + ".json",
                             "w",
@@ -85,14 +83,6 @@ def make_mocks():
                             g.write(json.dumps(i["payload"]))
 
                     if "@type" in i["payload"] and "declaredName" in i["payload"]:
-                        print(
-                            test_name
-                            + "/"
-                            + i["payload"]["@type"]
-                            + "_"
-                            + i["payload"]["declaredName"]
-                            + ".json"
-                        )
                         with open(
                             test_name
                             + "/"
