@@ -117,7 +117,11 @@ def galestorm(
 
     aj = []
     for a in actions:
-        q = build_query({"property": ["@id"], "operator": ["="], "value": [a["@id"]]})
+        try:
+            q = build_query({"property": ["@id"], "operator": ["="], "value": [a["@id"]]})
+        except KeyError:
+            print(a)
+            raise KeyError
         eid = query_for_element(api, project, q)
         logger.info("Action: {}".format(eid["declaredName"]))
 

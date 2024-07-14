@@ -24,7 +24,7 @@ for test_name in mocks:
         with open(cell, "r") as f:
             nb["cells"].append(nbf.v4.new_code_cell(f.read()))
 
-    fname = test_name + ".ipynb"
+    fname = mocks[test_name][0] + ".ipynb"
 
     with open(fname, "w") as f:
         nbf.write(nb, f)
