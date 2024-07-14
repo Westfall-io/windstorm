@@ -499,7 +499,6 @@ def galestorm(
         output = init_variables(api, project, aj)
         template_files(in_directory, out_directory, output)
 
-
 def main():
     fire.Fire(galestorm)
 
