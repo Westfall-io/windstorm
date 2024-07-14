@@ -4,6 +4,7 @@ from functools import partial
 import filecmp
 import os.path
 import sys
+
 sys.path.append(path.join(path.dirname(__file__), "../src/windstorm"))
 
 import responses
