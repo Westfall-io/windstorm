@@ -155,6 +155,7 @@ def test_500_response():
             api="http://sysml2.intercax.com:9000"
         )
 
+
 @responses.activate
 def test_wrong_type_response_response():
     responses.add(
