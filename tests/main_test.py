@@ -129,6 +129,48 @@ with open("./tests/mocks/api_projects_response/projects.json", "r") as f:
 
 
 @responses.activate
+def test_404_response():
+    responses.add(
+        responses.GET,
+        "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
+        json={},
+        status=404,
+    )
+
+    galestorm(
+        "case1",
+        api="http://sysml2.intercax.com:9000"
+    )
+
+@responses.activate
+def test_500_response():
+    responses.add(
+        responses.GET,
+        "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
+        json={},
+        status=500,
+    )
+
+    galestorm(
+        "case1",
+        api="http://sysml2.intercax.com:9000"
+    )
+
+@responses.activate
+def test_wrong_type_response_response():
+    responses.add(
+        responses.GET,
+        "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
+        json={},
+        status=500,
+    )
+
+    galestorm(
+        "case1",
+        api="http://sysml2.intercax.com:9000"
+    )
+
+@responses.activate
 def test_analysis_simple():
     responses.add(
         responses.GET,
