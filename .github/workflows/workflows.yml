@@ -41,7 +41,7 @@ jobs:
         run: |
           python -m pip install coveralls pytest responses
           python -m coverage run --source=src -m pytest tests && coverage report
-          coverage html
+          coverage html -d coverage_report
           coveralls
       - name: Test with pytest
         run: |
@@ -49,8 +49,8 @@ jobs:
       - name: Upload test coverage results
         uses: actions/upload-artifact@v3
         with:
-          name: coverage.html
-          path: htmlcov/index.html
+          name: coverage
+          path: ./coverage_report
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
       - name: Upload pytest test results
