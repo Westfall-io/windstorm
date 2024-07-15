@@ -50,17 +50,19 @@ def test_wrong_type_response():
 
         galestorm("case1", api="http://sysml2.intercax.com:9000")
 
+
 @responses.activate
 def test_no_json_response():
     with pytest.raises(KeyError) as e_info:
         responses.add(
             responses.GET,
             "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
-            body='',
+            body="",
             status=200,
         )
 
         galestorm("case1", api="http://sysml2.intercax.com:9000")
+
 
 @responses.activate
 def test_no_json_response():
@@ -79,8 +81,11 @@ def test_no_json_response():
             status=200,
         )
         with pytest.raises(SystemExit) as e_info:
-            galestorm("case1", api="http://sysml2.intercax.com:9000",
-                      project_id="00270ef6-e518-455a-b59e-324ffeb1c9da")
+            galestorm(
+                "case1",
+                api="http://sysml2.intercax.com:9000",
+                project_id="00270ef6-e518-455a-b59e-324ffeb1c9da",
+            )
 
 
 @responses.activate
