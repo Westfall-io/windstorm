@@ -306,12 +306,11 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
                 parents=True, exist_ok=True
             )
             if ".git" not in dir_path:
-                with open(thisfile, "r") as f:
-                    # Skip the .git folder
-                    data = f.read()
-                f.close()
-
                 try:
+                    with open(thisfile, "r") as f:
+                        # Skip the .git folder
+                        data = f.read()
+                    f.close()
                     template = Template(data, keep_trailing_newline=True)
                 except UnicodeDecodeError:
                     if in_directory != out_directory:
