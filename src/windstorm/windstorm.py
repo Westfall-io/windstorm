@@ -332,7 +332,7 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
                         # Skip the .git folder
                         data = f.read()
                     f.close()
-                    
+
                     if not force_render_error_continue:
                         user = input(
                             "The file {}/{} has template errors, do you wish to proceed?\n[y/n] ".format(
