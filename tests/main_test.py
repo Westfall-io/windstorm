@@ -19,6 +19,10 @@ def test_analysis_no_meta_no_action():
 
     add_responses(project_response, "1_analysis")
 
+    with open("./tests/mocks/1_analysis/input/template.txt", 'r') as f:
+        with open("./tests/mocks/1_analysis/output/template.txt", 'w') as g:
+            g.write(f.read())
+
     galestorm(
         "case1",
         api="http://sysml2.intercax.com:9000",
@@ -39,6 +43,10 @@ def test_analysis_no_meta():
     """Nothing to say this is a windstorm element, but this one is inside
     of an action"""
     add_responses(project_response, "1_analysis")
+
+    with open("./tests/mocks/1_analysis/input/template.txt", 'r') as f:
+        with open("./tests/mocks/1_analysis/output/template.txt", 'w') as g:
+            g.write(f.read())
 
     galestorm(
         "case2",
