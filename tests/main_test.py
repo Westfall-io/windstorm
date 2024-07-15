@@ -161,12 +161,13 @@ def test_failed_template_forced_skip():
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "1"
 
+
 @responses.activate
 def test_analysis_success_binary_skip():
     """This should succeed and replace a file with 'No'"""
     add_responses(project_response, "1_analysis")
 
-    with open('./tests/mocks/1_analysis/input/binary.b', 'wb'):
+    with open("./tests/mocks/1_analysis/input/binary.b", "wb"):
         ba = bytearray([123, 3, 255, 0, 100])
         f.write(ba)
 
