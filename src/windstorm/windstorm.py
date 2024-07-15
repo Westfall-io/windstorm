@@ -52,7 +52,7 @@ def is_valid_uuid(val):
             logger.error("The project id was not passed as a valid uuid.")
             sys.exit()
 
-<<<<<<< HEAD
+
 def handle_literals(element, variables):
     if element["@type"] == "LiteralInteger":
         logger.info("         Value: {}".format(element["value"]))
@@ -67,8 +67,6 @@ def handle_literals(element, variables):
         return False, variables
 
     return True, variables
-=======
->>>>>>> 2e3e549 (:robot: Format code with black)
 
 def init_variables(api, project, aj):
     logger.info("---------------------------------")
