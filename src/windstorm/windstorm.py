@@ -309,49 +309,52 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
                 with open(thisfile, "r") as f:
                     # Skip the .git folder
                     data = f.read()
-                    try:
-                        template = Template(data, keep_trailing_newline=True)
-                    except UnicodeDecodeError:
-                        if in_directory != out_directory:
-                            with open(outfile, "w") as f2:
-                                f2.write(data)
-                        logger.warning(
-                            "Skipping file {}/{} because it was not text-based.".format(
+                f.close()
+
+                try:
+                    template = Template(data, keep_trailing_newline=True)
+                except UnicodeDecodeError:
+                    if in_directory != out_directory:
+                        with open(outfile, "w") as f2:
+                            f2.write(data)
+                    logger.warning(
+                        "Skipping file {}/{} because it was not text-based.".format(
+                            dir_path, name
+                        )
+                    )
+                    continue
+                except TemplateSyntaxError as e:
+                    if not force_render_error_continue:
+                        user = input(
+                            "The file {}/{} has template errors, do you wish to proceed?\n[y/n] ".format(
                                 dir_path, name
                             )
                         )
-                        continue
-                    except TemplateSyntaxError as e:
-                        if not force_render_error_continue:
+                        while user != "y":
+                            if user == "n":
+                                sys.exit()
+                            logger.warning("Please enter [y/n] to continue.")
                             user = input(
                                 "The file {}/{} has template errors, do you wish to proceed?\n[y/n] ".format(
                                     dir_path, name
                                 )
                             )
-                            while user != "y":
-                                if user == "n":
-                                    sys.exit()
-                                logger.warning("Please enter [y/n] to continue.")
-                                user = input(
-                                    "The file {}/{} has template errors, do you wish to proceed?\n[y/n] ".format(
-                                        dir_path, name
-                                    )
-                                )
-                        else:
-                            pass
+                    else:
+                        pass
 
-                        if in_directory != out_directory:
-                            with open(outfile, "w") as f2:
-                                f2.write(data)
-                        logger.warning(
-                            "Skipping file {}/{} because it had a template error.".format(
-                                dir_path, name
-                            )
+                    if in_directory != out_directory:
+                        with open(outfile, "w") as f2:
+                            f2.write(data)
+                        f2.close()
+                    logger.warning(
+                        "Skipping file {}/{} because it had a template error.".format(
+                            dir_path, name
                         )
-                        logger.warning(
-                            "   The template error was reported as: {}".format(e)
-                        )
-                        continue
+                    )
+                    logger.warning(
+                        "   The template error was reported as: {}".format(e)
+                    )
+                    continue
 
                     # Overwrite anything in the current folder with the artifact
                     with open(outfile, "w") as f:
@@ -362,6 +365,7 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
                                 **output,
                             )
                         )
+                    f.close()
 
 
 def galestorm(
