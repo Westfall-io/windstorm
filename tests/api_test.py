@@ -63,7 +63,7 @@ def test_no_json_response():
         galestorm("case1", api="http://sysml2.intercax.com:9000")
 
 @responses.activate
-def test_no_json_response():
+def test_no_project_response():
     with pytest.raises(SystemExit) as e_info:
         responses.add(
             responses.GET,

@@ -64,11 +64,11 @@ def check_for_api(api, project_id):
 
 def validate(params):
     if not "value" in params:
-        raise AttributeError("No values set")
+        raise KeyError("No values set")
     if not "operator" in params:
-        raise AttributeError("No operators set")
+        raise KeyError("No operators set")
     if not "property" in params:
-        raise AttributeError("No properties set")
+        raise KeyError("No properties set")
 
 
 def build_query(params):
