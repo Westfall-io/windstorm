@@ -22,3 +22,10 @@ def test_validate_query():
 def test_build_query():
     with pytest.raises(TypeError):
         apif.build_query({"value": 1, "operator": 1, "property": 1})
+
+def test_build_query_2():
+    with pytest.raises(TypeError):
+        apif.build_query({"value": [1], "operator": 1, "property": 1})
+
+if __name__ == '__main__':
+    test_build_query()
