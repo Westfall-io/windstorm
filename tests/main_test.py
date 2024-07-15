@@ -87,6 +87,26 @@ def test_analysis_success():
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "No"
 
+@responses.activate
+def test_analysis_success_debug():
+    """This should succeed and replace a file with 'No'"""
+    add_responses(project_response, "1_analysis")
+
+    with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
+        f.write("{{ windstorm('deltaT') }}")
+    f.close()
+
+    galestorm(
+        "case3",
+        api="http://sysml2.intercax.com:9000",
+        in_directory="./tests/mocks/1_analysis/input",
+        out_directory="./tests/mocks/1_analysis/output",
+        debug=True,
+    )
+
+    with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
+        assert f.read().strip() == "No"
+
 
 @responses.activate
 def test_analysis_featurechain():
@@ -127,6 +147,24 @@ def test_analysis_featurechain_deeper():
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "1"
 
+@responses.activate
+def test_analysis_featurechain():
+    """This should succeed and replace a file with 'No'"""
+    add_responses(project_response, "1_analysis")
+
+    with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
+        f.write("{{ windstorm('deltaT') }}")
+    f.close()
+
+    galestorm(
+        "case6",
+        api="http://sysml2.intercax.com:9000",
+        in_directory="./tests/mocks/1_analysis/input",
+        out_directory="./tests/mocks/1_analysis/output",
+    )
+
+    with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
+        assert f.read().strip() == "3"
 
 @responses.activate
 def test_failed_template():

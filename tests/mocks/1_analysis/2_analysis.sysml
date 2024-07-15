@@ -56,6 +56,17 @@ package Analysis {
         in engine_weight = a.b.c {@ToolVariable {name = "deltaT";}}
     }
 
+    // Valid Case - No action, meta, three level input (Integer)
+    analysis def case6 {
+        subject A;
+
+        metadata ToolExecution {
+            toolName = "Windstorm";
+        }
+
+        in engine_weight = a.b.e {@ToolVariable {name = "deltaT";}}
+    }
+
 
     // Valid Case - No action, meta, one input
     analysis def case35 {
@@ -96,7 +107,7 @@ package Analysis {
     }
 
     // Valid Case - No action, two metas, two input
-    analysis def case6 {
+    analysis def case65 {
         subject A;
 
         metadata ToolExecution {
