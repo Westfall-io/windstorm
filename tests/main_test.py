@@ -1,5 +1,5 @@
 import os.path
-import sys.path
+import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../src/windstorm"))
 
