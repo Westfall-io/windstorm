@@ -70,6 +70,7 @@ def test_analysis_success():
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "No"
 
+
 @responses.activate
 def test_analysis_featurechain():
     """This should succeed and replace a file with 'No'"""
@@ -84,6 +85,7 @@ def test_analysis_featurechain():
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "1.1"
+
 
 @responses.activate
 def test_analysis_featurechain_deeper():
