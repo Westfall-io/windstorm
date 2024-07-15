@@ -141,7 +141,7 @@ def test_failed_template_success():
         assert f.read().strip() == "1"
 
 @responses.activate
-def test_failed_template_success():
+def test_failed_template_forced_skip():
     """This should succeed and replace a file with 'No'"""
     add_responses(project_response, "1_analysis")
 
@@ -159,3 +159,22 @@ def test_failed_template_success():
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "1"
+
+@responses.activate
+def test_analysis_success_binary_skip():
+    """This should succeed and replace a file with 'No'"""
+    add_responses(project_response, "1_analysis")
+
+    with open('./tests/mocks/1_analysis/input/binary.b', 'wb'):
+        ba = bytearray([123, 3, 255, 0, 100])
+        f.write(ba)
+
+    galestorm(
+        "case3",
+        api="http://sysml2.intercax.com:9000",
+        in_directory="./tests/mocks/1_analysis/input",
+        out_directory="./tests/mocks/1_analysis/output",
+    )
+
+    with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
+        assert f.read().strip() == "No"
