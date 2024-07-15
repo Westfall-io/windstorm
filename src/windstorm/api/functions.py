@@ -59,8 +59,6 @@ def check_for_api(api, project_id):
         logger.error(response)
         github_issue_error()
 
-    return response
-
 
 def validate(params):
     if not "value" in params:
@@ -82,7 +80,7 @@ def build_query(params):
             base_query["where"]["operator"] = params["operator"][0]
             base_query["where"]["property"] = params["property"][0]
             base_query["where"]["value"] = params["value"][0]
-        except Exception as e:
+        except TypeError as e:
             logger.error("Input params were incorrect when passed to build a query")
             raise e
     elif len(params["value"]) > 1:
