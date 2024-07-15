@@ -7,16 +7,18 @@ import pytest
 
 import api.functions as apif
 
+
 def test_validate_query():
     with pytest.raises(KeyError):
         apif.validate({})
 
     with pytest.raises(KeyError):
-        apif.validate({'value':'no'})
+        apif.validate({"value": "no"})
 
     with pytest.raises(KeyError):
-        apif.validate({'value':'no', 'operator':'no'})
+        apif.validate({"value": "no", "operator": "no"})
+
 
 def test_build_query():
     with pytest.raises(IndexError):
-        apif.validate({'value':'no', 'operator':'no', 'property': 'no'})
+        apif.validate({"value": "no", "operator": "no", "property": "no"})
