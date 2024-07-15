@@ -68,4 +68,4 @@ def test_analysis_success():
     )
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
-        assert f.read() == "No"
+        assert f.read().strip() == "No"
