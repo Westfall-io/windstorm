@@ -171,7 +171,7 @@ def test_failed_template_forced_skip():
     )
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
-        assert f.read() == "{{ }\n"
+        assert f.read() == "{{ }"
     f.close()
 
 
