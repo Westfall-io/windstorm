@@ -2,10 +2,12 @@ import json
 import filecmp
 import os.path
 
+
 def project_response_fn():
     with open("./tests/mocks/api_projects_response/projects.json", "r") as f:
         project_response = json.loads(f.read())
     return project_response
+
 
 def are_dir_trees_equal(dir1, dir2):
     """
