@@ -14,9 +14,7 @@ from tests.common.functions import *
 # Get the default project endpoint response.
 project_response = project_response_fn()
 
-
-@responses.activate
-def test_analysis_simple():
+def add_responses():
     responses.add(
         responses.GET,
         "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
@@ -30,6 +28,10 @@ def test_analysis_simple():
         callback=partial(request_callback, mock_dir="1_analysis"),
         content_type="application/json",
     )
+
+@responses.activate
+def test_analysis_simple():
+    add_responses()
 
     analysis = ["case1", "case2"]
     for a in analysis:
