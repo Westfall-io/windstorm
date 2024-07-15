@@ -15,16 +15,27 @@ package Analysis {
         in engine_weight = a.b.c;
     }
 
-    // Invalid Case - No action, no meta, two inputs
+    // Invalid Case - Action, no meta, single input
     analysis def case2 {
         subject A;
-
-        in engine_weight = a.b.c;
-        in engine = a.b.d;
+        action runSim {
+            in engine_weight = a.b.c;
+        }
     }
 
     // Valid Case - No action, meta, one input
     analysis def case3 {
+        subject A;
+
+        metadata ToolExecution {
+            toolName = "Windstorm";
+        }
+
+        in engine_weight = "No" {@ToolVariable {name = "deltaT";}}
+    }
+
+    // Valid Case - No action, meta, one input
+    analysis def case35 {
         subject A;
 
         metadata ToolExecution {
@@ -77,13 +88,7 @@ package Analysis {
         in engine = a.b.d {@ToolVariable {name = "deltaE";}}
     }
 
-    // Invalid Case - Action, no meta, single input
-    analysis def case7 {
-        subject A;
-        action runSim {
-            in engine_weight = a.b.c;
-        }
-    }
+
 
     // Invalid Case - Action, no meta, two inputs
     analysis def case8 {
