@@ -19,19 +19,19 @@ def test_analysis_no_meta_no_action():
 
     add_responses(project_response, "1_analysis")
 
-        galestorm(
-            "case1",
-            api="http://sysml2.intercax.com:9000",
-            in_directory="./tests/mocks/1_analysis/input",
-            out_directory="./tests/mocks/1_analysis/output",
-        )
+    galestorm(
+        "case1",
+        api="http://sysml2.intercax.com:9000",
+        in_directory="./tests/mocks/1_analysis/input",
+        out_directory="./tests/mocks/1_analysis/output",
+    )
 
-        assert (
-            are_dir_trees_equal(
-                "./tests/mocks/1_analysis/input", "./tests/mocks/1_analysis/output"
-            )
-            == True
+    assert (
+        are_dir_trees_equal(
+            "./tests/mocks/1_analysis/input", "./tests/mocks/1_analysis/output"
         )
+        == True
+    )
 
 @responses.activate
 def test_analysis_no_meta():
@@ -39,19 +39,19 @@ def test_analysis_no_meta():
     of an action """
     add_responses(project_response, "1_analysis")
 
-        galestorm(
-            "case2",
-            api="http://sysml2.intercax.com:9000",
-            in_directory="./tests/mocks/1_analysis/input",
-            out_directory="./tests/mocks/1_analysis/output",
-        )
+    galestorm(
+        "case2",
+        api="http://sysml2.intercax.com:9000",
+        in_directory="./tests/mocks/1_analysis/input",
+        out_directory="./tests/mocks/1_analysis/output",
+    )
 
-        assert (
-            are_dir_trees_equal(
-                "./tests/mocks/1_analysis/input", "./tests/mocks/1_analysis/output"
-            )
-            == True
+    assert (
+        are_dir_trees_equal(
+            "./tests/mocks/1_analysis/input", "./tests/mocks/1_analysis/output"
         )
+        == True
+    )
 
 @responses.activate
 def test_analysis_success():
