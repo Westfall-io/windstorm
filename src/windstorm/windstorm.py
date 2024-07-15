@@ -319,7 +319,7 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
                     f.close()
 
                     if in_directory != out_directory:
-                        with open(outfile, "w") as f2:
+                        with open(outfile, "wb") as f2:
                             f2.write(data)
                     logger.warning(
                         "Skipping file {}/{} because it was not text-based.".format(
