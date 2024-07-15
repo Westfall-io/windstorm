@@ -21,4 +21,4 @@ def test_validate_query():
 
 def test_build_query():
     #with pytest.raises(IndexError):
-    apif.validate({"value": "no", "operator": "no", "property": "no"})
+    apif.validate({"value": "no", "operator": "no", "property": 1})
