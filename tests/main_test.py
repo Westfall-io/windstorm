@@ -60,6 +60,10 @@ def test_analysis_success():
     """This should succeed and replace a file with 'No'"""
     add_responses(project_response, "1_analysis")
 
+    with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
+        f.write("{{ windstorm('deltaT') }}")
+    f.close()
+
     galestorm(
         "case3",
         api="http://sysml2.intercax.com:9000",
@@ -75,6 +79,10 @@ def test_analysis_success():
 def test_analysis_featurechain():
     """This should succeed and replace a file with 'No'"""
     add_responses(project_response, "1_analysis")
+
+    with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
+        f.write("{{ windstorm('deltaT') }}")
+    f.close()
 
     galestorm(
         "case4",
@@ -92,6 +100,10 @@ def test_analysis_featurechain_deeper():
     """This should succeed and replace a file with 'No'"""
     add_responses(project_response, "1_analysis")
 
+    with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
+        f.write("{{ windstorm('deltaT') }}")
+    f.close()
+
     galestorm(
         "case5",
         api="http://sysml2.intercax.com:9000",
@@ -108,7 +120,7 @@ def test_failed_template():
     """This should succeed and replace a file with 'No'"""
     add_responses(project_response, "1_analysis")
 
-    with open("./tests/mocks/1_analysis/input/fail.txt", "w") as f:
+    with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
         f.write("{{ windstorm('deltaE') }}")
     f.close()
 
@@ -126,7 +138,7 @@ def test_failed_template_success():
     """This should succeed and replace a file with 'No'"""
     add_responses(project_response, "1_analysis")
 
-    with open("./tests/mocks/1_analysis/input/fail.txt", "w") as f:
+    with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
         f.write("{{ windstorm('deltaE', 1) }}")
     f.close()
 
@@ -137,7 +149,7 @@ def test_failed_template_success():
         out_directory="./tests/mocks/1_analysis/output",
     )
 
-    with open("./tests/mocks/1_analysis/output/fail.txt", "r") as f:
+    with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "1"
 
 
@@ -146,7 +158,7 @@ def test_failed_template_forced_skip():
     """This should succeed and replace a file with 'No'"""
     add_responses(project_response, "1_analysis")
 
-    with open("./tests/mocks/1_analysis/input/fail.txt", "w") as f:
+    with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
         f.write("{{ }")
     f.close()
 
@@ -166,6 +178,10 @@ def test_analysis_success_binary_skip():
     """This should succeed and replace a file with 'No'"""
     add_responses(project_response, "1_analysis")
 
+    with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
+        f.write("{{ windstorm('deltaT') }}")
+    f.close()
+    
     with open('./tests/mocks/1_analysis/input/binary.b', 'wb'):
         ba = bytearray([123, 3, 255, 0, 100])
         f.write(ba)
