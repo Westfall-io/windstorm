@@ -14,6 +14,7 @@ from tests.common.functions import *
 # Get the default project endpoint response.
 project_response = project_response_fn()
 
+
 def add_responses():
     responses.add(
         responses.GET,
@@ -28,6 +29,7 @@ def add_responses():
         callback=partial(request_callback, mock_dir="1_analysis"),
         content_type="application/json",
     )
+
 
 @responses.activate
 def test_analysis_simple():
