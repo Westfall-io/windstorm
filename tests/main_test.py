@@ -155,6 +155,8 @@ def test_failed_template_forced_skip():
 
     with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
         f.write("{{ }")
+    with open("./tests/mocks/1_analysis/input/template.txt", "r") as f:
+        print(f.read())
 
     galestorm(
         "case3",

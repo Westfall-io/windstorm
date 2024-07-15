@@ -336,6 +336,8 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
                                         dir_path, name
                                     )
                                 )
+                        else:
+                            pass
 
                         if in_directory != out_directory:
                             with open(outfile, "w") as f2:
