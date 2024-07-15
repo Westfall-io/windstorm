@@ -19,8 +19,8 @@ def test_analysis_no_meta_no_action():
 
     add_responses(project_response, "1_analysis")
 
-    with open("./tests/mocks/1_analysis/input/template.txt", 'r') as f:
-        with open("./tests/mocks/1_analysis/output/template.txt", 'w') as g:
+    with open("./tests/mocks/1_analysis/input/template.txt", "r") as f:
+        with open("./tests/mocks/1_analysis/output/template.txt", "w") as g:
             g.write(f.read())
 
     galestorm(
@@ -44,8 +44,8 @@ def test_analysis_no_meta():
     of an action"""
     add_responses(project_response, "1_analysis")
 
-    with open("./tests/mocks/1_analysis/input/template.txt", 'r') as f:
-        with open("./tests/mocks/1_analysis/output/template.txt", 'w') as g:
+    with open("./tests/mocks/1_analysis/input/template.txt", "r") as f:
+        with open("./tests/mocks/1_analysis/output/template.txt", "w") as g:
             g.write(f.read())
 
     galestorm(
