@@ -53,7 +53,7 @@ def test_wrong_type_response():
 
 @responses.activate
 def test_no_json_response():
-    with pytest.raises(KeyError) as e_info:
+    with pytest.raises(NotImplementedError) as e_info:
         responses.add(
             responses.GET,
             "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
