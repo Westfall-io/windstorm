@@ -102,6 +102,7 @@ def test_analysis_featurechain_deeper():
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "1"
 
+
 @responses.activate
 def test_failed_template():
     """This should succeed and replace a file with 'No'"""
@@ -118,6 +119,7 @@ def test_failed_template():
             in_directory="./tests/mocks/1_analysis/input",
             out_directory="./tests/mocks/1_analysis/output",
         )
+
 
 @responses.activate
 def test_failed_template_success():
