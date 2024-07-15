@@ -33,12 +33,10 @@ def test_build_query_3():
     with pytest.raises(TypeError):
         apif.build_query({"value": [], "operator": 1, "property": 1})
 
+
 def test_invalid_uuid():
     with pytest.raises(ValueError):
-        galestorm(
-            "case3",
-            project_id = "111"
-        )
+        galestorm("case3", project_id="111")
 
 
 if __name__ == "__main__":
