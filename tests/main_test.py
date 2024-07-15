@@ -69,3 +69,33 @@ def test_analysis_success():
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "No"
+
+@responses.activate
+def test_analysis_featurechain():
+    """This should succeed and replace a file with 'No'"""
+    add_responses(project_response, "1_analysis")
+
+    galestorm(
+        "case4",
+        api="http://sysml2.intercax.com:9000",
+        in_directory="./tests/mocks/1_analysis/input",
+        out_directory="./tests/mocks/1_analysis/output",
+    )
+
+    with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
+        assert f.read().strip() == "1.1"
+
+@responses.activate
+def test_analysis_featurechain_deeper():
+    """This should succeed and replace a file with 'No'"""
+    add_responses(project_response, "1_analysis")
+
+    galestorm(
+        "case5",
+        api="http://sysml2.intercax.com:9000",
+        in_directory="./tests/mocks/1_analysis/input",
+        out_directory="./tests/mocks/1_analysis/output",
+    )
+
+    with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
+        assert f.read().strip() == "1"

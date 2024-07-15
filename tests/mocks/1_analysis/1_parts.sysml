@@ -10,6 +10,7 @@ package a {
 
     part def A {
         part b : B;
+        attribute f : Real = 1.1;
     }
 
     part a : A;

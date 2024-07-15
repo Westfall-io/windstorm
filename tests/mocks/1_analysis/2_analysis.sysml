@@ -23,7 +23,7 @@ package Analysis {
         }
     }
 
-    // Valid Case - No action, meta, one input
+    // Valid Case - No action, meta, string direct input
     analysis def case3 {
         subject A;
 
@@ -33,6 +33,29 @@ package Analysis {
 
         in engine_weight = "No" {@ToolVariable {name = "deltaT";}}
     }
+
+    // Valid Case - No action, meta, two level input (Rational)
+    analysis def case4 {
+        subject A;
+
+        metadata ToolExecution {
+            toolName = "Windstorm";
+        }
+
+        in engine_weight = a.f {@ToolVariable {name = "deltaT";}}
+    }
+
+    // Valid Case - No action, meta, three level input (Integer)
+    analysis def case5 {
+        subject A;
+
+        metadata ToolExecution {
+            toolName = "Windstorm";
+        }
+
+        in engine_weight = a.b.c {@ToolVariable {name = "deltaT";}}
+    }
+
 
     // Valid Case - No action, meta, one input
     analysis def case35 {
@@ -46,7 +69,7 @@ package Analysis {
     }
 
     // Valid Case - No action, meta, two input
-    analysis def case4 {
+    analysis def case45 {
         subject A;
 
         metadata ToolExecution {
@@ -58,7 +81,7 @@ package Analysis {
     }
 
     // Valid Case - No action, two metas, one input
-    analysis def case5 {
+    analysis def case55 {
         subject A;
 
         metadata ToolExecution {
