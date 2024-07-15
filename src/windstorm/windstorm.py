@@ -313,7 +313,7 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
                     f.close()
                     template = Template(data, keep_trailing_newline=True)
                 except UnicodeDecodeError:
-                    with open(thisfile, "r") as f:
+                    with open(thisfile, "rb") as f:
                         # Skip the .git folder
                         data = f.read()
                     f.close()
