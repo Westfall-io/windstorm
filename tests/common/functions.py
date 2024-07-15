@@ -1,7 +1,10 @@
 import json
 import filecmp
 import os.path
+
 from functools import partial
+
+import responses
 
 def project_response_fn():
     with open("./tests/mocks/api_projects_response/projects.json", "r") as f:
