@@ -150,7 +150,7 @@ def test_analysis_featurechain_deeper():
 
 
 @responses.activate
-def test_analysis_featurechain():
+def test_analysis_units():
     """This should succeed and replace a file with 'No'"""
     add_responses(project_response, "1_analysis")
 
