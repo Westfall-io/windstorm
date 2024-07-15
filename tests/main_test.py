@@ -33,10 +33,18 @@ def test_analysis_no_meta_no_action():
         == True
     )
 
+<<<<<<< HEAD
 @responses.activate
 def test_analysis_no_meta():
     """ Nothing to say this is a windstorm element, but this one is inside
     of an action """
+=======
+
+@responses.activate
+def test_analysis_no_meta():
+    """Nothing to say this is a windstorm element, but this one is inside
+    of an action"""
+>>>>>>> refs/remotes/origin/33-add-support-for-testing
     add_responses(project_response, "1_analysis")
 
     galestorm(
@@ -53,9 +61,16 @@ def test_analysis_no_meta():
         == True
     )
 
+<<<<<<< HEAD
 @responses.activate
 def test_analysis_success():
     """ This should succeed and replace a file with 'No' """
+=======
+
+@responses.activate
+def test_analysis_success():
+    """This should succeed and replace a file with 'No'"""
+>>>>>>> refs/remotes/origin/33-add-support-for-testing
     add_responses(project_response, "1_analysis")
 
     galestorm(
@@ -64,6 +79,7 @@ def test_analysis_success():
         in_directory="./tests/mocks/1_analysis/input",
         out_directory="./tests/mocks/1_analysis/output",
     )
+<<<<<<< HEAD
     with open("./tests/mocks/1_analysis/output/template.txt", 'r') as f:
         assert f.read() == 'No'
 
@@ -119,3 +135,7 @@ def test_analysis_success():
 
 #    assert resp2.status_code == 200
 #    assert resp2.request.method == "PUT"
+=======
+    with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
+        assert f.read() == "No"
+>>>>>>> refs/remotes/origin/33-add-support-for-testing

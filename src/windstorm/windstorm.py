@@ -53,6 +53,21 @@ def is_valid_uuid(val):
             sys.exit()
 
 
+def handle_literals(element, variables):
+    if element["@type"] == "LiteralInteger":
+        logger.info("         Value: {}".format(element["value"]))
+        variables["value"] = element["value"]
+    elif element["@type"] == "LiteralString":
+        logger.info("         Value: {}".format(element["value"]))
+        variables["value"] = element["value"]
+    elif element["@type"] == "LiteralRational":
+        logger.info("         Value: {}".format(element["value"]))
+        variables["value"] = element["value"]
+    else:
+        return False, variables
+
+    return True, variables
+
 def init_variables(api, project, aj):
     logger.info("---------------------------------")
     logger.info("Searching for input values.")
@@ -140,6 +155,12 @@ def init_variables(api, project, aj):
                         if ename is None:
                             ename = voeid.get("@type", None)
                         logger.info("      Element: {}".format(ename))
+
+                        literal, thisvar = handle_literals(voeid, thisvar)
+                        if literal:
+                            # Just go to the next element, it's been handled.
+                            continue
+
                         if voeid["@type"] == "FeatureChainExpression":
                             q = build_query(
                                 {
@@ -153,17 +174,26 @@ def init_variables(api, project, aj):
                                 "         TargetElement: {}".format(valid["@type"])
                             )
                             if "chainingFeature" in valid:
-                                q = build_query(
-                                    {
-                                        "property": ["@id"],
-                                        "operator": ["="],
-                                        "value": [valid["chainingFeature"][-1]["@id"]],
-                                    }
-                                )
-                                chainid = query_for_element(api, project, q)
-                                logger.debug(
-                                    "         ChainElement: {}".format(chainid["@type"])
-                                )
+
+                                if len(valid["chainingFeature"]) == 0:
+                                    chainid = valid
+                                else:
+                                    q = build_query(
+                                        {
+                                            "property": ["@id"],
+                                            "operator": ["="],
+                                            "value": [
+                                                valid["chainingFeature"][-1]["@id"]
+                                            ],
+                                        }
+                                    )
+                                    chainid = query_for_element(api, project, q)
+                                    logger.debug(
+                                        "         ChainElement: {}".format(
+                                            chainid["@type"]
+                                        )
+                                    )
+
                                 for key in chainid["ownedElement"]:
                                     q = build_query(
                                         {
@@ -173,17 +203,13 @@ def init_variables(api, project, aj):
                                         }
                                     )
                                     v2 = query_for_element(api, project, q)
-                                    if v2["@type"] == "LiteralInteger":
-                                        logger.info(
-                                            "         Value: {}".format(v2["value"])
-                                        )
-                                        thisvar["value"] = v2["value"]
-                                    elif v2["@type"] == "LiteralString":
-                                        logger.info(
-                                            "         Value: {}".format(v2["value"])
-                                        )
-                                        thisvar["value"] = v2["value"]
-                                    elif v2["@type"] == "OperatorExpression":
+
+                                    literal, thisvar = handle_literals(v2, thisvar)
+                                    if literal:
+                                        # Skip the rest of this code if it's been handled.
+                                        continue
+
+                                    if v2["@type"] == "OperatorExpression":
                                         for arg in v2["argument"]:
                                             q = build_query(
                                                 {
@@ -193,22 +219,11 @@ def init_variables(api, project, aj):
                                                 }
                                             )
                                             v3 = query_for_element(api, project, q)
+                                            literal, thisvar = handle_literals(
+                                                v3, thisvar
+                                            )
 
-                                            if v3["@type"] == "LiteralInteger":
-                                                logger.info(
-                                                    "         Value: {}".format(
-                                                        v3["value"]
-                                                    )
-                                                )
-                                                thisvar["value"] = v3["value"]
-                                            elif v3["@type"] == "LiteralString":
-                                                logger.info(
-                                                    "         Value: {}".format(
-                                                        v3["value"]
-                                                    )
-                                                )
-                                                thisvar["value"] = v3["value"]
-                                            else:
+                                            if not literal:
                                                 continue
                                         ###### END LOOP for each argument
                                     elif v2["@type"] == "Multiplicity":
@@ -223,6 +238,7 @@ def init_variables(api, project, aj):
                                                 v2["@type"]
                                             )
                                         )
+                                    ###### END IF @type
                                 ###### END LOOP for each element in attribute
                             else:
                                 # No chaining feature
@@ -292,7 +308,7 @@ def template_files(in_directory, out_directory, output):
                 with open(thisfile, "r") as f:
                     # Skip the .git folder
                     try:
-                        template = Template(f.read())
+                        template = Template(f.read(), keep_trailing_newline=True)
                     except UnicodeDecodeError:
                         if in_directory != out_directory:
                             with open(outfile, "w") as f2:
@@ -335,7 +351,163 @@ def template_files(in_directory, out_directory, output):
 
                     # Overwrite anything in the current folder with the artifact
                     with open(outfile, "w") as f:
-                        f.write(template.render(windstorm=windstorm, **output))
+                        f.write(
+                            template.render(
+                                windstorm=windstorm,
+                                keep_trailing_newline=True,
+                                **output,
+                            )
+                        )
+
+
+def galestorm(
+    element_name: str,
+    api: str = "http://sysml2.intercax.com:9000",
+    project_id: str = "",
+    element_type: str = "AnalysisCaseDefinition",
+    in_directory: str = ".",
+    out_directory: str = ".",
+    force_render_error_continue: bool = False,
+    debug: bool = False,
+):
+    """
+    This is a description of the program.
+
+    """
+    setup_logging(debug)
+
+    # Grab the project from the API - either the latest or a specific one
+    project = check_for_api(api, is_valid_uuid(project_id))
+    if "name" in project and "@id" in project:
+        logger.info('Found project "{}" - {}'.format(project["name"], project["@id"]))
+    else:
+        logger.info("Response was {}.".format(project))
+        raise KeyError
+
+    # Check for analysis in the model
+    q = build_query(
+        {
+            "property": ["@type", "declaredName"],
+            "operator": ["=", "="],
+            "value": [element_type, element_name],
+        }
+    )
+
+    eid = query_for_element(api, project, q)
+
+    if "ownedAction" in eid:
+        actions = []
+        for oa in eid["ownedAction"]:
+            actions.append(oa)
+
+    logger.info("Found {} actions.".format(len(actions)))
+
+    if len(actions) == 0:
+        # No actions, so the analysis definition is the main element
+        actions = [eid]
+
+    aj = []
+    for a in actions:
+        try:
+            q = build_query(
+                {"property": ["@id"], "operator": ["="], "value": [a["@id"]]}
+            )
+        except KeyError:
+            print("{}".format(sorted(list(a.keys()))))
+            raise KeyError
+        eid = query_for_element(api, project, q)
+        logger.info("Action: {}".format(eid["declaredName"]))
+
+        # Check if this is a valid action with associated metadata
+        if "ownedElement" in eid:
+            for oe in eid["ownedElement"]:
+                q = build_query(
+                    {"property": ["@id"], "operator": ["="], "value": [oe["@id"]]}
+                )
+                oid = query_for_element(api, project, q)
+                if "declaredName" in oid:
+                    logger.info("   Element: {}".format(oid["declaredName"]))
+                else:
+                    logger.info("   Element Type: {}".format(oid["@type"]))
+
+                if oid["@type"].lower() == "MetadataUsage".lower():
+                    logger.info("      Found metadata.")
+                    q = build_query(
+                        {
+                            "property": ["@id"],
+                            "operator": ["="],
+                            "value": [oid["metadataDefinition"]["@id"]],
+                        }
+                    )
+                    mdid = query_for_element(api, project, q)
+
+                    if mdid["qualifiedName"] == "AnalysisTooling::ToolExecution":
+                        logger.info("         Found analysis tool metadata.")
+
+                        for mdoe in oid["ownedElement"]:
+                            q = build_query(
+                                {
+                                    "property": ["@id"],
+                                    "operator": ["="],
+                                    "value": [mdoe["@id"]],
+                                }
+                            )
+                            mdoeid = query_for_element(api, project, q)
+
+                            if (
+                                mdoeid["@type"] == "ReferenceUsage"
+                                and mdoeid["name"] == "toolName"
+                            ):
+                                if len(mdoeid["ownedElement"]) > 1:
+                                    raise NotImplementedError(
+                                        "Unhandled "
+                                        + "response: ReferenceUsage had more "
+                                        + "than one response"
+                                    )
+                                else:
+                                    q = build_query(
+                                        {
+                                            "property": ["@id"],
+                                            "operator": ["="],
+                                            "value": [mdoeid["ownedElement"][0]["@id"]],
+                                        }
+                                    )
+                                    f = query_for_element(api, project, q)
+                                    if f["value"] == "Windstorm":
+                                        logger.info(
+                                            "            Found windstorm tool metadata."
+                                        )
+                                        logger.info(
+                                            "            Adding action as valid windstorm analysis: {}".format(
+                                                eid["declaredName"]
+                                            )
+                                        )
+                                        aj.append(eid)
+                            if len(aj) > 0:
+                                break
+                else:
+                    # This owned element is not a MetaData
+                    logger.info("      Skipping non-metadata element.")
+
+                if len(aj) > 0:
+                    break
+            ###### END LOOP for each element in owned element
+        else:
+            # This element doesn't own others
+            logger.warning("Could not find ownedElement in action.")
+    ###### END LOOP for each action
+
+    if len(aj) == 0:
+        if in_directory == out_directory:
+            logger.info("Nothing to do, closing...")
+        else:
+            logger.info("Copying all files from input to output, no changes...")
+            from distutils.dir_util import copy_tree
+
+            copy_tree(in_directory, out_directory)
+    else:
+        output = init_variables(api, project, aj)
+        template_files(in_directory, out_directory, output)
 
 
 def galestorm(
