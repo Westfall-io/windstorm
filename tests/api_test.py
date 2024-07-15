@@ -86,6 +86,7 @@ def test_no_project_response():
             project_id="00270ef6-e518-455a-b59e-324ffeb1c9da",
         )
 
+
 @responses.activate
 def test_bad_project_response():
     with pytest.raises(SystemExit) as e_info:
@@ -99,7 +100,7 @@ def test_bad_project_response():
         responses.add(
             responses.GET,
             "http://sysml2.intercax.com:9000/projects/00270ef6-e518-455a-b59e-324ffeb1c9da",
-            json=[project_response,project_response],
+            json=[project_response, project_response],
             status=200,
         )
         galestorm(
