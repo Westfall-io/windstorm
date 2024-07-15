@@ -1,5 +1,6 @@
 import os.path
 import sys.path
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "../src/windstorm"))
 
 from functools import partial
@@ -12,6 +13,7 @@ from common.functions import *
 
 # Get the default project endpoint response.
 project_response = project_response_fn()
+
 
 @responses.activate
 def test_analysis_simple():
