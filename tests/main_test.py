@@ -12,6 +12,7 @@ from tests.common.functions import *
 # Get the default project endpoint response.
 project_response = project_response_fn()
 
+
 @responses.activate
 def test_analysis_simple():
     add_responses(project_response, "1_analysis")

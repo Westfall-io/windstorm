@@ -3,10 +3,12 @@ import filecmp
 import os.path
 from functools import partial
 
+
 def project_response_fn():
     with open("./tests/mocks/api_projects_response/projects.json", "r") as f:
         project_response = json.loads(f.read())
     return project_response
+
 
 def are_dir_trees_equal(dir1, dir2):
     """
@@ -111,6 +113,7 @@ def request_callback(request_id, mock_dir):
 
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
     return (200, headers, data)
+
 
 def add_responses(project_response, mock_dir):
     responses.add(
