@@ -183,7 +183,7 @@ def test_analysis_success_binary_skip():
         f.write("{{ windstorm('deltaT') }}")
     f.close()
 
-    with open('./tests/mocks/1_analysis/input/binary.b', 'wb'):
+    with open("./tests/mocks/1_analysis/input/binary.b", "wb"):
         ba = bytearray([123, 3, 255, 0, 100])
         f.write(ba)
 
