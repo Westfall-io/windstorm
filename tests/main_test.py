@@ -3,8 +3,6 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../src/windstorm"))
 
-from functools import partial
-
 import pytest
 import responses
 
@@ -14,26 +12,9 @@ from tests.common.functions import *
 # Get the default project endpoint response.
 project_response = project_response_fn()
 
-
-def add_responses():
-    responses.add(
-        responses.GET,
-        "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
-        json=project_response,
-        status=200,
-    )
-
-    responses.add_callback(
-        responses.POST,
-        "http://sysml2.intercax.com:9000/projects/00270ef6-e518-455a-b59e-324ffeb1c9da/query-results",
-        callback=partial(request_callback, mock_dir="1_analysis"),
-        content_type="application/json",
-    )
-
-
 @responses.activate
 def test_analysis_simple():
-    add_responses()
+    add_responses(project_response, "1_analysis")
 
     analysis = ["case1", "case2"]
     for a in analysis:

@@ -1,13 +1,12 @@
 import json
 import filecmp
 import os.path
-
+from functools import partial
 
 def project_response_fn():
     with open("./tests/mocks/api_projects_response/projects.json", "r") as f:
         project_response = json.loads(f.read())
     return project_response
-
 
 def are_dir_trees_equal(dir1, dir2):
     """
@@ -112,3 +111,18 @@ def request_callback(request_id, mock_dir):
 
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
     return (200, headers, data)
+
+def add_responses(project_response, mock_dir):
+    responses.add(
+        responses.GET,
+        "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
+        json=project_response,
+        status=200,
+    )
+
+    responses.add_callback(
+        responses.POST,
+        "http://sysml2.intercax.com:9000/projects/00270ef6-e518-455a-b59e-324ffeb1c9da/query-results",
+        callback=partial(request_callback, mock_dir=mock_dir),
+        content_type="application/json",
+    )
