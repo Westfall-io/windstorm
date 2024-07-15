@@ -18,10 +18,12 @@ def test_analysis_no_meta_no_action():
     """Nothing to say this is a windstorm element"""
 
     add_responses(project_response, "1_analysis")
-
-    with open("./tests/mocks/1_analysis/input/template.txt", "r") as f:
-        with open("./tests/mocks/1_analysis/output/template.txt", "w") as g:
-            g.write(f.read())
+    try:
+        with open("./tests/mocks/1_analysis/input/template.txt", "r") as f:
+            with open("./tests/mocks/1_analysis/output/template.txt", "w") as g:
+                g.write(f.read())
+    except:
+        pass
 
     galestorm(
         "case1",
@@ -44,9 +46,12 @@ def test_analysis_no_meta():
     of an action"""
     add_responses(project_response, "1_analysis")
 
-    with open("./tests/mocks/1_analysis/input/template.txt", "r") as f:
-        with open("./tests/mocks/1_analysis/output/template.txt", "w") as g:
-            g.write(f.read())
+    try:
+        with open("./tests/mocks/1_analysis/input/template.txt", "r") as f:
+            with open("./tests/mocks/1_analysis/output/template.txt", "w") as g:
+                g.write(f.read())
+    except:
+        pass
 
     galestorm(
         "case2",
