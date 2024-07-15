@@ -101,3 +101,39 @@ def test_analysis_featurechain_deeper():
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "1"
+
+@responses.activate
+def test_failed_template():
+    """This should succeed and replace a file with 'No'"""
+    add_responses(project_response, "1_analysis")
+
+    with open("./tests/mocks/1_analysis/input/fail.txt", "w") as f:
+        f.write("{{ windstorm('deltaE') }}")
+    f.close()
+
+    with pytest.raises(SystemExit):
+        galestorm(
+            "case3",
+            api="http://sysml2.intercax.com:9000",
+            in_directory="./tests/mocks/1_analysis/input",
+            out_directory="./tests/mocks/1_analysis/output",
+        )
+
+@responses.activate
+def test_failed_template_success():
+    """This should succeed and replace a file with 'No'"""
+    add_responses(project_response, "1_analysis")
+
+    with open("./tests/mocks/1_analysis/input/fail.txt", "w") as f:
+        f.write("{{ windstorm('deltaE', 1) }}")
+    f.close()
+
+    galestorm(
+        "case3",
+        api="http://sysml2.intercax.com:9000",
+        in_directory="./tests/mocks/1_analysis/input",
+        out_directory="./tests/mocks/1_analysis/output",
+    )
+
+    with open("./tests/mocks/1_analysis/output/fail.txt", "r") as f:
+        assert f.read().strip() == "1"
