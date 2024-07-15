@@ -190,7 +190,7 @@ def test_analysis_success_binary_skip():
         out_directory="./tests/mocks/1_analysis/output",
     )
 
-    os.remove("./tests/mocks/1_analysis/input/binary.b") 
+    os.remove("./tests/mocks/1_analysis/input/binary.b")
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "No"
