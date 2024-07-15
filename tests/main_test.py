@@ -1,4 +1,4 @@
-import os.path
+import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../src/windstorm"))
@@ -167,6 +167,7 @@ def test_failed_template_forced_skip():
     )
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
+        print(f.read())
         assert f.read() == "{{ }\n"
 
 
@@ -188,6 +189,8 @@ def test_analysis_success_binary_skip():
         in_directory="./tests/mocks/1_analysis/input",
         out_directory="./tests/mocks/1_analysis/output",
     )
+
+    os.remove("./tests/mocks/1_analysis/input/binary.b") 
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "No"
