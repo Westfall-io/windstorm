@@ -68,6 +68,7 @@ def handle_literals(element, variables):
 
     return True, variables
 
+
 def init_variables(api, project, aj):
     logger.info("---------------------------------")
     logger.info("Searching for input values.")
@@ -358,6 +359,8 @@ def template_files(in_directory, out_directory, output):
                                 **output,
                             )
                         )
+
+
 def galestorm(
     element_name: str,
     api: str = "http://sysml2.intercax.com:9000",

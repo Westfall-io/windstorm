@@ -15,7 +15,7 @@ project_response = project_response_fn()
 
 @responses.activate
 def test_analysis_no_meta_no_action():
-    """ Nothing to say this is a windstorm element """
+    """Nothing to say this is a windstorm element"""
 
     add_responses(project_response, "1_analysis")
 
@@ -33,10 +33,11 @@ def test_analysis_no_meta_no_action():
         == True
     )
 
+
 @responses.activate
 def test_analysis_no_meta():
-    """ Nothing to say this is a windstorm element, but this one is inside
-    of an action """
+    """Nothing to say this is a windstorm element, but this one is inside
+    of an action"""
     add_responses(project_response, "1_analysis")
 
     galestorm(
@@ -53,9 +54,10 @@ def test_analysis_no_meta():
         == True
     )
 
+
 @responses.activate
 def test_analysis_success():
-    """ This should succeed and replace a file with 'No' """
+    """This should succeed and replace a file with 'No'"""
     add_responses(project_response, "1_analysis")
 
     galestorm(
@@ -64,5 +66,5 @@ def test_analysis_success():
         in_directory="./tests/mocks/1_analysis/input",
         out_directory="./tests/mocks/1_analysis/output",
     )
-    with open("./tests/mocks/1_analysis/output/template.txt", 'r') as f:
-        assert f.read() == 'No'
+    with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
+        assert f.read() == "No"
