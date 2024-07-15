@@ -68,6 +68,7 @@ def handle_literals(element, variables):
 
     return True, variables
 
+
 def init_variables(api, project, aj):
     logger.info("---------------------------------")
     logger.info("Searching for input values.")
