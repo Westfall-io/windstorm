@@ -365,16 +365,16 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
                     )
                     continue
 
-                    # Overwrite anything in the current folder with the artifact
-                    with open(outfile, "w") as f:
-                        f.write(
-                            template.render(
-                                windstorm=windstorm,
-                                keep_trailing_newline=True,
-                                **output,
-                            )
+                # Overwrite anything in the current folder with the artifact
+                with open(outfile, "w") as f:
+                    f.write(
+                        template.render(
+                            windstorm=windstorm,
+                            keep_trailing_newline=True,
+                            **output,
                         )
-                    f.close()
+                    )
+                f.close()
 
 
 def galestorm(
