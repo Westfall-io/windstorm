@@ -140,6 +140,7 @@ def test_failed_template_success():
     with open("./tests/mocks/1_analysis/output/fail.txt", "r") as f:
         assert f.read().strip() == "1"
 
+
 @responses.activate
 def test_failed_template_forced_skip():
     """This should succeed and replace a file with 'No'"""
@@ -154,7 +155,7 @@ def test_failed_template_forced_skip():
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
         out_directory="./tests/mocks/1_analysis/output",
-        force_render_error_continue = True
+        force_render_error_continue=True,
     )
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
