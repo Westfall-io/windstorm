@@ -173,6 +173,7 @@ def test_failed_template_forced_skip():
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "1"
 
+
 @responses.activate
 def test_analysis_success_binary_skip():
     """This should succeed and replace a file with 'No'"""
@@ -181,7 +182,7 @@ def test_analysis_success_binary_skip():
     with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
         f.write("{{ windstorm('deltaT') }}")
     f.close()
-    
+
     with open('./tests/mocks/1_analysis/input/binary.b', 'wb'):
         ba = bytearray([123, 3, 255, 0, 100])
         f.write(ba)
