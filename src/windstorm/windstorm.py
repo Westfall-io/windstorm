@@ -313,6 +313,11 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
                     f.close()
                     template = Template(data, keep_trailing_newline=True)
                 except UnicodeDecodeError:
+                    with open(thisfile, "r") as f:
+                        # Skip the .git folder
+                        data = f.read()
+                    f.close()
+
                     if in_directory != out_directory:
                         with open(outfile, "w") as f2:
                             f2.write(data)
@@ -323,6 +328,11 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
                     )
                     continue
                 except TemplateSyntaxError as e:
+                    with open(thisfile, "r") as f:
+                        # Skip the .git folder
+                        data = f.read()
+                    f.close()
+                    
                     if not force_render_error_continue:
                         user = input(
                             "The file {}/{} has template errors, do you wish to proceed?\n[y/n] ".format(
