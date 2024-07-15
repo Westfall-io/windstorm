@@ -282,7 +282,7 @@ def init_variables(api, project, aj):
     return output
 
 
-def template_files(in_directory, out_directory, output):
+def template_files(in_directory, out_directory, output, force_render_error_continue):
     def windstorm(string, default=None):
         if string in output:
             return output[string]
@@ -508,7 +508,7 @@ def galestorm(
             copy_tree(in_directory, out_directory)
     else:
         output = init_variables(api, project, aj)
-        template_files(in_directory, out_directory, output)
+        template_files(in_directory, out_directory, output, force_render_error_continue)
 
 
 def main():
