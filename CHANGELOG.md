@@ -3,6 +3,48 @@
 
 
 
+## v0.3.2 (2024-07-12)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: Fixed an issue where direct references to strings/integers/etc were not handled. ([`460e391`](https://github.com/Westfall-io/windstorm/commit/460e391d8fa272bc445169a3b193651307003c27))
+
+* :bug: Adding LiteralRational to handled types. ([`2a55917`](https://github.com/Westfall-io/windstorm/commit/2a55917e0ae4df87ff319cc9da466f2ab61d8558))
+
+* :bug: Ensuring that the newline character is placed. ([`4267e27`](https://github.com/Westfall-io/windstorm/commit/4267e2747d0d73c76d9af673ac47ff19f5a81209))
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
+#### :zap:
+
+* :zap: Moving literals to one function. ([`6893802`](https://github.com/Westfall-io/windstorm/commit/68938029a68362aae394c241a7b0bddf7b953230))
+
+#### Other
+
+* :arrow_up: Updating semantic release to see if it will fix git fast forward issue ([`f14daf1`](https://github.com/Westfall-io/windstorm/commit/f14daf110fed56f2ad2eb07e3b591783e1554a00))
+
+## v0.3.1 (2024-07-10)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: Fixed an issue where the chaining method changed when only one deep ([`5a3fb42`](https://github.com/Westfall-io/windstorm/commit/5a3fb429543f4ea958ff436890692a7488bc90e8))
+
+* :bug: Fixing issue where newline characters would be missing from files edited on windows before a commit and all files would be changed making it harder to compare ([`381674f`](https://github.com/Westfall-io/windstorm/commit/381674fc802e42203effbfa259db220c87036f76))
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
+#### :zap:
+
+* :zap: Stop looking for windstorm when found ([`4d6599c`](https://github.com/Westfall-io/windstorm/commit/4d6599cd240ca1d1b9aaf47d26df00d386038557))
+
 ## v0.3.0 (2024-06-28)
 ### Features
 #### :sparkles:
