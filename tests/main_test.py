@@ -62,7 +62,6 @@ def test_analysis_success():
 
     with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
         f.write("{{ windstorm('deltaT') }}")
-    f.close()
 
     galestorm(
         "case3",
@@ -82,7 +81,6 @@ def test_analysis_featurechain():
 
     with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
         f.write("{{ windstorm('deltaT') }}")
-    f.close()
 
     galestorm(
         "case4",
@@ -102,7 +100,6 @@ def test_analysis_featurechain_deeper():
 
     with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
         f.write("{{ windstorm('deltaT') }}")
-    f.close()
 
     galestorm(
         "case5",
@@ -122,7 +119,6 @@ def test_failed_template():
 
     with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
         f.write("{{ windstorm('deltaE') }}")
-    f.close()
 
     with pytest.raises(SystemExit):
         galestorm(
@@ -140,7 +136,6 @@ def test_failed_template_success():
 
     with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
         f.write("{{ windstorm('deltaE', 1) }}")
-    f.close()
 
     galestorm(
         "case3",
@@ -160,7 +155,6 @@ def test_failed_template_forced_skip():
 
     with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
         f.write("{{ }")
-    f.close()
 
     galestorm(
         "case3",
@@ -171,7 +165,7 @@ def test_failed_template_forced_skip():
     )
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
-        assert f.read().strip() == "1"
+        assert f.read() == "{{ }\n"
 
 
 @responses.activate
@@ -181,9 +175,8 @@ def test_analysis_success_binary_skip():
 
     with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
         f.write("{{ windstorm('deltaT') }}")
-    f.close()
 
-    with open("./tests/mocks/1_analysis/input/binary.b", "wb"):
+    with open("./tests/mocks/1_analysis/input/binary.b", "wb") as f:
         ba = bytearray([123, 3, 255, 0, 100])
         f.write(ba)
 
