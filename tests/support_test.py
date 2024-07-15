@@ -36,7 +36,7 @@ def test_build_query_3():
 
 
 def test_invalid_uuid():
-    with pytest.raises(ValueError):
+    with pytest.raises(SystemExit):
         galestorm("case3", project_id="111")
 
 
