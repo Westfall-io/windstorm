@@ -94,6 +94,8 @@ def build_query(params):
             constraint["property"] = params["property"][k]
             constraint["value"] = params["value"][k]
             base_query["where"]["constraint"].append(constraint)
+    else:
+        raise TypeError
 
     return json.dumps(base_query)
 
