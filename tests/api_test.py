@@ -88,7 +88,7 @@ def test_no_project_response():
 
 @responses.activate
 def test_bad_project_response():
-    with pytest.raises(SystemExit) as e_info:
+    with pytest.raises(NotImplementedError) as e_info:
         responses.add(
             responses.GET,
             "http://sysml2.intercax.com:9000/projects?page%5Bsize%5D=1",
