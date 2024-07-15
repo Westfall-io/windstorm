@@ -58,14 +58,14 @@ def test_analysis_success():
     """ This should succeed and replace a file with 'No' """
     add_responses(project_response, "1_analysis")
 
-        galestorm(
-            "case3",
-            api="http://sysml2.intercax.com:9000",
-            in_directory="./tests/mocks/1_analysis/input",
-            out_directory="./tests/mocks/1_analysis/output",
-        )
-        with open("./tests/mocks/1_analysis/output/template.txt", 'r') as f:
-            assert f.read() == 'No'
+    galestorm(
+        "case3",
+        api="http://sysml2.intercax.com:9000",
+        in_directory="./tests/mocks/1_analysis/input",
+        out_directory="./tests/mocks/1_analysis/output",
+    )
+    with open("./tests/mocks/1_analysis/output/template.txt", 'r') as f:
+        assert f.read() == 'No'
 
 
 ## These are examples from responses. This one does a static response from a
