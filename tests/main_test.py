@@ -257,6 +257,7 @@ def test_analysis_success_binary_skip():
         assert f.read().strip() == "No"
     f.close()
 
+
 @responses.activate
 def test_analysis_novariables():
     """This should succeed and replace a file with 'No'"""
@@ -279,6 +280,7 @@ def test_analysis_novariables():
         )
         == True
     )
+
 
 @responses.activate
 def test_analysis_reference():
