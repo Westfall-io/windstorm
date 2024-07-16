@@ -2,6 +2,7 @@ import os
 import sys
 import uuid
 import logging
+import shutil
 
 logger = logging.getLogger(__name__)
 from pathlib import Path
@@ -282,7 +283,13 @@ def init_variables(api, project, aj):
     return output
 
 
-def template_files(in_directory, out_directory, output, force_render_error_continue):
+def template_files(
+    in_directory,
+    out_directory,
+    output,
+    force_render_error_continue,
+    xlsx={"unzip": False},
+):
     def windstorm(string, default=None):
         if string in output:
             return output[string]
@@ -299,12 +306,38 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
     logger.info("Replacing variables in files with values.")
     for dir_path, dir_names, file_names in os.walk(in_directory):
         for name in file_names:
+            # Make the filename
             thisfile = os.path.join(dir_path, name)
-            logger.info(thisfile)
+            # Path to the output file
             outfile = os.path.join(dir_path.replace(in_directory, out_directory), name)
+            # Make a directory if it doesn't exist
             Path(dir_path.replace(in_directory, out_directory)).mkdir(
                 parents=True, exist_ok=True
             )
+
+            # If this file is an excel file, unzip it and template on the folder
+            if ".xlsx" == thisfile[-5:] and not xlsx["unzip"]:
+
+                logger.info(
+                    "Found an excel spreadsheet. Attempting to reformat to be templated."
+                )
+                # Unpack the archive file
+                shutil.unpack_archive(thisfile, "./tmpzip", "zip")
+
+                # Run templates on all temporary files.
+                template_files(
+                    "./tmpzip",
+                    "./tmpzip",
+                    output,
+                    force_render_error_continue,
+                    xlsx={"unzip": True, "filename": outfile},
+                )
+                # Force it to look at the next file
+                continue
+            else:
+                # Print this file to log
+                logger.info(thisfile)
+
             if ".git" not in dir_path:
                 try:
                     with open(thisfile, "r") as f:
@@ -375,6 +408,19 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
                         )
                     )
                 f.close()
+
+    if xlsx["unzip"]:
+        # Tell the user
+        logger.info("Rezipping file to {}.".format(xlsx["filename"]))
+        # Zip the file and overwrite
+        shutil.make_archive(xlsx["filename"], "zip", "./tmpzip")
+        # Remove the extra temporary folder
+        shutil.rmtree("./tmpzip")
+        # Remove the trailing .zip
+        os.rename(xlsx["filename"] + ".zip", xlsx["filename"])
+    else:
+        # Tell the user
+        logger.info("Templating completed.")
 
 
 def galestorm(
