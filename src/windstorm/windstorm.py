@@ -317,11 +317,14 @@ def template_files(
 
             # If this file is an excel file, unzip it and template on the folder
             if ".xlsx" == thisfile[-5:] and not xlsx["unzip"]:
-                # Unpack the archive file
+
                 logger.info(
                     "Found an excel spreadsheet. Attempting to reformat to be templated."
                 )
+                # Unpack the archive file
                 shutil.unpack_archive(thisfile, "./tmpzip", "zip")
+
+                # Run templates on all temporary files.
                 template_files(
                     "./tmpzip",
                     "./tmpzip",
@@ -329,6 +332,7 @@ def template_files(
                     force_render_error_continue,
                     xlsx={"unzip": True, "filename": outfile},
                 )
+                # Force it to look at the next file
                 continue
             else:
                 # Print this file to log
@@ -405,13 +409,19 @@ def template_files(
                     )
                 f.close()
 
-    logger.info("Templating completed.")
+
     if xlsx["unzip"]:
+        # Tell the user
         logger.info("Rezipping file to {}.".format(xlsx["filename"]))
         # Zip the file and overwrite
         shutil.make_archive(xlsx["filename"], "zip", "./tmpzip")
+        # Remove the extra temporary folder
         shutil.rmtree("./tmpzip")
+        # Remove the trailing .zip
         os.rename(xlsx["filename"] + ".zip", xlsx["filename"])
+    else:
+        # Tell the user
+        logger.info("Templating completed.")
 
 
 def galestorm(
