@@ -267,19 +267,13 @@ def test_analysis_novariables():
         f.write("{{ windstorm('deltaT') }}")
     f.close()
 
-    galestorm(
-        "case7",
-        api="http://sysml2.intercax.com:9000",
-        in_directory="./tests/mocks/1_analysis/input",
-        out_directory="./tests/mocks/1_analysis/output",
-    )
-
-    assert (
-        are_dir_trees_equal(
-            "./tests/mocks/1_analysis/input", "./tests/mocks/1_analysis/output"
+    with pytest.raises(SystemExit):
+        galestorm(
+            "case7",
+            api="http://sysml2.intercax.com:9000",
+            in_directory="./tests/mocks/1_analysis/input",
+            out_directory="./tests/mocks/1_analysis/output",
         )
-        == True
-    )
 
 
 @responses.activate
@@ -292,7 +286,7 @@ def test_analysis_reference():
     f.close()
 
     galestorm(
-        "case7",
+        "case8",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
         out_directory="./tests/mocks/1_analysis/output",
