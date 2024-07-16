@@ -20,7 +20,7 @@ def handle_request_response(r):
         sys.exit()
     if r.status_code != 200:
         # The address is reachable
-        logger.error(r.response)
+        logger.error("API returned {} status code".format(r.status_code))
         github_issue_error()
 
     logger.debug("Response was correctly received.")
@@ -50,10 +50,6 @@ def check_for_api(api, project_id):
         # Grab a specific project
     response = handle_request_response(r)
 
-    if type(response) != type(list()):
-        logger.error(response)
-        github_issue_error()
-
     if len(response) == 1:
         return response[0]
     elif len(response) == 0:
@@ -63,16 +59,14 @@ def check_for_api(api, project_id):
         logger.error(response)
         github_issue_error()
 
-    return response
-
 
 def validate(params):
     if not "value" in params:
-        raise AttributeError("No values set")
+        raise KeyError("No values set")
     if not "operator" in params:
-        raise AttributeError("No operators set")
+        raise KeyError("No operators set")
     if not "property" in params:
-        raise AttributeError("No properties set")
+        raise KeyError("No properties set")
 
 
 def build_query(params):
@@ -86,7 +80,7 @@ def build_query(params):
             base_query["where"]["operator"] = params["operator"][0]
             base_query["where"]["property"] = params["property"][0]
             base_query["where"]["value"] = params["value"][0]
-        except Exception as e:
+        except TypeError as e:
             logger.error("Input params were incorrect when passed to build a query")
             raise e
     elif len(params["value"]) > 1:
@@ -100,6 +94,8 @@ def build_query(params):
             constraint["property"] = params["property"][k]
             constraint["value"] = params["value"][k]
             base_query["where"]["constraint"].append(constraint)
+    else:
+        raise TypeError
 
     return json.dumps(base_query)
 
@@ -110,10 +106,6 @@ def query_for_element(api, project, base_query):
     url = api + "/projects/" + project["@id"] + "/query-results"
     r = requests.post(url, data=base_query, headers=headers)
     response = handle_request_response(r)
-
-    if type(response) != type(list()):
-        logger.error(response)
-        github_issue_error()
 
     if len(response) == 1:
         return response[0]
