@@ -35,8 +35,9 @@ def test_analysis_xlsx_pass():
         out_directory="./tests/mocks/1_analysis/output",
     )
 
+    # Copy output file to hidden folder (to prevent other tests picking it up)
     shutil.copyfile(
-        "./tests/mocks/1_analysis/input/template.xlsx",
+        "./tests/mocks/1_analysis/output/template.xlsx",
         "./tests/mocks/1_analysis/xlsx_input/template_final.xlsx",
     )
 
