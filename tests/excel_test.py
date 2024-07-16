@@ -27,17 +27,17 @@ def test_analysis_xlsx_pass():
         "./tests/mocks/1_analysis/input/template.xlsx",
     )
 
-    shutil.copyfile(
-        "./tests/mocks/1_analysis/input/template.xlsx",
-        "./tests/mocks/1_analysis/xlsx_input/template_final.xlsx",
-    )
-
     # Update the excel file using the long chain version, doesn't really matter
     galestorm(
         "case5",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
         out_directory="./tests/mocks/1_analysis/output",
+    )
+
+    shutil.copyfile(
+        "./tests/mocks/1_analysis/input/template.xlsx",
+        "./tests/mocks/1_analysis/xlsx_input/template_final.xlsx",
     )
 
     # Ensure that the file is the same bytewise as the expected output
