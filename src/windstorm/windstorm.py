@@ -327,7 +327,7 @@ def template_files(
                     "./tmpzip",
                     output,
                     force_render_error_continue,
-                    xlsx={"unzip": True, "filename": thisfile},
+                    xlsx={"unzip": True, "filename": outfile},
                 )
                 continue
             else:
