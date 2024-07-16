@@ -409,7 +409,6 @@ def template_files(
                     )
                 f.close()
 
-
     if xlsx["unzip"]:
         # Tell the user
         logger.info("Rezipping file to {}.".format(xlsx["filename"]))
