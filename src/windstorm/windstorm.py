@@ -316,18 +316,18 @@ def template_files(
             )
 
             # If this file is an excel file, unzip it and template on the folder
-            if ".xlsx" == dir_path[-5:] and not xlsx["unzip"]:
+            if ".xlsx" == thisfile[-5:] and not xlsx["unzip"]:
                 # Unpack the archive file
                 logger.info(
                     "Found an excel spreadsheet. Attempting to reformat to be templated."
                 )
-                shutil.unpack_archive(dir_path, "./tmpzip", zip)
+                shutil.unpack_archive(thisfile, "./tmpzip", zip)
                 template_files(
                     "./tmpzip",
                     "./tmpzip",
                     output,
                     force_render_error_continue,
-                    xlsx={"unzip": True, "filename": dir_path},
+                    xlsx={"unzip": True, "filename": thisfile},
                 )
                 continue
             else:
