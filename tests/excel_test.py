@@ -27,6 +27,11 @@ def test_analysis_xlsx_pass():
         "./tests/mocks/1_analysis/input/template.xlsx",
     )
 
+    shutil.copyfile(
+        "./tests/mocks/1_analysis/input/template.xlsx"
+        "./tests/mocks/1_analysis/xlsx_input/template_final.xlsx",
+    )
+
     # Update the excel file using the long chain version, doesn't really matter
     galestorm(
         "case5",
