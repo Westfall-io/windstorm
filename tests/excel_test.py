@@ -40,8 +40,12 @@ def test_analysis_xlsx_pass():
         "./tests/mocks/1_analysis/xlsx_input/template_final.xlsx",
     )
 
-    shutil.unpack_archive("./tests/mocks/1_analysis/output/template.xlsx", "./srczip", "zip")
-    shutil.unpack_archive("./tests/mocks/1_analysis/xlsx_input/output.xlsx", "./dstzip", "zip")
+    shutil.unpack_archive(
+        "./tests/mocks/1_analysis/output/template.xlsx", "./srczip", "zip"
+    )
+    shutil.unpack_archive(
+        "./tests/mocks/1_analysis/xlsx_input/output.xlsx", "./dstzip", "zip"
+    )
 
     # Ensure that the file is the same bytewise as the expected output
     assert are_dir_trees_equal(
