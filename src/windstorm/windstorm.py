@@ -411,6 +411,7 @@ def template_files(
         # Zip the file and overwrite
         shutil.make_archive(xlsx["filename"], "zip", "./tmpzip")
         shutil.rmtree("./tmpzip")
+        os.rename(xlsx["filename"]+".zip", xlsx["filename"])
 
 
 def galestorm(

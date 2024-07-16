@@ -38,7 +38,7 @@ def test_analysis_xlsx_pass():
     # Ensure that the file is the same bytewise as the expected output
     assert filecmp.cmp(
         "./tests/mocks/1_analysis/xlsx_input/output.xlsx",
-        "./tests/mocks/1_analysis/output/template.xlsx.zip",
+        "./tests/mocks/1_analysis/output/template.xlsx",
     )
 
     # Remove the template so that other tests don't pick up
