@@ -306,12 +306,16 @@ def template_files(
     logger.info("Replacing variables in files with values.")
     for dir_path, dir_names, file_names in os.walk(in_directory):
         for name in file_names:
+            # Make the filename
             thisfile = os.path.join(dir_path, name)
-            logger.info(thisfile)
+            # Path to the output file
             outfile = os.path.join(dir_path.replace(in_directory, out_directory), name)
+            # Make a directory if it doesn't exist
             Path(dir_path.replace(in_directory, out_directory)).mkdir(
                 parents=True, exist_ok=True
             )
+
+            # If this file is an excel file, unzip it and template on the folder
             if ".xlsx" == dir_path[-5:] and not xlsx["unzip"]:
                 # Unpack the archive file
                 logger.info(
@@ -325,6 +329,10 @@ def template_files(
                     force_render_error_continue,
                     xlsx={"unzip": True, "filename": dir_path},
                 )
+                continue
+            else:
+                # Print this file to log
+                logger.info(thisfile)
 
             if ".git" not in dir_path:
                 try:
