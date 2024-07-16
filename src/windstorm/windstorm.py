@@ -312,15 +312,16 @@ def template_files(
             Path(dir_path.replace(in_directory, out_directory)).mkdir(
                 parents=True, exist_ok=True
             )
-            if ".xlsx" == dir_path[-5:] and xlsx["unzip"] == False:
+            if ".xlsx" == dir_path[-5:] and not xlsx["unzip"]:
                 # Unpack the archive file
+                logger.info('Found an excel spreadsheet. Attempting to reformat to be templated.')
                 shutil.unpack_archive(dir_path, "./tmpzip", zip)
                 template_files(
                     "./tmpzip",
                     "./tmpzip",
                     output,
                     force_render_error_continue,
-                    xlsx={"unzip": False, "filename": dir_path},
+                    xlsx={"unzip": True, "filename": dir_path},
                 )
 
             if ".git" not in dir_path:
