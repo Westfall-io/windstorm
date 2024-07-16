@@ -28,7 +28,7 @@ def test_analysis_xlsx_pass():
     )
 
     shutil.copyfile(
-        "./tests/mocks/1_analysis/input/template.xlsx"
+        "./tests/mocks/1_analysis/input/template.xlsx",
         "./tests/mocks/1_analysis/xlsx_input/template_final.xlsx",
     )
 
