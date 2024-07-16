@@ -3,7 +3,6 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../src/windstorm"))
 
-import filecmp
 import shutil
 
 import pytest
@@ -41,12 +40,16 @@ def test_analysis_xlsx_pass():
         "./tests/mocks/1_analysis/xlsx_input/template_final.xlsx",
     )
 
-    # Ensure that the file is the same bytewise as the expected output
-    assert filecmp.cmp(
-        "./tests/mocks/1_analysis/xlsx_input/output.xlsx",
-        "./tests/mocks/1_analysis/output/template.xlsx",
-    )
+    shutil.unpack_archive("./tests/mocks/1_analysis/output/template.xlsx", "./srczip", "zip")
+    shutil.unpack_archive("./tests/mocks/1_analysis/xlsx_input/output.xlsx", "./dstzip", "zip")
 
+    # Ensure that the file is the same bytewise as the expected output
+    assert are_dir_trees_equal(
+        "./srczip",
+        "./dstzip",
+    )
+    shutil.rmtree("./srczip")
+    shutil.rmtree("./dstzip")
     # Remove the template so that other tests don't pick up
     os.remove("./tests/mocks/1_analysis/input/template.xlsx")
     os.remove("./tests/mocks/1_analysis/output/template.xlsx")
