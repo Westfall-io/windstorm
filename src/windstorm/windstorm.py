@@ -314,7 +314,9 @@ def template_files(
             )
             if ".xlsx" == dir_path[-5:] and not xlsx["unzip"]:
                 # Unpack the archive file
-                logger.info('Found an excel spreadsheet. Attempting to reformat to be templated.')
+                logger.info(
+                    "Found an excel spreadsheet. Attempting to reformat to be templated."
+                )
                 shutil.unpack_archive(dir_path, "./tmpzip", zip)
                 template_files(
                     "./tmpzip",
