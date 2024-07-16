@@ -69,6 +69,7 @@ def handle_literals(element, variables):
 
     return True, variables
 
+
 def handle_feature_chain(api, project, voeid, thisvar):
     q = build_query(
         {
@@ -78,9 +79,7 @@ def handle_feature_chain(api, project, voeid, thisvar):
         }
     )
     valid = query_for_element(api, project, q)
-    logger.debug(
-        "         TargetElement: {}".format(valid["@type"])
-    )
+    logger.debug("         TargetElement: {}".format(valid["@type"]))
     if "chainingFeature" in valid:
 
         if len(valid["chainingFeature"]) == 0:
@@ -90,17 +89,11 @@ def handle_feature_chain(api, project, voeid, thisvar):
                 {
                     "property": ["@id"],
                     "operator": ["="],
-                    "value": [
-                        valid["chainingFeature"][-1]["@id"]
-                    ],
+                    "value": [valid["chainingFeature"][-1]["@id"]],
                 }
             )
             chainid = query_for_element(api, project, q)
-            logger.debug(
-                "         ChainElement: {}".format(
-                    chainid["@type"]
-                )
-            )
+            logger.debug("         ChainElement: {}".format(chainid["@type"]))
 
         for key in chainid["ownedElement"]:
             q = build_query(
@@ -127,9 +120,7 @@ def handle_feature_chain(api, project, voeid, thisvar):
                         }
                     )
                     v3 = query_for_element(api, project, q)
-                    literal, thisvar = handle_literals(
-                        v3, thisvar
-                    )
+                    literal, thisvar = handle_literals(v3, thisvar)
 
                     if not literal:
                         continue
