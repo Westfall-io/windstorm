@@ -329,6 +329,8 @@ def template_files(
                     force_render_error_continue,
                     xlsx={"unzip": True, "filename": outfile},
                 )
+                with open("./tmpzip/xl/sharedStrings.xml", 'r') as f:
+                    logging.info(f.read())
                 continue
             else:
                 # Print this file to log
