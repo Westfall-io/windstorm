@@ -282,9 +282,6 @@ def init_variables(api, project, aj):
     logger.info(output)
     return output
 
-def template_directory(directory):
-
-
 def template_files(in_directory, out_directory, output, force_render_error_continue,xlsx={"unzip":False}):
     def windstorm(string, default=None):
         if string in output:
