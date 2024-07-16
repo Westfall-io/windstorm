@@ -305,7 +305,7 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
             Path(dir_path.replace(in_directory, out_directory)).mkdir(
                 parents=True, exist_ok=True
             )
-            if '.xlsx' == dir_path[-5:] and xlsx["unzip"]=False:
+            if '.xlsx' == dir_path[-5:] and xlsx["unzip"]==False:
                 # Unpack the archive file
                 shutil.unpack_archive(dir_path, "./tmpzip", zip)
                 template_files("./tmpzip", "./tmpzip", output, force_render_error_continue,xlsx={"unzip":False,"filename":dir_path})
