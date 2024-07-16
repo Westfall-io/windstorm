@@ -321,7 +321,7 @@ def template_files(
                 logger.info(
                     "Found an excel spreadsheet. Attempting to reformat to be templated."
                 )
-                shutil.unpack_archive(thisfile, "./tmpzip", 'zip')
+                shutil.unpack_archive(thisfile, "./tmpzip", "zip")
                 template_files(
                     "./tmpzip",
                     "./tmpzip",
