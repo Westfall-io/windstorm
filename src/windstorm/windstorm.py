@@ -405,6 +405,7 @@ def template_files(
                     )
                 f.close()
 
+    logger.info('Templating completed.')
     if xlsx["unzip"]:
         logger.info('Rezipping file.')
         # Zip the file and overwrite
