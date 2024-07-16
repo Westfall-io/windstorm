@@ -407,7 +407,7 @@ def template_files(
 
     logger.info("Templating completed.")
     if xlsx["unzip"]:
-        logger.info("Rezipping file.")
+        logger.info("Rezipping file to {}.".format(xlsx["filename"]))
         # Zip the file and overwrite
         shutil.make_archive(xlsx["filename"], "zip", "./tmpzip")
         shutil.rmtree("./tmpzip")
