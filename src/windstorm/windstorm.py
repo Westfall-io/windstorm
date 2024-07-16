@@ -282,7 +282,14 @@ def init_variables(api, project, aj):
     logger.info(output)
     return output
 
-def template_files(in_directory, out_directory, output, force_render_error_continue,xlsx={"unzip":False}):
+
+def template_files(
+    in_directory,
+    out_directory,
+    output,
+    force_render_error_continue,
+    xlsx={"unzip": False},
+):
     def windstorm(string, default=None):
         if string in output:
             return output[string]
@@ -305,10 +312,16 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
             Path(dir_path.replace(in_directory, out_directory)).mkdir(
                 parents=True, exist_ok=True
             )
-            if '.xlsx' == dir_path[-5:] and xlsx["unzip"]==False:
+            if ".xlsx" == dir_path[-5:] and xlsx["unzip"] == False:
                 # Unpack the archive file
                 shutil.unpack_archive(dir_path, "./tmpzip", zip)
-                template_files("./tmpzip", "./tmpzip", output, force_render_error_continue,xlsx={"unzip":False,"filename":dir_path})
+                template_files(
+                    "./tmpzip",
+                    "./tmpzip",
+                    output,
+                    force_render_error_continue,
+                    xlsx={"unzip": False, "filename": dir_path},
+                )
 
             if ".git" not in dir_path:
                 try:
@@ -383,8 +396,9 @@ def template_files(in_directory, out_directory, output, force_render_error_conti
 
     if xlsx["unzip"]:
         # Zip the file and overwrite
-        shutil.make_archive(xlsx["filename"], 'zip', "./tmpzip")
+        shutil.make_archive(xlsx["filename"], "zip", "./tmpzip")
         shutil.rmtree("./tmpzip")
+
 
 def galestorm(
     element_name: str,
