@@ -55,39 +55,39 @@ def is_valid_uuid(val):
             sys.exit()
 
 
-def handle_literals(element, variables):
+def handle_literals(element):
     if element["@type"] == "LiteralInteger":
         logger.info("         Value: {}".format(element["value"]))
-        variables["value"] = element["value"]
+        v = element["value"]
     elif element["@type"] == "LiteralString":
         logger.info("         Value: {}".format(element["value"]))
-        variables["value"] = element["value"]
+        v = element["value"]
     elif element["@type"] == "LiteralRational":
         logger.info("         Value: {}".format(element["value"]))
-        variables["value"] = element["value"]
+        v = element["value"]
     else:
-        return False, variables
+        return False, v
 
-    return True, variables
+    return True, v
 
 
-def check_append(v, thisvar):
-    logger.info("         Append: {}, {}".format(v, thisvar))
-    if "value" in thisvar:
-        if type(thisvar["value"]) == type(list()):
-            logger.info(type(thisvar["value"]))
-            thisvar["value"].append(v["value"])
+def check_append(v1, v2):
+    logger.info("         Append: {}, {}".format(v1, v2))
+    if "value" in v2:
+        if type(v2["value"]) == type(list()):
+            logger.info(type(v2["value"]))
+            v2["value"].append(v1)
         else:
-            logger.info(type(thisvar["value"]))
-            thisvar["value"] = v["value"]
+            logger.info(type(v2["value"]))
+            v2["value"] = v1
     else:
-        logger.info(type(thisvar["value"]))
-        thisvar["value"] = v["value"]
-    return thisvar
+        logger.info(type(v2["value"]))
+        v2["value"] = v1
+    return v2
 
 
 def handle_feature_element(api, project, key, thisvar):
-    logger.info("         Feature Element: {}".format(thisvar))
+    logger.info("         Current Variable: {}".format(thisvar))
     q = build_query(
         {
             "property": ["@id"],
@@ -96,8 +96,9 @@ def handle_feature_element(api, project, key, thisvar):
         }
     )
     v2 = query_for_element(api, project, q)
+    logger.info("         Target Element: {}".format(v2["@type"]))
 
-    literal, v = handle_literals(v2, thisvar)
+    literal, v = handle_literals(v2)
     if literal:
         # Skip the rest of this code if it's been handled.
         return check_append(v, thisvar)
@@ -112,7 +113,7 @@ def handle_feature_element(api, project, key, thisvar):
                 }
             )
             v3 = query_for_element(api, project, q)
-            literal, v = handle_literals(v3, thisvar)
+            literal, v = handle_literals(v3)
 
             if literal:
                 # Skip the rest of this code if it's been handled.
@@ -120,6 +121,7 @@ def handle_feature_element(api, project, key, thisvar):
         ###### END LOOP for each argument
     elif v2["@type"] == "Multiplicity":
         # Don't do anything for this right now.
+        logger.info('Skipping found multiplicity.')
         pass
     elif v2["@type"] == "FeatureChainExpression":
         # This is a reference, do this over again
@@ -137,7 +139,7 @@ def handle_feature_element(api, project, key, thisvar):
 
 
 def handle_feature_chain(api, project, voeid, thisvar):
-    logger.debug(voeid)
+    #logger.debug(voeid)
     q = build_query(
         {
             "property": ["@id"],
@@ -268,14 +270,15 @@ def init_variables(api, project, aj):
                             ename = voeid.get("@type", None)
                         logger.info("      Element: {}".format(ename))
 
-                        literal, thisvar = handle_literals(voeid, thisvar)
+                        literal, v = handle_literals(voeid)
                         if literal:
                             # Just go to the next element, it's been handled.
+                            thisvar = check_append(v, thisvar)
                             continue
 
                         if voeid["@type"] == "FeatureChainExpression":
                             thisvar = handle_feature_chain(api, project, voeid, thisvar)
-                            logger.info("      {}".format(thisvar))
+                            #logger.info("      {}".format(thisvar))
                         else:
                             # No chaining feature
                             logger.debug(
