@@ -256,3 +256,43 @@ def test_analysis_success_binary_skip():
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "No"
     f.close()
+
+
+@responses.activate
+def test_analysis_novariables():
+    """This should succeed and replace a file with 'No'"""
+    add_responses(project_response, "1_analysis")
+
+    with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
+        f.write("{{ windstorm('deltaT') }}")
+    f.close()
+
+    with pytest.raises(SystemExit):
+        galestorm(
+            "case7",
+            api="http://sysml2.intercax.com:9000",
+            in_directory="./tests/mocks/1_analysis/input",
+            out_directory="./tests/mocks/1_analysis/output",
+        )
+
+
+@responses.activate
+def test_analysis_reference():
+    """This should succeed and replace a file with 'No'"""
+    add_responses(project_response, "1_analysis")
+
+    with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
+        f.write("{{ windstorm('deltaT') }}")
+    f.close()
+
+    galestorm(
+        "case8",
+        api="http://sysml2.intercax.com:9000",
+        in_directory="./tests/mocks/1_analysis/input",
+        out_directory="./tests/mocks/1_analysis/output",
+        debug=True,
+    )
+
+    with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
+        assert f.read().strip() == "4"
+    f.close()
