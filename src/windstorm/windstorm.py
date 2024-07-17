@@ -70,6 +70,86 @@ def handle_literals(element, variables):
     return True, variables
 
 
+def handle_feature_chain(api, project, voeid, thisvar):
+    q = build_query(
+        {
+            "property": ["@id"],
+            "operator": ["="],
+            "value": [voeid["targetFeature"]["@id"]],
+        }
+    )
+    valid = query_for_element(api, project, q)
+    logger.debug("         TargetElement: {}".format(valid["@type"]))
+    if "chainingFeature" in valid:
+
+        if len(valid["chainingFeature"]) == 0:
+            chainid = valid
+        else:
+            q = build_query(
+                {
+                    "property": ["@id"],
+                    "operator": ["="],
+                    "value": [valid["chainingFeature"][-1]["@id"]],
+                }
+            )
+            chainid = query_for_element(api, project, q)
+            logger.debug("         ChainElement: {}".format(chainid["@type"]))
+
+        for key in chainid["ownedElement"]:
+            q = build_query(
+                {
+                    "property": ["@id"],
+                    "operator": ["="],
+                    "value": [key["@id"]],
+                }
+            )
+            v2 = query_for_element(api, project, q)
+
+            literal, thisvar = handle_literals(v2, thisvar)
+            if literal:
+                # Skip the rest of this code if it's been handled.
+                continue
+
+            if v2["@type"] == "OperatorExpression":
+                for arg in v2["argument"]:
+                    q = build_query(
+                        {
+                            "property": ["@id"],
+                            "operator": ["="],
+                            "value": [arg["@id"]],
+                        }
+                    )
+                    v3 = query_for_element(api, project, q)
+                    literal, thisvar = handle_literals(v3, thisvar)
+
+                    if not literal:
+                        continue
+                ###### END LOOP for each argument
+            elif v2["@type"] == "Multiplicity":
+                # Don't do anything for this right now.
+                pass
+            elif v2["@type"] == "FeatureChainExpression":
+                # This is a reference, do this over again
+                this_var = handle_feature_chain(api, project, v2, thisvar)
+            else:
+                logger.warning(
+                    "Could not find a valid type for this toolvariable, skipping."
+                )
+                logger.warning(
+                    "Please consider submitting this issue to github. The type was {}".format(
+                        v2["@type"]
+                    )
+                )
+            ###### END IF @type
+        ###### END LOOP for each element in attribute
+    else:
+        # No chaining feature
+        logger.error("No chaining feature found.")
+        raise AttributeError
+
+    return thisvar
+
+
 def init_variables(api, project, aj):
     logger.info("---------------------------------")
     logger.info("Searching for input values.")
@@ -164,88 +244,7 @@ def init_variables(api, project, aj):
                             continue
 
                         if voeid["@type"] == "FeatureChainExpression":
-                            q = build_query(
-                                {
-                                    "property": ["@id"],
-                                    "operator": ["="],
-                                    "value": [voeid["targetFeature"]["@id"]],
-                                }
-                            )
-                            valid = query_for_element(api, project, q)
-                            logger.debug(
-                                "         TargetElement: {}".format(valid["@type"])
-                            )
-                            if "chainingFeature" in valid:
-
-                                if len(valid["chainingFeature"]) == 0:
-                                    chainid = valid
-                                else:
-                                    q = build_query(
-                                        {
-                                            "property": ["@id"],
-                                            "operator": ["="],
-                                            "value": [
-                                                valid["chainingFeature"][-1]["@id"]
-                                            ],
-                                        }
-                                    )
-                                    chainid = query_for_element(api, project, q)
-                                    logger.debug(
-                                        "         ChainElement: {}".format(
-                                            chainid["@type"]
-                                        )
-                                    )
-
-                                for key in chainid["ownedElement"]:
-                                    q = build_query(
-                                        {
-                                            "property": ["@id"],
-                                            "operator": ["="],
-                                            "value": [key["@id"]],
-                                        }
-                                    )
-                                    v2 = query_for_element(api, project, q)
-
-                                    literal, thisvar = handle_literals(v2, thisvar)
-                                    if literal:
-                                        # Skip the rest of this code if it's been handled.
-                                        continue
-
-                                    if v2["@type"] == "OperatorExpression":
-                                        for arg in v2["argument"]:
-                                            q = build_query(
-                                                {
-                                                    "property": ["@id"],
-                                                    "operator": ["="],
-                                                    "value": [arg["@id"]],
-                                                }
-                                            )
-                                            v3 = query_for_element(api, project, q)
-                                            literal, thisvar = handle_literals(
-                                                v3, thisvar
-                                            )
-
-                                            if not literal:
-                                                continue
-                                        ###### END LOOP for each argument
-                                    elif v2["@type"] == "Multiplicity":
-                                        # Don't do anything for this right now.
-                                        pass
-                                    else:
-                                        logger.warning(
-                                            "Could not find a valid type for this toolvariable, skipping."
-                                        )
-                                        logger.warning(
-                                            "Please consider submitting this issue to github. The type was {}".format(
-                                                v2["@type"]
-                                            )
-                                        )
-                                    ###### END IF @type
-                                ###### END LOOP for each element in attribute
-                            else:
-                                # No chaining feature
-                                logger.error("No chaining feature found.")
-                                raise AttributeError
+                            thisvar = handle_feature_chain(api, project, voeid, thisvar)
                         else:
                             # No chaining feature
                             logger.debug(
