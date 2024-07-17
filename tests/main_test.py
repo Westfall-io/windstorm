@@ -296,6 +296,7 @@ def test_analysis_reference():
         assert f.read().strip() == "4"
     f.close()
 
+
 @responses.activate
 def test_analysis_reference():
     """This should succeed and replace a file with a list"""
