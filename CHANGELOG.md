@@ -3,6 +3,38 @@
 
 
 
+## v0.4.1 (2024-07-17)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: Now handles if the referenced feature is a reference to another feature ([`9879c2d`](https://github.com/Westfall-io/windstorm/commit/9879c2d2617dceba9e40feefca93b5d3252ad844))
+
+### Tests and Documentation
+
+#### :memo:
+
+* :memo: Updates to readme ([`1c02153`](https://github.com/Westfall-io/windstorm/commit/1c0215363c0189b95b7e8333582037d4e27faec0))
+
+#### :white_check_mark:
+
+* :white_check_mark: Correcting missing variable test. ([`6b3dd91`](https://github.com/Westfall-io/windstorm/commit/6b3dd917961ec108c747a505e36128bd0f940be9))
+
+### Others (CI/CD, Dependencies)
+
+#### :construction:
+
+* :construction: Passing the correct element to the handle function ([`7702a37`](https://github.com/Westfall-io/windstorm/commit/7702a37b25b7fbeec2c85edd0578cd202b10dc93))
+
+* :construction: Adding debug ([`747f52b`](https://github.com/Westfall-io/windstorm/commit/747f52bce8491d100b21d312b8c5a113c687f9f4))
+
+* :construction: Handling featurechain reference to featurechain ([`f9f4841`](https://github.com/Westfall-io/windstorm/commit/f9f48419c18e3f4189087916d39bce5f98c288ac))
+
+#### Other
+
+* :test_tube: Adding tests for references to see if it fails. ([`fb56c94`](https://github.com/Westfall-io/windstorm/commit/fb56c94708d20ca61e81ab5a45ef1b42edbbcd63))
+
 ## v0.4.0 (2024-07-16)
 ### Features
 #### :sparkles:
