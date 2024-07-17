@@ -84,6 +84,7 @@ def check_append(v, thisvar):
 
 
 def handle_feature_element(api, project, key, thisvar):
+    logger.info(thisvar)
     q = build_query(
         {
             "property": ["@id"],
