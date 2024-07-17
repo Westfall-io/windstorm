@@ -167,13 +167,14 @@ def handle_feature_chain(api, project, voeid, thisvar):
             logger.debug("         ChainElement: {}".format(chainid["@type"]))
 
         if len(chainid["ownedElement"]) == 1:
-            logger.info("Grabbing single attribute.")
+            logger.info("      Grabbing single attribute.")
             thisvar = handle_feature_element(api, project, key, thisvar)
         else:
-            logger.info("Grabbing list of attributes.")
+            logger.info("      Grabbing list of attributes.")
             thisvar["value"] = []
             for key in chainid["ownedElement"]:
                 thisvar = handle_feature_element(api, project, key, thisvar)
+                logger.info("      Current values: {}.".format(thisvar["value"]))
         ###### END LOOP if one element in attribute
     else:
         # No chaining feature
