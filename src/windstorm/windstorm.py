@@ -4,7 +4,7 @@ import uuid
 import logging
 import shutil
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("windstorm")
 from pathlib import Path
 
 import fire
@@ -33,13 +33,14 @@ def setup_logging(debug):
     loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
 
     for logger in loggers:
-        if debug:
-            logger.setLevel(logging.DEBUG)
-        else:
-            logger.setLevel(logging.INFO)
+        if not logger.handlers:
+            if debug:
+                logger.setLevel(logging.DEBUG)
+            else:
+                logger.setLevel(logging.INFO)
 
-        logger.addHandler(handler)
-        logger.propagate = False
+            logger.addHandler(handler)
+            logger.propagate = False
 
 
 def is_valid_uuid(val):
@@ -54,23 +55,112 @@ def is_valid_uuid(val):
             sys.exit()
 
 
-def handle_literals(element, variables):
+def handle_literals(element):
     if element["@type"] == "LiteralInteger":
         logger.info("         Value: {}".format(element["value"]))
-        variables["value"] = element["value"]
+        v = element["value"]
     elif element["@type"] == "LiteralString":
         logger.info("         Value: {}".format(element["value"]))
-        variables["value"] = element["value"]
+        v = element["value"]
     elif element["@type"] == "LiteralRational":
         logger.info("         Value: {}".format(element["value"]))
-        variables["value"] = element["value"]
+        v = element["value"]
     else:
-        return False, variables
+        return False, False
 
-    return True, variables
+    return True, v
+
+
+def check_append(v1, v2):
+    # logger.info("         Append: {}, {}".format(v1, v2))
+    if "value" in v2:
+        if type(v2["value"]) == type(list()):
+            v2["value"].append(v1)
+        else:
+            v2["value"] = v1
+    else:
+        v2["value"] = v1
+    return v2
+
+
+def handle_operator_expression(api, project, base_element, thisvar):
+    for arg_id in base_element["argument"]:
+        q = build_query(
+            {
+                "property": ["@id"],
+                "operator": ["="],
+                "value": [arg_id["@id"]],
+            }
+        )
+        arg_element = query_for_element(api, project, q)
+        literal, value = handle_literals(arg_element)
+        if literal:
+            thisvar = check_append(value, thisvar)
+        elif arg_element["@type"] == "OperatorExpression":
+            if "value" in thisvar:
+                thisvar["value"] = [thisvar["value"]]
+            else:
+                thisvar["value"] = []
+
+            thisvar = handle_operator_expression(api, project, arg_element, thisvar)
+        else:
+            # logger.info(arg_element)
+            logger.warning(
+                "Could not find a valid type for this toolvariable, skipping."
+            )
+            logger.warning(
+                "Please consider submitting this issue to github. The type was {}".format(
+                    arg_element["@type"]
+                )
+            )
+
+    return thisvar
+
+
+def handle_feature_element(api, project, key, thisvar):
+    q = build_query(
+        {
+            "property": ["@id"],
+            "operator": ["="],
+            "value": [key["@id"]],
+        }
+    )
+    v2 = query_for_element(api, project, q)
+    logger.info("         Target Element: {}".format(v2["@type"]))
+
+    literal, v = handle_literals(v2)
+    if literal:
+        # Skip the rest of this code if it's been handled.
+        return check_append(v, thisvar)
+
+    if v2["@type"] == "OperatorExpression":
+        return handle_operator_expression(api, project, v2, thisvar)
+        ###### END LOOP for each argument
+    elif v2["@type"] == "Multiplicity":
+        # Don't do anything for this right now.
+        logger.info("Skipping found multiplicity.")
+        pass
+    elif v2["@type"] == "FeatureChainExpression":
+        # This is a reference, do this over again
+        v = handle_feature_chain(api, project, v2, thisvar)
+        if type(v) != type(dict()):
+            return check_append(v, thisvar)
+        else:
+            # This was probably a reference to a reference.
+            return v
+    else:
+        logger.warning("Could not find a valid type for this toolvariable, skipping.")
+        logger.warning(
+            "Please consider submitting this issue to github. The type was {}".format(
+                v2["@type"]
+            )
+        )
+    ###### END IF @type
+    return thisvar
 
 
 def handle_feature_chain(api, project, voeid, thisvar):
+    # logger.debug(voeid)
     q = build_query(
         {
             "property": ["@id"],
@@ -95,53 +185,13 @@ def handle_feature_chain(api, project, voeid, thisvar):
             chainid = query_for_element(api, project, q)
             logger.debug("         ChainElement: {}".format(chainid["@type"]))
 
-        for key in chainid["ownedElement"]:
-            q = build_query(
-                {
-                    "property": ["@id"],
-                    "operator": ["="],
-                    "value": [key["@id"]],
-                }
-            )
-            v2 = query_for_element(api, project, q)
-
-            literal, thisvar = handle_literals(v2, thisvar)
-            if literal:
-                # Skip the rest of this code if it's been handled.
-                continue
-
-            if v2["@type"] == "OperatorExpression":
-                for arg in v2["argument"]:
-                    q = build_query(
-                        {
-                            "property": ["@id"],
-                            "operator": ["="],
-                            "value": [arg["@id"]],
-                        }
-                    )
-                    v3 = query_for_element(api, project, q)
-                    literal, thisvar = handle_literals(v3, thisvar)
-
-                    if not literal:
-                        continue
-                ###### END LOOP for each argument
-            elif v2["@type"] == "Multiplicity":
-                # Don't do anything for this right now.
-                pass
-            elif v2["@type"] == "FeatureChainExpression":
-                # This is a reference, do this over again
-                this_var = handle_feature_chain(api, project, v2, thisvar)
-            else:
-                logger.warning(
-                    "Could not find a valid type for this toolvariable, skipping."
-                )
-                logger.warning(
-                    "Please consider submitting this issue to github. The type was {}".format(
-                        v2["@type"]
-                    )
-                )
-            ###### END IF @type
-        ###### END LOOP for each element in attribute
+        if len(chainid["ownedElement"]) == 1:
+            thisvar = handle_feature_element(api, project, key, thisvar)
+        else:
+            for key in chainid["ownedElement"]:
+                thisvar = handle_feature_element(api, project, key, thisvar)
+                # Extra elements are probably multiplicity.
+        ###### END LOOP if one element in attribute
     else:
         # No chaining feature
         logger.error("No chaining feature found.")
@@ -238,13 +288,15 @@ def init_variables(api, project, aj):
                             ename = voeid.get("@type", None)
                         logger.info("      Element: {}".format(ename))
 
-                        literal, thisvar = handle_literals(voeid, thisvar)
+                        literal, v = handle_literals(voeid)
                         if literal:
                             # Just go to the next element, it's been handled.
+                            thisvar = check_append(v, thisvar)
                             continue
 
                         if voeid["@type"] == "FeatureChainExpression":
                             thisvar = handle_feature_chain(api, project, voeid, thisvar)
+                            # logger.info("      {}".format(thisvar))
                         else:
                             # No chaining feature
                             logger.debug(

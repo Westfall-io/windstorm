@@ -89,5 +89,16 @@ package Analysis {
         in engine_weight = a.b.h {@ToolVariable {name = "deltaT";}}
     }
 
+    // Valid Case - List of objects
+    analysis def case9 {
+        subject A;
+
+        metadata ToolExecution {
+            toolName = "Windstorm";
+        }
+
+        in engine_weight = a.b.i {@ToolVariable {name = "deltaT";}}
+    }
+
 
 }
