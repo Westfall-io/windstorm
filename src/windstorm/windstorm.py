@@ -129,7 +129,7 @@ def handle_feature_chain(api, project, voeid, thisvar):
                 # Don't do anything for this right now.
                 pass
             elif v2["@type"] == "FeatureChainExpression":
-                this_var = handle_feature_chain(api, project, voeid, thisvar)
+                this_var = handle_feature_chain(api, project, v2, thisvar)
             else:
                 logger.warning(
                     "Could not find a valid type for this toolvariable, skipping."
