@@ -71,6 +71,7 @@ def handle_literals(element, variables):
 
 
 def handle_feature_chain(api, project, voeid, thisvar):
+    logger.debug(voeid)
     q = build_query(
         {
             "property": ["@id"],

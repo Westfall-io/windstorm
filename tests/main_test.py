@@ -311,6 +311,7 @@ def test_analysis_list():
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
         out_directory="./tests/mocks/1_analysis/output",
+        debug=True
     )
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
