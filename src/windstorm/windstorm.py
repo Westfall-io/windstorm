@@ -275,7 +275,7 @@ def init_variables(api, project, aj):
 
                         if voeid["@type"] == "FeatureChainExpression":
                             thisvar = handle_feature_chain(api, project, voeid, thisvar)
-                            logger.info('      {}'.format(thisvar))
+                            logger.info("      {}".format(thisvar))
                         else:
                             # No chaining feature
                             logger.debug(
