@@ -70,6 +70,7 @@ def handle_literals(element, variables):
 
     return True, variables
 
+
 def check_append(v, thisvar):
     if "value" in thisvar:
         if type(thisvar["value"]) == type(list()):
@@ -79,6 +80,7 @@ def check_append(v, thisvar):
     else:
         thisvar["value"] = v["value"]
     return thisvar
+
 
 def handle_feature_element(api, project, key, thisvar):
     q = build_query(
