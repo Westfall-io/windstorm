@@ -121,7 +121,7 @@ def handle_feature_element(api, project, key, thisvar):
         ###### END LOOP for each argument
     elif v2["@type"] == "Multiplicity":
         # Don't do anything for this right now.
-        logger.info('Skipping found multiplicity.')
+        logger.info("Skipping found multiplicity.")
         pass
     elif v2["@type"] == "FeatureChainExpression":
         # This is a reference, do this over again
@@ -139,7 +139,7 @@ def handle_feature_element(api, project, key, thisvar):
 
 
 def handle_feature_chain(api, project, voeid, thisvar):
-    #logger.debug(voeid)
+    # logger.debug(voeid)
     q = build_query(
         {
             "property": ["@id"],
@@ -278,7 +278,7 @@ def init_variables(api, project, aj):
 
                         if voeid["@type"] == "FeatureChainExpression":
                             thisvar = handle_feature_chain(api, project, voeid, thisvar)
-                            #logger.info("      {}".format(thisvar))
+                            # logger.info("      {}".format(thisvar))
                         else:
                             # No chaining feature
                             logger.debug(
