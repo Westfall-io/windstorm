@@ -114,10 +114,11 @@ def handle_feature_element(api, project, key, thisvar):
             )
             v3 = query_for_element(api, project, q)
             literal, v = handle_literals(v3)
-            logger.info(v2, v3)
+            logger.info(v3)
             if literal:
                 # Skip the rest of this code if it's been handled.
-                return check_append(v, thisvar)
+                thisvar = check_append(v, thisvar)
+        return thisvar
         ###### END LOOP for each argument
     elif v2["@type"] == "Multiplicity":
         # Don't do anything for this right now.
@@ -165,14 +166,11 @@ def handle_feature_chain(api, project, voeid, thisvar):
             logger.debug("         ChainElement: {}".format(chainid["@type"]))
 
         if len(chainid["ownedElement"]) == 1:
-            logger.info("      Grabbing single attribute.")
             thisvar = handle_feature_element(api, project, key, thisvar)
         else:
-            logger.info("      Grabbing list of attributes.")
-            thisvar["value"] = []
             for key in chainid["ownedElement"]:
                 thisvar = handle_feature_element(api, project, key, thisvar)
-                logger.info("      Current values: {}.".format(thisvar["value"]))
+                # Extra elements are probably multiplicity.
         ###### END LOOP if one element in attribute
     else:
         # No chaining feature
