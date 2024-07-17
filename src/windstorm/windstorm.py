@@ -114,7 +114,7 @@ def handle_feature_element(api, project, key, thisvar):
             )
             v3 = query_for_element(api, project, q)
             literal, v = handle_literals(v3)
-
+            logger.info(v2, v3)
             if literal:
                 # Skip the rest of this code if it's been handled.
                 return check_append(v, thisvar)
