@@ -70,6 +70,15 @@ def handle_literals(element, variables):
 
     return True, variables
 
+def check_append(v, thisvar):
+    if "value" in thisvar:
+        if type(thisvar["value"]) == type(list()):
+            thisvar["value"].append(v["value"])
+        else:
+            thisvar["value"] = v["value"]
+    else:
+        thisvar["value"] = v["value"]
+    return thisvar
 
 def handle_feature_element(api, project, key, thisvar):
     q = build_query(
@@ -84,14 +93,7 @@ def handle_feature_element(api, project, key, thisvar):
     literal, v = handle_literals(v2, thisvar)
     if literal:
         # Skip the rest of this code if it's been handled.
-        if "value" in thisvar:
-            if type(thisvar) == type(list()):
-                thisvar["value"].append(v["value"])
-            else:
-                thisvar["value"] = v["value"]
-        else:
-            thisvar["value"] = v["value"]
-        return thisvar
+        return check_append(v, thisvar)
 
     if v2["@type"] == "OperatorExpression":
         for arg in v2["argument"]:
@@ -107,14 +109,7 @@ def handle_feature_element(api, project, key, thisvar):
 
             if literal:
                 # Skip the rest of this code if it's been handled.
-                if "value" in thisvar:
-                    if type(thisvar) == type(list()):
-                        thisvar["value"].append(v["value"])
-                    else:
-                        thisvar["value"] = v["value"]
-                else:
-                    thisvar["value"] = v["value"]
-                return thisvar
+                return check_append(v, thisvar)
         ###### END LOOP for each argument
     elif v2["@type"] == "Multiplicity":
         # Don't do anything for this right now.
@@ -122,13 +117,7 @@ def handle_feature_element(api, project, key, thisvar):
     elif v2["@type"] == "FeatureChainExpression":
         # This is a reference, do this over again
         v = handle_feature_chain(api, project, v2, thisvar)
-        if "value" in thisvar:
-            if type(thisvar) == type(list()):
-                thisvar["value"].append(v["value"])
-            else:
-                thisvar["value"] = v["value"]
-        else:
-            thisvar["value"] = v["value"]
+        return check_append(v, thisvar)
     else:
         logger.warning("Could not find a valid type for this toolvariable, skipping.")
         logger.warning(
