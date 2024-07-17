@@ -298,7 +298,7 @@ def test_analysis_reference():
 
 
 @responses.activate
-def test_analysis_reference():
+def test_analysis_list():
     """This should succeed and replace a file with a list"""
     add_responses(project_response, "1_analysis")
 
