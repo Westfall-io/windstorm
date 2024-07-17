@@ -4,7 +4,7 @@ import uuid
 import logging
 import shutil
 
-logger = logging.getLogger('windstorm')
+logger = logging.getLogger("windstorm")
 from pathlib import Path
 
 import fire
@@ -69,6 +69,7 @@ def handle_literals(element, variables):
 
     return True, variables
 
+
 def handle_feature_element(api, project, key, thisvar):
     q = build_query(
         {
@@ -113,9 +114,7 @@ def handle_feature_element(api, project, key, thisvar):
         # This is a reference, do this over again
         this_var = handle_feature_chain(api, project, v2, thisvar)
     else:
-        logger.warning(
-            "Could not find a valid type for this toolvariable, skipping."
-        )
+        logger.warning("Could not find a valid type for this toolvariable, skipping.")
         logger.warning(
             "Please consider submitting this issue to github. The type was {}".format(
                 v2["@type"]
