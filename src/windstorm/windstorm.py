@@ -24,7 +24,6 @@ except ModuleNotFoundError:
 
 
 def setup_logging(debug):
-    if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
             "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -34,13 +33,14 @@ def setup_logging(debug):
         loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
 
         for logger in loggers:
-            if debug:
-                logger.setLevel(logging.DEBUG)
-            else:
-                logger.setLevel(logging.INFO)
+            if not logger.handlers:
+                if debug:
+                    logger.setLevel(logging.DEBUG)
+                else:
+                    logger.setLevel(logging.INFO)
 
-            logger.addHandler(handler)
-            logger.propagate = False
+                logger.addHandler(handler)
+                logger.propagate = False
 
 
 def is_valid_uuid(val):
