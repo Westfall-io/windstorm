@@ -13,6 +13,7 @@ package a {
         attribute d : Real = 2;
         attribute e : MassValue = 3 [kg];
         attribute h = g.h;
+        attribute i = (1,2,3);
     }
 
     part def A {
