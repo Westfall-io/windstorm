@@ -90,7 +90,7 @@ package Analysis {
     }
 
     // Valid Case - List of objects
-    analysis def case8 {
+    analysis def case9 {
         subject A;
 
         metadata ToolExecution {
