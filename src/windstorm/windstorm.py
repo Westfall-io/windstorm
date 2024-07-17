@@ -66,7 +66,7 @@ def handle_literals(element):
         logger.info("         Value: {}".format(element["value"]))
         v = element["value"]
     else:
-        return False, v
+        return False, False
 
     return True, v
 
