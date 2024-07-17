@@ -109,8 +109,8 @@ def handle_feature_element(api, project, key, thisvar):
                 }
             )
             v3 = query_for_element(api, project, q)
+            logger.info(v3["@type"])
             literal, v = handle_literals(v3)
-            logger.info(v3)
             if literal:
                 # Skip the rest of this code if it's been handled.
                 thisvar = check_append(v, thisvar)
@@ -123,7 +123,11 @@ def handle_feature_element(api, project, key, thisvar):
     elif v2["@type"] == "FeatureChainExpression":
         # This is a reference, do this over again
         v = handle_feature_chain(api, project, v2, thisvar)
-        return check_append(v, thisvar)
+        if type(v) != type(dict()):
+            return check_append(v, thisvar)
+        else:
+            # This was probably a reference to a reference.
+            return v
     else:
         logger.warning("Could not find a valid type for this toolvariable, skipping.")
         logger.warning(
