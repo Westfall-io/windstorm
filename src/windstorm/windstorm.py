@@ -151,7 +151,7 @@ def handle_feature_chain(api, project, voeid, thisvar):
             chainid = query_for_element(api, project, q)
             logger.debug("         ChainElement: {}".format(chainid["@type"]))
 
-        if len(chain["ownedElement"]) == 1:
+        if len(chainid["ownedElement"]) == 1:
             thisvar = handle_feature_element(api, project, key, thisvar)
         else:
             thisvar["value"] = []
