@@ -72,7 +72,7 @@ def handle_literals(element):
 
 
 def check_append(v1, v2):
-    #logger.info("         Append: {}, {}".format(v1, v2))
+    # logger.info("         Append: {}, {}".format(v1, v2))
     if "value" in v2:
         if type(v2["value"]) == type(list()):
             v2["value"].append(v1)

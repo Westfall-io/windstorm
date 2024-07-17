@@ -318,6 +318,7 @@ def test_analysis_list():
         assert f.read().strip().replace(" ", "") == "[1,2,3]"
     f.close()
 
+
 @responses.activate
 def test_analysis_jinjafor():
     """This should succeed and replace a file with a list"""
