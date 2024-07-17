@@ -342,5 +342,5 @@ def test_analysis_jinjafor():
     )
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
-        assert f.read().strip().replace(" ", "") == "[1,2,3]"
+        assert f.read().strip().replace(" ", "") == "Geopoint(1,2,3)"
     f.close()
