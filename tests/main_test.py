@@ -315,5 +315,5 @@ def test_analysis_list():
     )
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
-        assert f.read().strip() == "1"
+        assert f.read().strip().replace(" ", "") == "[1,2,3]"
     f.close()
