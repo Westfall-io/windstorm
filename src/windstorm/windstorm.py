@@ -72,6 +72,7 @@ def handle_literals(element, variables):
 
 
 def check_append(v, thisvar):
+    logger.info(v, thisvar)
     if "value" in thisvar:
         if type(thisvar["value"]) == type(list()):
             thisvar["value"].append(v["value"])
