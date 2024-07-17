@@ -82,6 +82,7 @@ def check_append(v1, v2):
         v2["value"] = v1
     return v2
 
+
 def handle_operator_expression(api, project, base_element, thisvar):
     for arg_id in base_element["argument"]:
         q = build_query(
@@ -100,11 +101,13 @@ def handle_operator_expression(api, project, base_element, thisvar):
                 thisvar["value"] = [thisvar["value"]]
             else:
                 thisvar["value"] = []
-                
+
             thisvar = handle_operator_expression(api, project, arg_element, thisvar)
         else:
-            #logger.info(arg_element)
-            logger.warning("Could not find a valid type for this toolvariable, skipping.")
+            # logger.info(arg_element)
+            logger.warning(
+                "Could not find a valid type for this toolvariable, skipping."
+            )
             logger.warning(
                 "Please consider submitting this issue to github. The type was {}".format(
                     arg_element["@type"]
