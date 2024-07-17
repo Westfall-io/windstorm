@@ -14,7 +14,7 @@ package a {
         attribute e : MassValue = 3 [kg];
         attribute h = g.h;
         attribute i = (1,2,3);
-        attribute j : Boolean = True;
+        attribute j : Boolean = true;
     }
 
     part def A {
