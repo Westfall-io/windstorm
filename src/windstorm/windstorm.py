@@ -129,6 +129,7 @@ def handle_feature_chain(api, project, voeid, thisvar):
                 # Don't do anything for this right now.
                 pass
             elif v2["@type"] == "FeatureChainExpression":
+                # This is a reference, do this over again
                 this_var = handle_feature_chain(api, project, v2, thisvar)
             else:
                 logger.warning(
