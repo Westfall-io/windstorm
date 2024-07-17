@@ -87,6 +87,10 @@ def handle_feature_element(api, project, key, thisvar):
         if "value" in thisvar:
             if type(thisvar) == type(list()):
                 thisvar["value"].append(v["value"])
+            else:
+                thisvar["value"] = v["value"]
+        else:
+            thisvar["value"] = v["value"]
         return thisvar
 
     if v2["@type"] == "OperatorExpression":
@@ -106,6 +110,10 @@ def handle_feature_element(api, project, key, thisvar):
                 if "value" in thisvar:
                     if type(thisvar) == type(list()):
                         thisvar["value"].append(v["value"])
+                    else:
+                        thisvar["value"] = v["value"]
+                else:
+                    thisvar["value"] = v["value"]
                 return thisvar
         ###### END LOOP for each argument
     elif v2["@type"] == "Multiplicity":
@@ -113,7 +121,14 @@ def handle_feature_element(api, project, key, thisvar):
         pass
     elif v2["@type"] == "FeatureChainExpression":
         # This is a reference, do this over again
-        this_var = handle_feature_chain(api, project, v2, thisvar)
+        v = handle_feature_chain(api, project, v2, thisvar)
+        if "value" in thisvar:
+            if type(thisvar) == type(list()):
+                thisvar["value"].append(v["value"])
+            else:
+                thisvar["value"] = v["value"]
+        else:
+            thisvar["value"] = v["value"]
     else:
         logger.warning("Could not find a valid type for this toolvariable, skipping.")
         logger.warning(
