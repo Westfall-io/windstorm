@@ -3,6 +3,98 @@
 
 
 
+## v0.5.0 (2024-07-17)
+### Features
+#### :sparkles:
+
+* :sparkles: Incorporated lists ([`6b441de`](https://github.com/Westfall-io/windstorm/commit/6b441de1125884ccfecf54db6415f37e364bd152))
+
+### Fixes
+
+### Tests and Documentation
+
+#### :memo:
+
+* :memo: Adding badges to readme. ([`0736e98`](https://github.com/Westfall-io/windstorm/commit/0736e986eeedc220465bfe3554293e241bedcbee))
+
+#### :white_check_mark:
+
+* :white_check_mark: Test corrections for removing only one side of the templates ([`56384ef`](https://github.com/Westfall-io/windstorm/commit/56384ef7fc21871104d0bab2ce173545335c077a))
+
+* :white_check_mark: Test corrections for test ordering issues ([`69c8c0b`](https://github.com/Westfall-io/windstorm/commit/69c8c0bca5a6a6d316af00aca84d02bd86e700b9))
+
+### Others (CI/CD, Dependencies)
+
+#### :construction:
+
+* :construction: Adding failing test ([`1e29e24`](https://github.com/Westfall-io/windstorm/commit/1e29e24dacb70dd42f95aab4da88d9d6e24cd28d))
+
+* :construction: Adding failing test ([`cfdcad0`](https://github.com/Westfall-io/windstorm/commit/cfdcad01ef2790bcd42952c4a250196214db21f6))
+
+* :construction: Adding failing test ([`bd909ad`](https://github.com/Westfall-io/windstorm/commit/bd909ad2329c5cc5b7db302c2fa881fa9ae7de19))
+
+* :construction: Adding jinja forloop test ([`9309937`](https://github.com/Westfall-io/windstorm/commit/930993733632dc4a97f85a9af133716422cc09e8))
+
+* :construction: Adding jinja forloop test ([`e25676a`](https://github.com/Westfall-io/windstorm/commit/e25676a3f1f7038d6dd62db6b607d3ecff6b28b0))
+
+* :construction: Fixing test ([`7ff0ff9`](https://github.com/Westfall-io/windstorm/commit/7ff0ff93b2aec7cab968c383f17eb4d19f547dba))
+
+* :construction: Making a list ([`1eac446`](https://github.com/Westfall-io/windstorm/commit/1eac4469fe13e84fa4f0014fca24777a58daf5dc))
+
+* :construction: Fixing issue with references ([`1120ff3`](https://github.com/Westfall-io/windstorm/commit/1120ff3d36dac0c9123472d4947f9fc3acf28ad0))
+
+* :construction: Fixing issue with calling a key before it was made ([`debb36e`](https://github.com/Westfall-io/windstorm/commit/debb36e9d27ad6a03631e8515e93aca46d451bde))
+
+* :construction: Found that list are further down and removed a ton of code that was useless ([`ca389fb`](https://github.com/Westfall-io/windstorm/commit/ca389fb3d95bf567c5addb3570a54214c95a8265))
+
+* :construction: Adding debug ([`b704bcf`](https://github.com/Westfall-io/windstorm/commit/b704bcf414097c84646448f76d4b86ea8027b79d))
+
+* :construction: Fixing type error ([`d283a46`](https://github.com/Westfall-io/windstorm/commit/d283a463c2b39627c067d19e57e2603b60d810b3))
+
+* :construction: Fixing python issue where memory can be mutated in different functions ([`4beec77`](https://github.com/Westfall-io/windstorm/commit/4beec77c6f46915488d051b2f09ac27bb6b1dd29))
+
+* :construction: Adding debug ([`ea0eab9`](https://github.com/Westfall-io/windstorm/commit/ea0eab9eaca5754d47121b9909efa645a46a88ee))
+
+* :construction: Adding debug ([`957a5eb`](https://github.com/Westfall-io/windstorm/commit/957a5ebed9031e0e2e002a55493b08be8aedd6db))
+
+* :construction: Adding debug ([`5ed9c3c`](https://github.com/Westfall-io/windstorm/commit/5ed9c3c5ba1ef192ebddca7fd88d894109518a1c))
+
+* :construction: Adding debug ([`9055245`](https://github.com/Westfall-io/windstorm/commit/9055245eab01f42f9686e6ef71a61c5f46a4173f))
+
+* :construction: Adding debug ([`b35b4f2`](https://github.com/Westfall-io/windstorm/commit/b35b4f29eadecf9951798f1308a43448cc98b63a))
+
+* :construction: Fixing type check error ([`64c48e9`](https://github.com/Westfall-io/windstorm/commit/64c48e9af251a3eb574f3206aa3d61d331e916d9))
+
+* :construction: Adding debug ([`93a7771`](https://github.com/Westfall-io/windstorm/commit/93a777187ad252d404ee1934f28f96619da43b57))
+
+* :construction: Adding extra parameters ([`95ec701`](https://github.com/Westfall-io/windstorm/commit/95ec7017294f0ba593cd9f6280cd5c5d2cdf964c))
+
+* :construction: Adding debug ([`05c6eee`](https://github.com/Westfall-io/windstorm/commit/05c6eee68b2bc9c7570f2eef5c15c22af556823a))
+
+* :construction: Adding debug ([`692b5d0`](https://github.com/Westfall-io/windstorm/commit/692b5d0db613f179df0641d2eb2a16eef3452fc6))
+
+* :construction: Adding debug ([`de56d15`](https://github.com/Westfall-io/windstorm/commit/de56d1588c7f2bfddaea29da437c02e772111258))
+
+* :construction: Fixing merge ([`b14e89e`](https://github.com/Westfall-io/windstorm/commit/b14e89ebb1a77c2304aac98bd828858382370ba5))
+
+* :construction: Fixing name error ([`9d3bf74`](https://github.com/Westfall-io/windstorm/commit/9d3bf74390d326ef79352431389faa82815773d4))
+
+* :construction: Fixing logging ([`349d61f`](https://github.com/Westfall-io/windstorm/commit/349d61fb501114ac10432819aebd8f43eff69f7a))
+
+* :construction: Fixing logging ([`8c5e24d`](https://github.com/Westfall-io/windstorm/commit/8c5e24df21879b8730984cd3774cefe5a0e58cd5))
+
+* :construction: Fixing list as input ([`0eacec5`](https://github.com/Westfall-io/windstorm/commit/0eacec531b76f519cdc209b71c9ae3f11124b334))
+
+* :construction: Adding debug ([`f0a8d07`](https://github.com/Westfall-io/windstorm/commit/f0a8d0737d67c458fe3a93e4ba49899a7bab45df))
+
+* :construction: Renaming test function ([`ba1cd6b`](https://github.com/Westfall-io/windstorm/commit/ba1cd6b7f4f61314bc5de781f5cfb07b5a4c858e))
+
+* :construction: Renaming failed analysis case ([`3b241a4`](https://github.com/Westfall-io/windstorm/commit/3b241a481de3bafc8dc14a0b6b7804ac2e242f3e))
+
+#### Other
+
+* :test_tube: Adding failing test for a list of objects ([`b862c9c`](https://github.com/Westfall-io/windstorm/commit/b862c9c95d8fecfe2610e84b1d293188cfd13057))
+
 ## v0.4.1 (2024-07-17)
 ### Features
 ### Fixes
