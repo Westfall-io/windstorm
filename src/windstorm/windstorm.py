@@ -72,11 +72,12 @@ def handle_literals(element, variables):
 
 
 def check_append(v, thisvar):
-    logger.info("      Append: {}, {}".format(v, thisvar))
+    logger.info("         Append: {}, {}".format(v, thisvar))
     if "value" in thisvar:
         if type(thisvar["value"]) == type(list()):
             thisvar["value"].append(v["value"])
         else:
+            logger.info(type(thisvar["value"]))
             thisvar["value"] = v["value"]
     else:
         thisvar["value"] = v["value"]
@@ -84,7 +85,7 @@ def check_append(v, thisvar):
 
 
 def handle_feature_element(api, project, key, thisvar):
-    logger.info("      Feature Element: {}".format(thisvar))
+    logger.info("         Feature Element: {}".format(thisvar))
     q = build_query(
         {
             "property": ["@id"],
