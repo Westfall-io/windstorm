@@ -2,7 +2,7 @@ import sys
 import json
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("windstorm.api")
 
 import requests
 

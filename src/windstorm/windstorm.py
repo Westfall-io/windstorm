@@ -4,7 +4,7 @@ import uuid
 import logging
 import shutil
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('windstorm')
 from pathlib import Path
 
 import fire
@@ -69,6 +69,61 @@ def handle_literals(element, variables):
 
     return True, variables
 
+def handle_feature_element(api, project, key, thisvar):
+    q = build_query(
+        {
+            "property": ["@id"],
+            "operator": ["="],
+            "value": [key["@id"]],
+        }
+    )
+    v2 = query_for_element(api, project, q)
+
+    literal, v = handle_literals(v2, thisvar)
+    if literal:
+        # Skip the rest of this code if it's been handled.
+        if "value" in thisvar:
+            if type(thisvar) == type(list()):
+                thisvar["value"].append(v["value"])
+        return thisvar
+
+    if v2["@type"] == "OperatorExpression":
+        for arg in v2["argument"]:
+            q = build_query(
+                {
+                    "property": ["@id"],
+                    "operator": ["="],
+                    "value": [arg["@id"]],
+                }
+            )
+            v3 = query_for_element(api, project, q)
+            literal, v = handle_literals(v3, thisvar)
+
+            if literal:
+                # Skip the rest of this code if it's been handled.
+                if "value" in thisvar:
+                    if type(thisvar) == type(list()):
+                        thisvar["value"].append(v["value"])
+                return thisvar
+        ###### END LOOP for each argument
+    elif v2["@type"] == "Multiplicity":
+        # Don't do anything for this right now.
+        pass
+    elif v2["@type"] == "FeatureChainExpression":
+        # This is a reference, do this over again
+        this_var = handle_feature_chain(api, project, v2, thisvar)
+    else:
+        logger.warning(
+            "Could not find a valid type for this toolvariable, skipping."
+        )
+        logger.warning(
+            "Please consider submitting this issue to github. The type was {}".format(
+                v2["@type"]
+            )
+        )
+    ###### END IF @type
+    return thisvar
+
 
 def handle_feature_chain(api, project, voeid, thisvar):
     logger.debug(voeid)
@@ -96,53 +151,13 @@ def handle_feature_chain(api, project, voeid, thisvar):
             chainid = query_for_element(api, project, q)
             logger.debug("         ChainElement: {}".format(chainid["@type"]))
 
-        for key in chainid["ownedElement"]:
-            q = build_query(
-                {
-                    "property": ["@id"],
-                    "operator": ["="],
-                    "value": [key["@id"]],
-                }
-            )
-            v2 = query_for_element(api, project, q)
-
-            literal, thisvar = handle_literals(v2, thisvar)
-            if literal:
-                # Skip the rest of this code if it's been handled.
-                continue
-
-            if v2["@type"] == "OperatorExpression":
-                for arg in v2["argument"]:
-                    q = build_query(
-                        {
-                            "property": ["@id"],
-                            "operator": ["="],
-                            "value": [arg["@id"]],
-                        }
-                    )
-                    v3 = query_for_element(api, project, q)
-                    literal, thisvar = handle_literals(v3, thisvar)
-
-                    if not literal:
-                        continue
-                ###### END LOOP for each argument
-            elif v2["@type"] == "Multiplicity":
-                # Don't do anything for this right now.
-                pass
-            elif v2["@type"] == "FeatureChainExpression":
-                # This is a reference, do this over again
-                this_var = handle_feature_chain(api, project, v2, thisvar)
-            else:
-                logger.warning(
-                    "Could not find a valid type for this toolvariable, skipping."
-                )
-                logger.warning(
-                    "Please consider submitting this issue to github. The type was {}".format(
-                        v2["@type"]
-                    )
-                )
-            ###### END IF @type
-        ###### END LOOP for each element in attribute
+        if len(chain["ownedElement"]) == 1:
+            thisvar = handle_feature_element(api, project, key, thisvar)
+        else:
+            thisvar["value"] = []
+            for key in chainid["ownedElement"]:
+                thisvar = handle_feature_element(api, project, key, thisvar)
+        ###### END LOOP if one element in attribute
     else:
         # No chaining feature
         logger.error("No chaining feature found.")
