@@ -75,11 +75,13 @@ def check_append(v, thisvar):
     logger.info("         Append: {}, {}".format(v, thisvar))
     if "value" in thisvar:
         if type(thisvar["value"]) == type(list()):
+            logger.info(type(thisvar["value"]))
             thisvar["value"].append(v["value"])
         else:
             logger.info(type(thisvar["value"]))
             thisvar["value"] = v["value"]
     else:
+        logger.info(type(thisvar["value"]))
         thisvar["value"] = v["value"]
     return thisvar
 
@@ -273,6 +275,7 @@ def init_variables(api, project, aj):
 
                         if voeid["@type"] == "FeatureChainExpression":
                             thisvar = handle_feature_chain(api, project, voeid, thisvar)
+                            logger.info('      {}'.format(thisvar))
                         else:
                             # No chaining feature
                             logger.debug(
