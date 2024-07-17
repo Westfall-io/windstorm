@@ -332,7 +332,7 @@ def test_analysis_jinjafor():
 
 @responses.activate
 def test_analysis_boolean():
-    """This should succeed and replace a file with a list"""
+    """This should succeed and replace with a boolean."""
     add_responses(project_response, "1_analysis")
 
     template("{{ windstorm('deltaT') }}")
