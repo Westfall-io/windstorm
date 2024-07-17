@@ -65,6 +65,9 @@ def handle_literals(element):
     elif element["@type"] == "LiteralRational":
         logger.info("         Value: {}".format(element["value"]))
         v = element["value"]
+    elif element["@type"] == "LiteralBoolean":
+        logger.info("         Value: {}".format(element["value"]))
+        v = element["value"]
     else:
         return False, False
 
