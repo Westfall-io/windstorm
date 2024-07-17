@@ -317,3 +317,26 @@ def test_analysis_list():
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip().replace(" ", "") == "[1,2,3]"
     f.close()
+
+@responses.activate
+def test_analysis_jinjafor():
+    """This should succeed and replace a file with a list"""
+    add_responses(project_response, "1_analysis")
+
+    with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
+        f.write("Geopoint({% for k,v in enumerate(windstorm('deltaT')) %}")
+        f.write("{% if k==len(windstorm('deltaT')) %}{{ v }}{% else %}{{ v }},")
+        f.write("{% endfor %})")
+    f.close()
+
+    galestorm(
+        "case9",
+        api="http://sysml2.intercax.com:9000",
+        in_directory="./tests/mocks/1_analysis/input",
+        out_directory="./tests/mocks/1_analysis/output",
+        debug=True,
+    )
+
+    with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
+        assert f.read().strip().replace(" ", "") == "[1,2,3]"
+    f.close()
