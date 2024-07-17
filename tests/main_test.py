@@ -324,13 +324,13 @@ def test_analysis_jinjafor():
     """This should succeed and replace a file with a list"""
     add_responses(project_response, "1_analysis")
 
-    #with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
+    # with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
     #    f.write("Geopoint({% for v in windstorm('deltaT')) %}")
     #    f.write(",{{ v }}")
     #    f.write("{% endfor %})")
-    #f.close()
+    # f.close()
     with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
-        f.write("Geopoint({{ windstorm('deltaT'))|join(",") }}")
+        f.write("Geopoint({{ windstorm('deltaT'))|join(", ") }}")
     f.close()
 
     galestorm(
