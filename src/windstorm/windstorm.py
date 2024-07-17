@@ -75,19 +75,15 @@ def check_append(v1, v2):
     logger.info("         Append: {}, {}".format(v1, v2))
     if "value" in v2:
         if type(v2["value"]) == type(list()):
-            logger.info(type(v2["value"]))
             v2["value"].append(v1)
         else:
-            logger.info(type(v2["value"]))
             v2["value"] = v1
     else:
-        logger.info(type(v2["value"]))
         v2["value"] = v1
     return v2
 
 
 def handle_feature_element(api, project, key, thisvar):
-    logger.info("         Current Variable: {}".format(thisvar))
     q = build_query(
         {
             "property": ["@id"],
