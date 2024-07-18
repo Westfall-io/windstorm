@@ -378,10 +378,11 @@ def template_files(
                 try:
                     # Unpack the archive file
                     shutil.unpack_archive(thisfile, "./tmpzip", "zip")
-                except:
+                except shutil.ReadError:
                     if in_directory != out_directory:
-                        with open(outfile, "wb") as f2:
-                            f2.write(data)
+                        with open(outfile, "rb") as f1:
+                            with open(outfile, "wb") as f2:
+                                f2.write(f1.read())
                     logger.warning(
                         "Skipping excel file {}/{} because it could not be opened properly.".format(
                             dir_path, name
