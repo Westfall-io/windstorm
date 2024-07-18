@@ -325,10 +325,6 @@ def test_analysis_jinjafor():
         assert f.read().strip().replace(" ", "") == "Geopoint(1,2,3)"
     f.close()
 
-    # This can cause type problems
-    os.remove("./tests/mocks/1_analysis/input/template.txt")
-    os.remove("./tests/mocks/1_analysis/output/template.txt")
-
 
 @responses.activate
 def test_analysis_boolean():
@@ -366,5 +362,9 @@ def test_analysis_multiple_inputs():
     )
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
-        assert bool(f.read().strip())
+        assert f.read().strip()
     f.close()
+
+    # This can cause type problems
+    os.remove("./tests/mocks/1_analysis/input/template.txt")
+    os.remove("./tests/mocks/1_analysis/output/template.txt")
