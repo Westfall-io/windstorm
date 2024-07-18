@@ -480,7 +480,7 @@ def template_files(
         logger.info("Rezipping file to {}.".format(xlsx["filename"]))
         # Zip the file and overwrite
         try:
-            os.remove(xlsx["filename"]+'.zip')
+            os.remove(xlsx["filename"] + ".zip")
         except OSError:
             pass
 
@@ -498,7 +498,7 @@ def template_files(
         os.rename(xlsx["filename"] + ".zip", xlsx["filename"])
 
         try:
-            os.remove(xlsx["filename"]+'.zip')
+            os.remove(xlsx["filename"] + ".zip")
         except OSError:
             pass
     else:
