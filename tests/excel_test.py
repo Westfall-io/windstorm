@@ -105,10 +105,7 @@ def test_analysis_xlsx_file_exists():
         f1,
     )
 
-    shutil.copyfile(
-        "./tests/mocks/1_analysis/xlsx_input/template.xlsx",
-        f2,
-    )
+    shutil.copyfile(f1,f2+".zip")
 
     # Update the excel file using the long chain version, doesn't really matter
     galestorm(

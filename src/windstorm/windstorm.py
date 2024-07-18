@@ -482,6 +482,13 @@ def template_files(
         shutil.make_archive(xlsx["filename"], "zip", "./tmpzip")
         # Remove the extra temporary folder
         shutil.rmtree("./tmpzip")
+
+        # Ensure there isn't a file already there.
+        try:
+            os.remove(xlsx["filename"])
+        except OSError:
+            pass
+        
         # Remove the trailing .zip
         os.rename(xlsx["filename"] + ".zip", xlsx["filename"])
     else:
