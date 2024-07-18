@@ -362,7 +362,9 @@ def test_analysis_multiple_inputs():
     )
 
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
-        assert f.read().strip()
+        d = f.read()
+        print(d)
+        assert False
     f.close()
 
     # This can cause type problems
