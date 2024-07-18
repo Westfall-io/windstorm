@@ -65,7 +65,8 @@ def test_analysis_xlsx_pass():
 
 @responses.activate
 def test_analysis_xlsx_force_skip():
-    """This should succeed and replace an excel file"""
+    """This should skip the excel file since it can't be opened and push the
+    file as is."""
     add_responses(project_response, "1_analysis")
 
     f1 = "./tests/mocks/1_analysis/input/binary.xlsx"
