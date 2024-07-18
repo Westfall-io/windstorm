@@ -91,6 +91,7 @@ def test_analysis_xlsx_force_skip():
 
     assert b
 
+
 @responses.activate
 def test_analysis_xlsx_file_exists():
     """This should skip the excel file since it can't be opened and push the
