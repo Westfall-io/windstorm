@@ -479,11 +479,28 @@ def template_files(
         # Tell the user
         logger.info("Rezipping file to {}.".format(xlsx["filename"]))
         # Zip the file and overwrite
+        try:
+            os.remove(xlsx["filename"] + ".zip")
+        except OSError:
+            pass
+
         shutil.make_archive(xlsx["filename"], "zip", "./tmpzip")
         # Remove the extra temporary folder
         shutil.rmtree("./tmpzip")
+
+        # Ensure there isn't a file already there.
+        try:
+            os.remove(xlsx["filename"])
+        except OSError:
+            pass
+
         # Remove the trailing .zip
         os.rename(xlsx["filename"] + ".zip", xlsx["filename"])
+
+        try:
+            os.remove(xlsx["filename"] + ".zip")
+        except OSError:
+            pass
     else:
         # Tell the user
         logger.info("Templating completed.")
