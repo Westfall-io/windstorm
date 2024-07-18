@@ -364,7 +364,6 @@ def test_analysis_multiple_inputs():
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == 'True|ABC|1|4|1.1'
 
-
-# This can cause type problems
-os.remove("./tests/mocks/1_analysis/input/template.txt")
-os.remove("./tests/mocks/1_analysis/output/template.txt")
+    # This can cause type problems
+    os.remove("./tests/mocks/1_analysis/input/template.txt")
+    os.remove("./tests/mocks/1_analysis/output/template.txt")
