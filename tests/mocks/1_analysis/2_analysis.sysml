@@ -100,5 +100,16 @@ package Analysis {
         in engine_weight = a.b.i {@ToolVariable {name = "deltaT";}}
     }
 
+    // Valid Case - Boolean
+    analysis def case10 {
+        subject A;
+
+        metadata ToolExecution {
+            toolName = "Windstorm";
+        }
+
+        in engine_weight = a.b.j {@ToolVariable {name = "deltaT";}}
+    }
+
 
 }
