@@ -380,7 +380,7 @@ def template_files(
                     shutil.unpack_archive(thisfile, "./tmpzip", "zip")
                 except shutil.ReadError:
                     if in_directory != out_directory:
-                        with open(outfile, "rb") as f1:
+                        with open(thisfile, "rb") as f1:
                             with open(outfile, "wb") as f2:
                                 f2.write(f1.read())
                     logger.warning(
