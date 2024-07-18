@@ -348,12 +348,15 @@ def test_analysis_boolean():
         assert bool(f.read().strip())
     f.close()
 
+
 @responses.activate
 def test_analysis_multiple_inputs():
     """This should succeed and replace with a boolean."""
     add_responses(project_response, "1_analysis")
 
-    template("{{ windstorm('deltaT') }}|{{ windstorm('deltaC') }}|{{ windstorm('deltaE') }}|{{ windstorm('deltaG') }}|{{ windstorm('deltaF') }}")
+    template(
+        "{{ windstorm('deltaT') }}|{{ windstorm('deltaC') }}|{{ windstorm('deltaE') }}|{{ windstorm('deltaG') }}|{{ windstorm('deltaF') }}"
+    )
 
     galestorm(
         "case11",
