@@ -513,6 +513,7 @@ def galestorm(
     element_type: str = "AnalysisCaseDefinition",
     in_directory: str = ".",
     out_directory: str = ".",
+    graph_templates: bool = False,
     force_render_error_continue: bool = False,
     debug: bool = False,
 ):
