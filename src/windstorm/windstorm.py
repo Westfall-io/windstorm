@@ -488,7 +488,7 @@ def template_files(
             os.remove(xlsx["filename"])
         except OSError:
             pass
-        
+
         # Remove the trailing .zip
         os.rename(xlsx["filename"] + ".zip", xlsx["filename"])
     else:

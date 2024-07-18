@@ -106,7 +106,7 @@ def test_analysis_xlsx_file_exists():
         f1,
     )
 
-    shutil.copyfile(f1,f2+".zip")
+    shutil.copyfile(f1, f2 + ".zip")
 
     # Update the excel file using the long chain version, doesn't really matter
     galestorm(
