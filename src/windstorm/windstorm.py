@@ -189,7 +189,7 @@ def handle_feature_chain(api, project, voeid, thisvar):
             logger.debug("         ChainElement: {}".format(chainid["@type"]))
 
         if len(chainid["ownedElement"]) == 1:
-            thisvar = handle_feature_element(api, project, key, thisvar)
+            thisvar = handle_feature_element(api, project, chainid["ownedElement"][0], thisvar)
         else:
             for key in chainid["ownedElement"]:
                 thisvar = handle_feature_element(api, project, key, thisvar)
