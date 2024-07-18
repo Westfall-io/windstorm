@@ -375,8 +375,20 @@ def template_files(
                 logger.info(
                     "Found an excel spreadsheet. Attempting to reformat to be templated."
                 )
-                # Unpack the archive file
-                shutil.unpack_archive(thisfile, "./tmpzip", "zip")
+                try:
+                    # Unpack the archive file
+                    shutil.unpack_archive(thisfile, "./tmpzip", "zip")
+                except shutil.ReadError:
+                    if in_directory != out_directory:
+                        with open(thisfile, "rb") as f1:
+                            with open(outfile, "wb") as f2:
+                                f2.write(f1.read())
+                    logger.warning(
+                        "Skipping excel file {}/{} because it could not be opened properly.".format(
+                            dir_path, name
+                        )
+                    )
+                    continue
 
                 # Run templates on all temporary files.
                 template_files(
