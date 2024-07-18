@@ -62,6 +62,7 @@ def test_analysis_xlsx_pass():
 
     assert b
 
+
 @responses.activate
 def test_analysis_xlsx_force_skip():
     """This should succeed and replace an excel file"""
@@ -86,5 +87,5 @@ def test_analysis_xlsx_force_skip():
     b = filecmp.cmp(f1, f2)
     os.remove(f1)
     os.remove(f2)
-    
+
     assert b
