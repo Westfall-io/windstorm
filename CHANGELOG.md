@@ -3,6 +3,44 @@
 
 
 
+## v0.5.1 (2024-07-18)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: Fixed an issue where the zipping processed failed if files already existed. Could not reproduce the bug, but both files are deleted from the output folder just in case. Also cleaned up an issue where the zip file was left behind. ([`1873efa`](https://github.com/Westfall-io/windstorm/commit/1873efa0f175d84653de1068fe8bf15c1ebb3c3b))
+
+* :bug: Fixed an issue where an excel file was opened in the directory when it was attempting to use it as a template. ([`8752b3b`](https://github.com/Westfall-io/windstorm/commit/8752b3bad34ff7adfceb7b623182a9eea67715ae))
+
+* :bug: Fixed an issue where booleans weren&#39;t handled. ([`a45f7a5`](https://github.com/Westfall-io/windstorm/commit/a45f7a5f5ccd5bcdf1902a09d68d98045bbdd33a))
+
+### Tests and Documentation
+
+#### :memo:
+
+* :memo: Adding a newline to separate the description from the image line. ([`3223e4b`](https://github.com/Westfall-io/windstorm/commit/3223e4b07a82112fb58ac9c9d21c30f096bbb910))
+
+#### :white_check_mark:
+
+* :white_check_mark: Adding test for a condition where the excel file cannot be renamed because a file already exists. ([`3341282`](https://github.com/Westfall-io/windstorm/commit/334128205e53b9ea2c8ff38dfc1f7a039add09e1))
+
+* :white_check_mark: Handling an ill-formated xlsx file. ([`5269992`](https://github.com/Westfall-io/windstorm/commit/52699927b72f6228c6cd702ae447eacffd2d57c8))
+
+* :white_check_mark: Adding a test for boolean ([`5be89ec`](https://github.com/Westfall-io/windstorm/commit/5be89eca98c3b9e6f26f14053b6ae0530874515e))
+
+### Others (CI/CD, Dependencies)
+
+#### :construction:
+
+* :construction: The issue might actually be a zip file existing. ([`79b6f4c`](https://github.com/Westfall-io/windstorm/commit/79b6f4cd6c8d2bc767a02466043aa9b9cabcdec0))
+
+* :construction: Fixing file read error ([`31e42d4`](https://github.com/Westfall-io/windstorm/commit/31e42d494dfb2049d66b3c027acb8217304f1b72))
+
+* :construction: Adding a file read so that the data can be put back into binary. ([`c7ddd5c`](https://github.com/Westfall-io/windstorm/commit/c7ddd5c99b892fc9ca030ce15cd1df3da89c0458))
+
+* :construction: Adding bool handing and fixing sysml ([`0487fdd`](https://github.com/Westfall-io/windstorm/commit/0487fdd99e0af23ca88ac4f01663922ae963dc1b))
+
 ## v0.5.0 (2024-07-17)
 ### Features
 #### :sparkles:
