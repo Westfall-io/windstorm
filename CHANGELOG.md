@@ -3,6 +3,34 @@
 
 
 
+## v0.5.2 (2024-07-19)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: Fixed an error where the variable key was unbound. ([`4146fc5`](https://github.com/Westfall-io/windstorm/commit/4146fc50e5cf804959633db071e709033ae6c55e))
+
+### Tests and Documentation
+
+#### :memo:
+
+* :memo: Readme updates. ([`41d34c9`](https://github.com/Westfall-io/windstorm/commit/41d34c9cfdbfe9cb0e2932caca7892e168349e2c))
+
+#### :white_check_mark:
+
+* :white_check_mark: Adding a multiple input test ([`0c5ab83`](https://github.com/Westfall-io/windstorm/commit/0c5ab8317b88d963823d41300cf302c6cecf98c3))
+
+### Others (CI/CD, Dependencies)
+
+#### :construction:
+
+* :construction: Fixing issue with removing files in outside of tests ([`1f82ec5`](https://github.com/Westfall-io/windstorm/commit/1f82ec59ab7692c7a24eb328dd63906d6f603e47))
+
+* :construction: Fixing tests ([`f3f318b`](https://github.com/Westfall-io/windstorm/commit/f3f318beed3b1a9928da6c4e714166a251d9600b))
+
+* :construction: Fixing tests ([`0584a86`](https://github.com/Westfall-io/windstorm/commit/0584a86a76dc99b5091a536225819e5836736b2e))
+
 ## v0.5.1 (2024-07-18)
 ### Features
 ### Fixes
