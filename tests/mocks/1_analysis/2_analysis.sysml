@@ -111,5 +111,20 @@ package Analysis {
         in engine_weight = a.b.j {@ToolVariable {name = "deltaT";}}
     }
 
+    // Valid Case - Five variables
+    analysis def case11 {
+        subject A;
+
+        metadata ToolExecution {
+            toolName = "Windstorm";
+        }
+
+        in engine_weight = a.b.j {@ToolVariable {name = "deltaT";}}
+        in engine = a.b.c {@ToolVariable {name = "deltaE";}}
+        in engine_num = a.f {@ToolVariable {name = "deltaF";}}
+        in engine_test = "ABC" {@ToolVariable {name = "deltaC";}}
+        in engine_temp = a.b.h {@ToolVariable {name = "deltaG";}}
+    }
+
 
 }
