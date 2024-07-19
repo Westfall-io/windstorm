@@ -12,6 +12,9 @@ Any text based file (.json, .py, .txt, .m) can be templated with [Jinja](https:/
 
 Versions after 0.4.0 support Excel files, even though they are not pure text.
 
+Windstorm extends Jinja and supports all of the features within Jinja (i.e. for loops,
+if statements) and adds a custom function to interact with the SysMLv2 API Services.
+
 ## SysMLv2 API
 When pointed at an appropriate SysMLv2 API, windstorm will pull all of the
 parameters for use in the jinja templates.
