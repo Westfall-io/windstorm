@@ -1,4 +1,5 @@
 import logging
+
 logger = logging.getLogger("windstorm")
 
 import fire
@@ -6,6 +7,7 @@ import fire
 from windstorm.common.functions import setup_logging
 from windstorm.common.api import verify_tool
 from windstorm.common.sysml import init_variables, template_files
+
 
 def galestorm(
     element_name: str,
