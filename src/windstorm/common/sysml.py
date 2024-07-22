@@ -13,6 +13,7 @@ from jinja2.exceptions import TemplateSyntaxError
 from windstorm.common.api import get_element_by_id
 from windstorm.common.functions import remove_file, rename_file
 
+
 def handle_literals(element):
     if element["@type"] == "LiteralInteger":
         logger.info("         Value: {}".format(element["value"]))
@@ -31,6 +32,7 @@ def handle_literals(element):
 
     return True, v
 
+
 def check_append(v1, v2):
     # logger.info("         Append: {}, {}".format(v1, v2))
     if "value" in v2:
@@ -41,6 +43,7 @@ def check_append(v1, v2):
     else:
         v2["value"] = v1
     return v2
+
 
 def handle_operator_expression(api, project, base_element, thisvar):
     for arg_id in base_element["argument"]:
@@ -114,7 +117,9 @@ def handle_feature_chain(api, project, voeid, thisvar):
         if len(valid["chainingFeature"]) == 0:
             chainid = valid
         else:
-            chainid = get_element_by_id(api, project, valid["chainingFeature"][-1]["@id"])
+            chainid = get_element_by_id(
+                api, project, valid["chainingFeature"][-1]["@id"]
+            )
             logger.debug("         ChainElement: {}".format(chainid["@type"]))
 
         if len(chainid["ownedElement"]) == 1:
@@ -132,6 +137,7 @@ def handle_feature_chain(api, project, voeid, thisvar):
         raise AttributeError
 
     return thisvar
+
 
 def init_variables(api, project, aj):
     logger.info("---------------------------------")
@@ -153,12 +159,18 @@ def init_variables(api, project, aj):
                     voeid = get_element_by_id(api, project, voe["@id"])
 
                     if voeid["@type"].lower() == "MetaDataUsage".lower():
-                        mdid = get_element_by_id(api, project, voeid["metadataDefinition"]["@id"])
+                        mdid = get_element_by_id(
+                            api, project, voeid["metadataDefinition"]["@id"]
+                        )
 
                         if mdid["qualifiedName"] == "AnalysisTooling::ToolVariable":
-                            toolvar = get_element_by_id(api, project, voeid["ownedElement"][0]["@id"])
+                            toolvar = get_element_by_id(
+                                api, project, voeid["ownedElement"][0]["@id"]
+                            )
                             if toolvar["name"] == "name":
-                                toolname = get_element_by_id(api, project, toolvar["ownedElement"][0]["@id"])
+                                toolname = get_element_by_id(
+                                    api, project, toolvar["ownedElement"][0]["@id"]
+                                )
                                 logger.info(
                                     "      Tool Variable: {}".format(toolname["value"])
                                 )
@@ -374,7 +386,6 @@ def template_files(
         # Tell the user
         logger.info("Rezipping file to {}.".format(xlsx["filename"]))
         # Zip the file and overwrite
-
 
         shutil.make_archive(xlsx["filename"], "zip", "./tmpzip")
         # Remove the extra temporary folder

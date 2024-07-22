@@ -5,9 +5,11 @@ import logging
 
 logger = logging.getLogger("windstorm.common.functions")
 
+
 def github_issue_error():
     logger.error("Unknown error. Please submit a issue on github.")
     raise NotImplementedError
+
 
 def setup_logging(debug):
     handler = logging.StreamHandler(sys.stdout)
@@ -40,6 +42,7 @@ def is_valid_uuid(val):
             logger.error("The project id was not passed as a valid uuid.")
             sys.exit()
 
+
 def remove_file(filename):
     try:
         os.remove(filename)
@@ -48,6 +51,7 @@ def remove_file(filename):
     except PermissionError:
         logger.error("Could not remove files appropriately, shutting down.")
         sys.exit()
+
 
 def rename_file(f1, f2):
     try:

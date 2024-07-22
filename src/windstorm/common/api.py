@@ -97,6 +97,7 @@ def build_query(params):
 
     return json.dumps(base_query)
 
+
 def query_for_element(api, project, base_query):
     logger.debug(base_query)
 
@@ -110,12 +111,12 @@ def query_for_element(api, project, base_query):
         logger.error("Failed to find this element name.")
         sys.exit()
 
+
 def get_element_by_id(api, project, eid):
-    q = build_query(
-        {"property": ["@id"], "operator": ["="], "value": [eid]}
-    )
+    q = build_query({"property": ["@id"], "operator": ["="], "value": [eid]})
     e = query_for_element(api, project, q)
     return e
+
 
 def get_element_by_name_type(api, project, element_name, element_type):
     q = build_query(
@@ -128,6 +129,7 @@ def get_element_by_name_type(api, project, element_name, element_type):
 
     eid = query_for_element(api, project, q)
     return eid
+
 
 def verify_tool(api, project_id, element_type, element_name):
     # Grab the project from the API - either the latest or a specific one
@@ -173,7 +175,9 @@ def verify_tool(api, project_id, element_type, element_name):
 
                 if oid["@type"].lower() == "MetadataUsage".lower():
                     logger.info("      Found metadata.")
-                    mdid = get_element_by_id(api, project, oid["metadataDefinition"]["@id"])
+                    mdid = get_element_by_id(
+                        api, project, oid["metadataDefinition"]["@id"]
+                    )
 
                     if mdid["qualifiedName"] == "AnalysisTooling::ToolExecution":
                         logger.info("         Found analysis tool metadata.")
@@ -192,7 +196,9 @@ def verify_tool(api, project_id, element_type, element_name):
                                         + "than one response"
                                     )
                                 else:
-                                    f = get_element_by_id(api, project, mdoeid["ownedElement"][0]["@id"])
+                                    f = get_element_by_id(
+                                        api, project, mdoeid["ownedElement"][0]["@id"]
+                                    )
                                     if f["value"] == "Windstorm":
                                         logger.info(
                                             "            Found windstorm tool metadata."
