@@ -26,7 +26,7 @@ def galestorm(
     """
     setup_logging(debug)
 
-    aj = verify_tool(api, project_id, element_type, element_name)
+    project, aj = verify_tool(api, project_id, element_type, element_name)
 
     if len(aj) == 0:
         if in_directory == out_directory:

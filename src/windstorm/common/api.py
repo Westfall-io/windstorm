@@ -222,4 +222,4 @@ def verify_tool(api, project_id, element_type, element_name):
             # This element doesn't own others
             logger.warning("Could not find ownedElement in action.")
     ###### END LOOP for each action
-    return aj
+    return project, aj
