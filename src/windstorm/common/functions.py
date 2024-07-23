@@ -61,3 +61,18 @@ def rename_file(f1, f2):
     except PermissionError:
         logger.error("Could not rename files appropriately, shutting down.")
         sys.exit()
+
+
+def zip_file(filename):
+    try:
+        shutil.make_archive(filename, "zip", "./tmpzip")
+    except PermissionError:
+        logger.error("Could not make an archive.")
+        sys.exit()
+
+    try:
+        # Remove the extra temporary folder
+        shutil.rmtree("./tmpzip")
+    except PermissionError:
+        logger.warning("Could not remove temporary folder.")
+        return

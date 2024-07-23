@@ -11,7 +11,7 @@ from jinja2 import Template
 from jinja2.exceptions import TemplateSyntaxError
 
 from windstorm.common.api import get_element_by_id
-from windstorm.common.functions import remove_file, rename_file
+from windstorm.common.functions import remove_file, rename_file, zip_file
 
 
 def handle_literals(element):
@@ -296,6 +296,9 @@ def template_files(
                         )
                     )
                     continue
+                except PermissionError:
+                    logger.error('Could not write files to template file: {}'.format(thisfile))
+                    sys.exit()
 
                 # Run templates on all temporary files.
                 template_files(
@@ -385,11 +388,9 @@ def template_files(
     if xlsx["unzip"]:
         # Tell the user
         logger.info("Rezipping file to {}.".format(xlsx["filename"]))
-        # Zip the file and overwrite
 
-        shutil.make_archive(xlsx["filename"], "zip", "./tmpzip")
-        # Remove the extra temporary folder
-        shutil.rmtree("./tmpzip")
+        # Zip the file and overwrite
+        zip_file(xlsx["filename"])
 
         # Ensure there isn't a file already there.
         remove_file(xlsx["filename"])
