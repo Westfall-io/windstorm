@@ -2,6 +2,7 @@ import os
 import sys
 import uuid
 import logging
+import shutil
 
 logger = logging.getLogger("windstorm.common.functions")
 
