@@ -297,7 +297,9 @@ def template_files(
                     )
                     continue
                 except PermissionError:
-                    logger.error('Could not write files to template file: {}'.format(thisfile))
+                    logger.error(
+                        "Could not write files to template file: {}".format(thisfile)
+                    )
                     sys.exit()
 
                 # Run templates on all temporary files.
