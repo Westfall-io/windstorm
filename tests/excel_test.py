@@ -1,7 +1,7 @@
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "../src/windstorm"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 
 import filecmp
 import shutil
@@ -9,7 +9,7 @@ import shutil
 import pytest
 import responses
 
-from windstorm import galestorm
+from windstorm.main import galestorm
 from tests.common.functions import *
 
 # Get the default project endpoint response.
