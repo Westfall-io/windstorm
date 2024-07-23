@@ -9,7 +9,7 @@ import shutil
 import pytest
 import responses
 
-from windstorm import galestorm
+from windstorm.main import galestorm
 from tests.common.functions import *
 
 # Get the default project endpoint response.
