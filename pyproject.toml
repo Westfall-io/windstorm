@@ -5,7 +5,7 @@ description = "Tool to support SysMLv2 model templating for any text based file.
 authors = ["Christopher Cox"]
 license = "MIT"
 readme = "README.md"
-packages = [{ include = "windstorm", from = "src" }]
+packages = [{ include = "main", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -14,7 +14,7 @@ jinja2 = "3.1.4"
 requests = "2.32.3"
 
 [tool.poetry.scripts]
-windstorm = "windstorm.windstorm:main"
+windstorm = "windstorm.main:main"
 
 [tool.setuptools]
 include-package-data = true
@@ -37,12 +37,6 @@ build-backend = "poetry.core.masonry.api"
 #commit_parser = "semantic_release.history.emoji_parser"
 #patch_without_tag = true
 #build_command = "pip install poetry && poetry build"
-
-[tool.coverage.run]
-omit = [
-    "src/api/__init__.py",
-    "src/main.py"
-]
 
 [tool.semantic_release]
 version_variable = [
@@ -87,7 +81,6 @@ patch_tags = [
     ":green_apple:",
     ":memo:",
     ":heavy_plus_sign:",
-    ":construction:",
     ":white_check_mark:",
 ]
 
@@ -116,7 +109,7 @@ description = "SysML v2.0 Parser"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 3 - Alpha",
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
