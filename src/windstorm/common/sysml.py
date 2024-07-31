@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import logging
 
@@ -322,6 +323,13 @@ def template_files(
                         # Skip the .git folder
                         data = f.read()
                     f.close()
+
+                    # Handle direct substitution
+                    m = re.findall(r"{{[^}]+}}", data)
+                    for match in m:
+                        if not 'windstorm' in match:
+                            data.replace(match,match.replace('{{', '||'))
+                    # TODO: Handle for loops
                     template = Template(data, keep_trailing_newline=True)
                 except UnicodeDecodeError:
                     with open(thisfile, "rb") as f:
@@ -378,14 +386,16 @@ def template_files(
 
                 # Overwrite anything in the current folder with the artifact
                 with open(outfile, "w") as f:
-                    f.write(
-                        template.render(
-                            windstorm=windstorm,
-                            keep_trailing_newline=True,
-                            **output,
-                        )
+                    data = template.render(
+                        windstorm=windstorm,
+                        keep_trailing_newline=True,
+                        **output,
                     )
-                f.close()
+                    # Handle extra variables
+                    m = re.findall(r"||[^}]+}}", data)
+                    for match in m:
+                        data.replace(match,match.replace('||', '{{'))
+                    f.write(data)
 
     if xlsx["unzip"]:
         # Tell the user
