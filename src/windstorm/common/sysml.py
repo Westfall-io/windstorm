@@ -330,7 +330,6 @@ def template_files(
                         if not "windstorm" in match:
                             data = data.replace(match, match.replace("{{", "||"))
                     # TODO: Handle for loops
-                    logger.info(data)
                     template = Template(data, keep_trailing_newline=True)
                 except UnicodeDecodeError:
                     with open(thisfile, "rb") as f:
@@ -395,7 +394,7 @@ def template_files(
                     # Handle extra variables
                     m = re.findall(r"||[^}]+}}", data)
                     for match in m:
-                        data.replace(match, match.replace("||", "{{"))
+                        data = data.replace(match, match.replace("||", "{{"))
                     f.write(data)
 
     if xlsx["unzip"]:
