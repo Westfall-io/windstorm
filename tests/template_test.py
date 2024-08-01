@@ -11,10 +11,12 @@ from tests.common.functions import *
 # Get the default project endpoint response.
 project_response = project_response_fn()
 
+
 def template(text):
     with open("./tests/mocks/1_analysis/input/template.txt", "w") as f:
         f.write(text)
     f.close()
+
 
 @responses.activate
 def test_analysis_fail():
