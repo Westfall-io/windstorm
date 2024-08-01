@@ -328,8 +328,7 @@ def template_files(
                     m = re.findall(r"{{[^}]+}}", data)
                     for match in m:
                         if not "windstorm" in match:
-                            data.replace(match, match.replace("{{", "||"))
-                            logger.info(match)
+                            data = data.replace(match, match.replace("{{", "||"))
                     # TODO: Handle for loops
                     logger.info(data)
                     template = Template(data, keep_trailing_newline=True)
