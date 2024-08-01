@@ -35,6 +35,7 @@ def test_analysis_skip_extra_value():
     with open("./tests/mocks/1_analysis/output/template.txt", "r") as f:
         assert f.read().strip() == "No {{ deltaE }}"
 
+
 @responses.activate
 def test_analysis_helm_test():
     """This should not throw any errors, there's nothing to replace"""
@@ -47,9 +48,4 @@ def test_analysis_helm_test():
         out_directory="./tests/minio_o",
     )
 
-    assert (
-        are_dir_trees_equal(
-            "./tests/minio/", "./tests/minio_o"
-        )
-        == True
-    )
+    assert are_dir_trees_equal("./tests/minio/", "./tests/minio_o") == True
