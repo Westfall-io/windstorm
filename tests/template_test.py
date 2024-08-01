@@ -54,7 +54,7 @@ def test_analysis_helm_test():
 
 
 @responses.activate
-def test_analysis_helm_test():
+def test_analysis_helm_test_variable():
     """This should not throw any errors, there's nothing to replace"""
     add_responses(project_response, "1_analysis")
 

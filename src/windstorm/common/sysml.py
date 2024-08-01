@@ -328,7 +328,9 @@ def template_files(
                     m = re.findall(r"{{[^}]+}}", data)
                     for match in m:
                         if not "windstorm" in match:
-                            data = data.replace(match, match.replace("{{", "||"))
+                            m1 = match.replace("{{", "[|")
+                            m2 = m1.replace("}}", "|]")
+                            data = data.replace(match, m2)
 
                     data = data.replace("`", "+{'}")
                     # TODO: Handle for loops
@@ -396,7 +398,9 @@ def template_files(
                     # Handle extra variables
                     m = re.findall(r"||[^}]+}}", data)
                     for match in m:
-                        data = data.replace(match, match.replace("||", "{{"))
+                        m1 = match.replace("[|", "{{")
+                        m2 = m1.replace("|]", "}}")
+                        data = data.replace(match, m2)
                     data = data.replace("+{'}", "`")
                     f.write(data)
 
