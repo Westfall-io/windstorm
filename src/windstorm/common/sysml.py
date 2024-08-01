@@ -329,7 +329,9 @@ def template_files(
                     for match in m:
                         if not "windstorm" in match:
                             data.replace(match, match.replace("{{", "||"))
+                            logger.info(match)
                     # TODO: Handle for loops
+                    logger.info(data)
                     template = Template(data, keep_trailing_newline=True)
                 except UnicodeDecodeError:
                     with open(thisfile, "rb") as f:
