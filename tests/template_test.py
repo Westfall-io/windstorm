@@ -52,15 +52,16 @@ def test_analysis_helm_test():
 
     assert are_dir_trees_equal("./tests/minio/", "./tests/minio_o") == True
 
+
 @responses.activate
 def test_analysis_helm_test():
     """This should not throw any errors, there's nothing to replace"""
     add_responses(project_response, "1_analysis")
 
-    f = open('./tests/minio/templates/configmap.yaml', 'r')
-    g = open('./tests/minio/templates/configmap2.yaml', 'w')
+    f = open("./tests/minio/templates/configmap.yaml", "r")
+    g = open("./tests/minio/templates/configmap2.yaml", "w")
     d = f.read()
-    g.write('{{ windstorm("deltaT") }}'+d)
+    g.write('{{ windstorm("deltaT") }}' + d)
     f.close()
     g.close()
 
@@ -71,8 +72,8 @@ def test_analysis_helm_test():
         out_directory="./tests/minio_o",
     )
 
-    f = open('./tests/minio/templates/configmap.yaml', 'r')
-    g = open('./tests/minio_o/templates/configmap2.yaml', 'r')
+    f = open("./tests/minio/templates/configmap.yaml", "r")
+    g = open("./tests/minio_o/templates/configmap2.yaml", "r")
     a = f.read()
     b = g.read()
     f.close()
