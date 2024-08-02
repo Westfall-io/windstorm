@@ -396,7 +396,7 @@ def template_files(
                         **output,
                     )
                     # Handle extra variables
-                    m = re.findall(r"[|[^}]+|]", data)
+                    m = re.findall(r"[\|[^}]+\|]", data)
                     for match in m:
                         m1 = match.replace("[|", "{{")
                         m2 = m1.replace("|]", "}}")
