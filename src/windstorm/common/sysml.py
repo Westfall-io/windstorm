@@ -331,7 +331,7 @@ def template_files(
                             m1 = match.replace("{{", "[|")
                             m2 = m1.replace("}}", "|]")
                             data = data.replace(match, m2)
-                    data = data.replace("`}`", "+&#125+")
+                    data = data.replace("`}`", "+#125+")
                     data = data.replace("`", "+{'}")
 
                     # data = data.replace("\\\\", "+|+/\\/\\+|+")
@@ -405,7 +405,7 @@ def template_files(
                         m2 = m1.replace("|]", "}}")
                         # logger.info("{} - {} - {}".format(match, m1, m2))
                         data = data.replace(match, m2)
-                    data = data.replace("+&#125+", "`}`")
+                    data = data.replace("+#125+", "`}`")
                     data = data.replace("+{'}", "`")
                     # data = data.replace("+|+/\\/\\+|+", "\\\\")
                     # data = data.replace("+|+/\\+|+", "\\")
