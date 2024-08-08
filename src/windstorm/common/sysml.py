@@ -333,6 +333,7 @@ def template_files(
                             data = data.replace(match, m2)
                     data = data.replace("`}`", "{\/\}")
                     data = data.replace("`", "+{'}")
+                    data = data.replace(r"\\", "/\/\")
                     # TODO: Handle for loops
                     template = Template(data, keep_trailing_newline=True)
                 except UnicodeDecodeError:
@@ -404,6 +405,7 @@ def template_files(
                         data = data.replace(match, m2)
                     data = data.replace("{\/\}", "`}`")
                     data = data.replace("+{'}", "`")
+                    data = data.replace('/\/\', '\\')
                     f.write(data)
 
     if xlsx["unzip"]:
