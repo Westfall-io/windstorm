@@ -407,7 +407,7 @@ def template_files(
                     data = data.replace("{\\/\\}", "`}`")
                     data = data.replace("+{'}", "`")
                     data = data.replace("&/\\/\\%", "\\\\")
-                    data = data.replace("&/\\%","\\")
+                    data = data.replace("&/\\%", "\\")
                     f.write(data)
 
     if xlsx["unzip"]:
