@@ -185,7 +185,7 @@ def verify_tool(api, project_id, element_type, element_name, verify=False):
             # It's metadata
             logger.info("      Found metadata.")
             mdid = get_element_by_id(
-                api, project, oid["metadataDefinition"]["@id"],verify
+                api, project, oid["metadataDefinition"]["@id"], verify
             )
 
             if mdid["qualifiedName"] != "AnalysisTooling::ToolExecution":
@@ -194,7 +194,7 @@ def verify_tool(api, project_id, element_type, element_name, verify=False):
             logger.info("         Found analysis tool metadata.")
 
             for mdoe in oid["ownedElement"]:
-                mdoeid = get_element_by_id(api, project, mdoe["@id"],verify)
+                mdoeid = get_element_by_id(api, project, mdoe["@id"], verify)
 
                 if mdoeid["@type"] != "ReferenceUsage" or mdoeid["name"] != "toolName":
                     continue
@@ -205,7 +205,7 @@ def verify_tool(api, project_id, element_type, element_name, verify=False):
                     )
 
                 f = get_element_by_id(
-                    api, project, mdoeid["ownedElement"][0]["@id"],verify
+                    api, project, mdoeid["ownedElement"][0]["@id"], verify
                 )
 
                 if f["value"] != "Windstorm":
