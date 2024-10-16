@@ -9,7 +9,10 @@ import requests
 
 headers = {"Content-type": "application/json", "Accept": "text/plain"}
 
-from windstorm.common.functions import github_issue_error, is_valid_uuid
+try:
+    from windstorm.common.functions import github_issue_error, is_valid_uuid
+except:
+    from common.functions import github_issue_error, is_valid_uuid
 
 
 def handle_request_response(r):

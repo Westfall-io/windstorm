@@ -11,8 +11,12 @@ from pathlib import Path
 from jinja2 import Template
 from jinja2.exceptions import TemplateSyntaxError
 
-from windstorm.common.api import get_element_by_id
-from windstorm.common.functions import remove_file, rename_file, zip_file
+try:
+    from windstorm.common.api import get_element_by_id
+    from windstorm.common.functions import remove_file, rename_file, zip_file
+except:
+    from common.api import get_element_by_id
+    from common.functions import remove_file, rename_file, zip_file
 
 
 def handle_literals(element):
