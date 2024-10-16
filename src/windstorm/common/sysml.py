@@ -11,53 +11,8 @@ from pathlib import Path
 from jinja2 import Template
 from jinja2.exceptions import TemplateSyntaxError
 
-try:
-    # Installed from PyPI
-    from windstorm.common.api import check_for_api, query_for_element, build_query
-except ModuleNotFoundError:
-    try:
-        # Local Dev
-        from common.api import check_for_api, query_for_element, build_query
-    except ModuleNotFoundError as e:
-        logger.error("Module import error. Please submit a issue on github.")
-        raise e
-
-
-def setup_logging(debug):
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    handler.setFormatter(formatter)
-
-    loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
-
-    for logger in loggers:
-        if not logger.handlers:
-            if debug:
-                logger.setLevel(logging.DEBUG)
-            else:
-                logger.setLevel(logging.INFO)
-
-            logger.addHandler(handler)
-            logger.propagate = False
-
-
-def is_valid_uuid(val):
-    if val == "":
-        return val
-    else:
-        try:
-            uuid.UUID(str(val))
-            return val
-        except ValueError:
-            logger.error("The project id was not passed as a valid uuid.")
-            sys.exit()
-
-
 from windstorm.common.api import get_element_by_id
 from windstorm.common.functions import remove_file, rename_file, zip_file
-
 
 def handle_literals(element):
     if element["@type"] == "LiteralInteger":
