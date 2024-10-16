@@ -3,6 +3,18 @@
 
 
 
+## v0.5.4 (2024-10-16)
+### Features
+### Fixes
+
+#### :ambulance:
+
+* :ambulance: Re-adding version number to force rebuild ([`bdab30d`](https://github.com/Westfall-io/windstorm/commit/bdab30d0536ed71d29040add2c3df0904d574fcd))
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
 ## v0.5.3 (2024-10-16)
 ### Features
 ### Fixes
