@@ -5,17 +5,13 @@ description = "Tool to support SysMLv2 model templating for any text based file.
 authors = ["Christopher Cox"]
 license = "MIT"
 readme = "README.md"
-<<<<<<< HEAD
 packages = [{ include = "windstorm", from = "src" }]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 3 - Alpha",
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-=======
-packages = [{ include = "main", from = "src" }]
->>>>>>> dev0.5.x
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -119,11 +115,7 @@ description = "SysML v2.0 Parser"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
-<<<<<<< HEAD
-    "Development Status :: 4 - Beta",
-=======
     "Development Status :: 3 - Alpha",
->>>>>>> dev0.5.x
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
