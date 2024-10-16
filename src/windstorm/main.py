@@ -16,7 +16,7 @@ except ModuleNotFoundError:
 def galestorm(
     element_name: str,
     api: str = "http://sysml2-dev.intercax.com:9000",
-    insecure: bool = False
+    insecure: bool = False,
     project_id: str = "",
     element_type: str = "AnalysisCaseDefinition",
     in_directory: str = ".",
