@@ -53,11 +53,10 @@ def is_valid_uuid(val):
         except ValueError:
             logger.error("The project id was not passed as a valid uuid.")
             sys.exit()
-========
+
+
 from windstorm.common.api import get_element_by_id
 from windstorm.common.functions import remove_file, rename_file, zip_file
->>>>>>>> dev0.5.x:src/windstorm/common/sysml.py
->>>>>>> dev0.5.x
 
 
 def handle_literals(element):

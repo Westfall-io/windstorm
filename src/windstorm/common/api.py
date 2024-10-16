@@ -9,14 +9,7 @@ import requests
 
 headers = {"Content-type": "application/json", "Accept": "text/plain"}
 
-<<<<<<< HEAD
-try:
-    from windstorm.common.functions import github_issue_error, is_valid_uuid
-except:
-    from common.functions import github_issue_error, is_valid_uuid
-=======
 from windstorm.common.functions import github_issue_error, is_valid_uuid
->>>>>>> dev0.5.x
 
 
 def handle_request_response(r):
@@ -45,22 +38,13 @@ def handle_request_response(r):
     return r2
 
 
-<<<<<<< HEAD
 def check_for_api(api, project_id, verify=False):
     r = requests.get(api + "/projects?page%5Bsize%5D=1", verify=verify)
-=======
-def check_for_api(api, project_id):
-    r = requests.get(api + "/projects?page%5Bsize%5D=1")
->>>>>>> dev0.5.x
     if r.status_code == 200:
         logger.info("API Server found.")
 
     if project_id != "":
-<<<<<<< HEAD
         r = requests.get(api + "/projects/" + project_id, verify=verify)
-=======
-        r = requests.get(api + "/projects/" + project_id)
->>>>>>> dev0.5.x
         # Grab a specific project
     response = handle_request_response(r)
 
@@ -114,19 +98,11 @@ def build_query(params):
     return json.dumps(base_query)
 
 
-<<<<<<< HEAD
 def query_for_element(api, project, base_query, verify=False):
     logger.debug(base_query)
 
     url = api + "/projects/" + project["@id"] + "/query-results"
     r = requests.post(url, data=base_query, headers=headers, verify=verify)
-=======
-def query_for_element(api, project, base_query):
-    logger.debug(base_query)
-
-    url = api + "/projects/" + project["@id"] + "/query-results"
-    r = requests.post(url, data=base_query, headers=headers)
->>>>>>> dev0.5.x
     response = handle_request_response(r)
 
     if len(response) == 1:
@@ -136,7 +112,6 @@ def query_for_element(api, project, base_query):
         sys.exit()
 
 
-<<<<<<< HEAD
 def get_element_by_id(api, project, eid, verify=False):
     q = build_query({"property": ["@id"], "operator": ["="], "value": [eid]})
     e = query_for_element(api, project, q, verify)
@@ -144,15 +119,7 @@ def get_element_by_id(api, project, eid, verify=False):
 
 
 def get_element_by_name_type(api, project, element_name, element_type, verify=False):
-=======
-def get_element_by_id(api, project, eid):
-    q = build_query({"property": ["@id"], "operator": ["="], "value": [eid]})
-    e = query_for_element(api, project, q)
-    return e
 
-
-def get_element_by_name_type(api, project, element_name, element_type):
->>>>>>> dev0.5.x
     q = build_query(
         {
             "property": ["@type", "declaredName"],
@@ -161,7 +128,6 @@ def get_element_by_name_type(api, project, element_name, element_type):
         }
     )
 
-<<<<<<< HEAD
     eid = query_for_element(api, project, q, verify)
     return eid
 
@@ -169,15 +135,6 @@ def get_element_by_name_type(api, project, element_name, element_type):
 def verify_tool(api, project_id, element_type, element_name, verify=False):
     # Grab the project from the API - either the latest or a specific one
     project = check_for_api(api, is_valid_uuid(project_id), verify)
-=======
-    eid = query_for_element(api, project, q)
-    return eid
-
-
-def verify_tool(api, project_id, element_type, element_name):
-    # Grab the project from the API - either the latest or a specific one
-    project = check_for_api(api, is_valid_uuid(project_id))
->>>>>>> dev0.5.x
     if "name" in project and "@id" in project:
         logger.info('Found project "{}" - {}'.format(project["name"], project["@id"]))
     else:
@@ -201,11 +158,7 @@ def verify_tool(api, project_id, element_type, element_name):
     aj = []
     for a in actions:
         try:
-<<<<<<< HEAD
             eid = get_element_by_id(api, project, a["@id"], verify)
-=======
-            eid = get_element_by_id(api, project, a["@id"])
->>>>>>> dev0.5.x
         except KeyError:
             print("{}".format(sorted(list(a.keys()))))
             raise KeyError
@@ -213,7 +166,6 @@ def verify_tool(api, project_id, element_type, element_name):
         logger.info("Action: {}".format(eid["declaredName"]))
 
         # Check if this is a valid action with associated metadata
-<<<<<<< HEAD
         if not "ownedElement" in eid:
             # This element doesn't own others
             logger.warning("Could not find ownedElement in action.")
@@ -274,63 +226,5 @@ def verify_tool(api, project_id, element_type, element_name):
             if len(aj) > 0:
                 break
             ###### END LOOP for each element in owned element
-=======
-        if "ownedElement" in eid:
-            for oe in eid["ownedElement"]:
-                oid = get_element_by_id(api, project, oe["@id"])
-                if "declaredName" in oid:
-                    logger.info("   Element: {}".format(oid["declaredName"]))
-                else:
-                    logger.info("   Element Type: {}".format(oid["@type"]))
-
-                if oid["@type"].lower() == "MetadataUsage".lower():
-                    logger.info("      Found metadata.")
-                    mdid = get_element_by_id(
-                        api, project, oid["metadataDefinition"]["@id"]
-                    )
-
-                    if mdid["qualifiedName"] == "AnalysisTooling::ToolExecution":
-                        logger.info("         Found analysis tool metadata.")
-
-                        for mdoe in oid["ownedElement"]:
-                            mdoeid = get_element_by_id(api, project, mdoe["@id"])
-
-                            if (
-                                mdoeid["@type"] == "ReferenceUsage"
-                                and mdoeid["name"] == "toolName"
-                            ):
-                                if len(mdoeid["ownedElement"]) > 1:
-                                    raise NotImplementedError(
-                                        "Unhandled "
-                                        + "response: ReferenceUsage had more "
-                                        + "than one response"
-                                    )
-                                else:
-                                    f = get_element_by_id(
-                                        api, project, mdoeid["ownedElement"][0]["@id"]
-                                    )
-                                    if f["value"] == "Windstorm":
-                                        logger.info(
-                                            "            Found windstorm tool metadata."
-                                        )
-                                        logger.info(
-                                            "            Adding action as valid windstorm analysis: {}".format(
-                                                eid["declaredName"]
-                                            )
-                                        )
-                                        aj.append(eid)
-                            if len(aj) > 0:
-                                break
-                else:
-                    # This owned element is not a MetaData
-                    logger.info("      Skipping non-metadata element.")
-
-                if len(aj) > 0:
-                    break
-            ###### END LOOP for each element in owned element
-        else:
-            # This element doesn't own others
-            logger.warning("Could not find ownedElement in action.")
->>>>>>> dev0.5.x
     ###### END LOOP for each action
     return project, aj
