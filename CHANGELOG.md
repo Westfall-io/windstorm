@@ -3,6 +3,78 @@
 
 
 
+## v0.5.3 (2024-10-16)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: Fixed an issue where a permissions issue was raised. ([`6b14578`](https://github.com/Westfall-io/windstorm/commit/6b14578eb82b309be6be215ce5c8d056b935a07d))
+
+### Tests and Documentation
+
+#### :white_check_mark:
+
+* :white_check_mark: Fixing python version for test ([`e5ea4fa`](https://github.com/Westfall-io/windstorm/commit/e5ea4fa5416e5cf6e68658cd2894f9defa2b6357))
+
+* :white_check_mark: New test failure debug ([`de1a22a`](https://github.com/Westfall-io/windstorm/commit/de1a22a84939fef5318daf649d5f7dc7ee059c05))
+
+### Others (CI/CD, Dependencies)
+
+#### :zap:
+
+* :zap: Improving readability of code ([`a0c51c4`](https://github.com/Westfall-io/windstorm/commit/a0c51c4d4b2b3d8cd7fc9f918b00b4c948e2d93d))
+
+#### Other
+
+* :construction: Fixing coverage issue with excess code ([`fe2a9d0`](https://github.com/Westfall-io/windstorm/commit/fe2a9d0cf556d7ca9af3cce8ae0ff9cc6b4a0c05))
+
+* :construction: More merge conflicts solved ([`1e56259`](https://github.com/Westfall-io/windstorm/commit/1e56259bcb8925178e85f35541dc64355426391b))
+
+* :construction: Forgot merge conflicts with pyproject.toml ([`a1ed573`](https://github.com/Westfall-io/windstorm/commit/a1ed573db4e4b1f080fb8099f0a33c1ad58425c0))
+
+* :fire: Fixing merge conflicts ([`1221d65`](https://github.com/Westfall-io/windstorm/commit/1221d652802e811b5231cacda1c5a7d1a38e2254))
+
+* :wrench: Updates to pyproject.toml to allow for correct builds. ([`6aeaa1a`](https://github.com/Westfall-io/windstorm/commit/6aeaa1ace3803053964c9bc7c8ab1ea0c490b863))
+
+* :construction: Fixed a missing import ([`af1835e`](https://github.com/Westfall-io/windstorm/commit/af1835e2efa8c5b3b29fad88d8d9b9fb6658dc3e))
+
+* :construction: Fixing an issue where the full project was not passed ([`535bab6`](https://github.com/Westfall-io/windstorm/commit/535bab681b6afb78071b068611158599eec80232))
+
+* :construction: Fixing an issue with support tests ([`2de3081`](https://github.com/Westfall-io/windstorm/commit/2de30816bc1ca60ae1ec41ba37c1bff64b1ccf28))
+
+* :construction: Fixing an issue with api not importing correctly ([`7d6d2bb`](https://github.com/Westfall-io/windstorm/commit/7d6d2bbad3c053ec8e4fd08b4ded291fa4593f00))
+
+* :construction: Fixing an issue with test imports of galestorm ([`5e93e57`](https://github.com/Westfall-io/windstorm/commit/5e93e5711f52d4361f719965ccbb253aeea84e00))
+
+* :construction: Changing path to src ([`e59d22b`](https://github.com/Westfall-io/windstorm/commit/e59d22b14830656d41e76a320eb5e17e37f0852a))
+
+* :construction: Adding files. ([`04e1c36`](https://github.com/Westfall-io/windstorm/commit/04e1c3627812687b1feb8e47506eeb46d83daaac))
+
+* :construction: Added verify to wrong area ([`815c625`](https://github.com/Westfall-io/windstorm/commit/815c6256555efbbb14041a088c00eab6687c751b))
+
+* :construction: Fixing array issue in pyproject.toml ([`91b4193`](https://github.com/Westfall-io/windstorm/commit/91b419387f70bbf1ef6feaae7e3087c216dfb4a0))
+
+* :construction: Adding classifiers to pyproject.toml ([`480f6c4`](https://github.com/Westfall-io/windstorm/commit/480f6c4ef72b895a1a99f8a432dd0f4c9e7c715b))
+
+* :construction: Correcting validate import ([`9602d20`](https://github.com/Westfall-io/windstorm/commit/9602d208798a5fa99dfa375afd30849f9d429f50))
+
+* :construction: Updates to sysml endpoint ([`24a796b`](https://github.com/Westfall-io/windstorm/commit/24a796b7747d2f351bb799e16b0b1ae161a98378))
+
+* :fire: More import errors fixed ([`812a78e`](https://github.com/Westfall-io/windstorm/commit/812a78e5b9f25174f5abb6f7e1a18551a7625387))
+
+* :fire: Pretty sure I solved this import error, but here we go again ([`90265aa`](https://github.com/Westfall-io/windstorm/commit/90265aa3198d9b336ec4541d40090d1f92146b7f))
+
+* :fire: Fix for issues in windstorm.py ([`ee060c0`](https://github.com/Westfall-io/windstorm/commit/ee060c07be583605b30ad76d85b5ef46742a0e01))
+
+* :fire: Fix for issue in main ([`e431a84`](https://github.com/Westfall-io/windstorm/commit/e431a84c555ca1a1ea421c9cb2187d6d46fc45a5))
+
+* :fire: Somehow main was not tracked. ([`d10f8e1`](https://github.com/Westfall-io/windstorm/commit/d10f8e10a9e66cb29c45d717838a3110d622c083))
+
+* :construction: Fixing import issues with bad solution ([`267e45f`](https://github.com/Westfall-io/windstorm/commit/267e45fef793d09bbdc265d819f6ce7be73da638))
+
+* :art: Improved code layout ([`e06a6b2`](https://github.com/Westfall-io/windstorm/commit/e06a6b2ebc77e5222f09663dea2173e1a9ed96d2))
+
 ## v0.5.2 (2024-07-19)
 ### Features
 ### Fixes
@@ -23,7 +95,7 @@
 
 ### Others (CI/CD, Dependencies)
 
-#### :construction:
+#### Other
 
 * :construction: Fixing issue with removing files in outside of tests ([`1f82ec5`](https://github.com/Westfall-io/windstorm/commit/1f82ec59ab7692c7a24eb328dd63906d6f603e47))
 
@@ -59,7 +131,7 @@
 
 ### Others (CI/CD, Dependencies)
 
-#### :construction:
+#### Other
 
 * :construction: The issue might actually be a zip file existing. ([`79b6f4c`](https://github.com/Westfall-io/windstorm/commit/79b6f4cd6c8d2bc767a02466043aa9b9cabcdec0))
 
@@ -91,7 +163,7 @@
 
 ### Others (CI/CD, Dependencies)
 
-#### :construction:
+#### Other
 
 * :construction: Adding failing test ([`1e29e24`](https://github.com/Westfall-io/windstorm/commit/1e29e24dacb70dd42f95aab4da88d9d6e24cd28d))
 
@@ -157,8 +229,6 @@
 
 * :construction: Renaming failed analysis case ([`3b241a4`](https://github.com/Westfall-io/windstorm/commit/3b241a481de3bafc8dc14a0b6b7804ac2e242f3e))
 
-#### Other
-
 * :test_tube: Adding failing test for a list of objects ([`b862c9c`](https://github.com/Westfall-io/windstorm/commit/b862c9c95d8fecfe2610e84b1d293188cfd13057))
 
 ## v0.4.1 (2024-07-17)
@@ -181,15 +251,13 @@
 
 ### Others (CI/CD, Dependencies)
 
-#### :construction:
+#### Other
 
 * :construction: Passing the correct element to the handle function ([`7702a37`](https://github.com/Westfall-io/windstorm/commit/7702a37b25b7fbeec2c85edd0578cd202b10dc93))
 
 * :construction: Adding debug ([`747f52b`](https://github.com/Westfall-io/windstorm/commit/747f52bce8491d100b21d312b8c5a113c687f9f4))
 
 * :construction: Handling featurechain reference to featurechain ([`f9f4841`](https://github.com/Westfall-io/windstorm/commit/f9f48419c18e3f4189087916d39bce5f98c288ac))
-
-#### Other
 
 * :test_tube: Adding tests for references to see if it fails. ([`fb56c94`](https://github.com/Westfall-io/windstorm/commit/fb56c94708d20ca61e81ab5a45ef1b42edbbcd63))
 
@@ -219,7 +287,13 @@
 
 ### Others (CI/CD, Dependencies)
 
-#### :construction:
+#### :zap:
+
+* :zap: Improving structure of functions ([`0f95c7e`](https://github.com/Westfall-io/windstorm/commit/0f95c7e8dbc7aaccbc4e3f2694eb5a1f659d34e9))
+
+* :zap: Handling shutdown faster ([`a1d8b79`](https://github.com/Westfall-io/windstorm/commit/a1d8b79d694dedd6136cd6071bba2329a33b6f0a))
+
+#### Other
 
 * :construction: Removing bytewise comparison and moving to full text comparison. ([`f9c0f4d`](https://github.com/Westfall-io/windstorm/commit/f9c0f4d186c33a696a56ff56bf4019315b16799e))
 
@@ -489,14 +563,6 @@
 
 * :construction: Fixing commit issues. ([`21faedf`](https://github.com/Westfall-io/windstorm/commit/21faedf461f7baf4ac6a096b5db4c46d7c7395bf))
 
-#### :zap:
-
-* :zap: Improving structure of functions ([`0f95c7e`](https://github.com/Westfall-io/windstorm/commit/0f95c7e8dbc7aaccbc4e3f2694eb5a1f659d34e9))
-
-* :zap: Handling shutdown faster ([`a1d8b79`](https://github.com/Westfall-io/windstorm/commit/a1d8b79d694dedd6136cd6071bba2329a33b6f0a))
-
-#### Other
-
 * :green_heart: Adding debug to pytest ([`e472e76`](https://github.com/Westfall-io/windstorm/commit/e472e766a767c1c743b8e5312268bc929d487fe0))
 
 * :green_heart: Fixing type error ([`af693fd`](https://github.com/Westfall-io/windstorm/commit/af693fd4d33428e1845b0bd4eccf63154e8232de))
@@ -607,7 +673,15 @@
 
 ### Others (CI/CD, Dependencies)
 
-#### :construction:
+#### :zap:
+
+* :zap: Stop looking for windstorm when found ([`4d6599c`](https://github.com/Westfall-io/windstorm/commit/4d6599cd240ca1d1b9aaf47d26df00d386038557))
+
+* :zap: Improving structure of functions ([`dd432aa`](https://github.com/Westfall-io/windstorm/commit/dd432aa58cc0a05b281bd7f3c9ed14624c6ec743))
+
+* :zap: Handling shutdown faster ([`6294f3f`](https://github.com/Westfall-io/windstorm/commit/6294f3fc74dff7af2e1c167e1c9e07082ae8cb90))
+
+#### Other
 
 * :construction: Adding successful test ([`23b83ba`](https://github.com/Westfall-io/windstorm/commit/23b83ba9eedf1d4f47862307b1ef7a8fc9e1bf1b))
 
@@ -782,16 +856,6 @@
 * :construction: Saved main test. ([`8a5eb5a`](https://github.com/Westfall-io/windstorm/commit/8a5eb5a574a9264780c42fa9b627e859d1961d2b))
 
 * :construction: Fixing commit issues. ([`6a84d02`](https://github.com/Westfall-io/windstorm/commit/6a84d02abe693f4aebe9325f801392931d19b1c7))
-
-#### :zap:
-
-* :zap: Stop looking for windstorm when found ([`4d6599c`](https://github.com/Westfall-io/windstorm/commit/4d6599cd240ca1d1b9aaf47d26df00d386038557))
-
-* :zap: Improving structure of functions ([`dd432aa`](https://github.com/Westfall-io/windstorm/commit/dd432aa58cc0a05b281bd7f3c9ed14624c6ec743))
-
-* :zap: Handling shutdown faster ([`6294f3f`](https://github.com/Westfall-io/windstorm/commit/6294f3fc74dff7af2e1c167e1c9e07082ae8cb90))
-
-#### Other
 
 * :green_heart: Adding debug to pytest ([`7c7964f`](https://github.com/Westfall-io/windstorm/commit/7c7964f9af3d07857f4eb68ad58f7867bb78137d))
 
@@ -1035,14 +1099,12 @@
 
 ### Others (CI/CD, Dependencies)
 
-#### :construction:
-
-* :construction: Adding more structure. ([`df55699`](https://github.com/Westfall-io/windstorm/commit/df556997d5b53342bf84db850170e3649fdaa0d8))
-
 #### :heavy_plus_sign:
 
 * :heavy_plus_sign: Adding requirements.txt ([`3208fa0`](https://github.com/Westfall-io/windstorm/commit/3208fa059fea3440061aad8c1294964aeb924cb2))
 
 #### Other
+
+* :construction: Adding more structure. ([`df55699`](https://github.com/Westfall-io/windstorm/commit/df556997d5b53342bf84db850170e3649fdaa0d8))
 
 * :tada: Adding build support with poetry. ([`b093812`](https://github.com/Westfall-io/windstorm/commit/b093812e6fe5454868507ba23683fe25dc3deded))
