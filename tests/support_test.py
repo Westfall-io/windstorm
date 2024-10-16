@@ -8,9 +8,9 @@ import pytest
 from windstorm import galestorm
 
 try:
-    import windstorm.common.functions as apif
+    import windstorm.common.api as apif
 except:
-    import common.functions as apif
+    import common.api as apif
 
 
 def test_validate_query():
