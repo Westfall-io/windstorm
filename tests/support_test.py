@@ -6,7 +6,11 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../src/windstorm"))
 import pytest
 
 from windstorm import galestorm
-import windstorm.common.functions as apif
+
+try:
+    import windstorm.common.functions as apif
+except:
+    import common.functions as apif
 
 
 def test_validate_query():
