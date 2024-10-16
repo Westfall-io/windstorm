@@ -13,11 +13,11 @@ from jinja2.exceptions import TemplateSyntaxError
 
 try:
     # Installed from PyPI
-    from windstorm.api.functions import check_for_api, query_for_element, build_query
+    from windstorm.common.api import check_for_api, query_for_element, build_query
 except ModuleNotFoundError:
     try:
         # Local Dev
-        from api.functions import check_for_api, query_for_element, build_query
+        from common.api import check_for_api, query_for_element, build_query
     except ModuleNotFoundError as e:
         logger.error("Module import error. Please submit a issue on github.")
         raise e
