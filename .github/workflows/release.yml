@@ -25,23 +25,39 @@ jobs:
 
   codecoverage:
     name: Determine code and documentation coverage
+    outputs:
+      sha: ${{ steps.postcommit.newsha }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin' # See 'Supported distributions' for available options
+        java-version: '21'
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.12.7'
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Install SysML environment and make mocks
+      run: |
+        pip install jupyter
+        wget https://github.com/Systems-Modeling/SysML-v2-Pilot-Implementation/releases/download/2024-05/jupyter-sysml-kernel-0.42.0.zip
+        unzip jupyter-sysml-kernel-0.42.0.zip -d /tmp
+        python /tmp/install.py --prefix=/opt/hostedtoolcache/Python/3.12.7/x64/
+        pip install pytest-timeout pytest-html papermill nbformat
+        jupyter kernelspec list
+        python ./tests/mocks/make_mocks.py
     - name: Test ${{ github.event.push.head }} coverage
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        python -m pip install coveralls pytest
-        python -m coverage run --source=src -m pytest tests/ && coverage report
+        python -m pip install coveralls pytest responses
+        python -m coverage run --source=src -m pytest tests && coverage report
+        coverage html -d coverage_report
         coveralls
     - name: Test ${{ github.event.push.head }} docstring coverage
       run: |
@@ -55,6 +71,11 @@ jobs:
         message: ":robot: Add coverage badge"
         add: "doc-cov.svg"
         branch: ${{ github.ref }}
+    - name: Push git sha to next step
+      run: |
+        echo newsha=$(git rev-parse HEAD) >> $GITHUB_OUTPUT
+      id: postcommit
+      shell: bash
 
   versioning:
     name: Semantic Versioning
@@ -66,7 +87,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        ref: ${{ needs.codecoverage.outputs.sha }}
     - name: Python Semantic Release 📦 to PyPI
       id: release
       uses: python-semantic-release/python-semantic-release@v9.8.5
