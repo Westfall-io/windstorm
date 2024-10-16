@@ -3,6 +3,7 @@ import logging
 logger = logging.getLogger("windstorm")
 
 import fire
+
 try:
     from windstorm.common.functions import setup_logging
     from windstorm.common.api import verify_tool
