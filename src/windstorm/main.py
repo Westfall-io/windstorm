@@ -11,7 +11,8 @@ from windstorm.common.sysml import init_variables, template_files
 
 def galestorm(
     element_name: str,
-    api: str = "http://sysml2.intercax.com:9000",
+    api: str = "http://sysml2-dev.intercax.com:9000",
+    insecure: bool = False,
     project_id: str = "",
     element_type: str = "AnalysisCaseDefinition",
     in_directory: str = ".",
@@ -26,7 +27,7 @@ def galestorm(
     """
     setup_logging(debug)
 
-    project, aj = verify_tool(api, project_id, element_type, element_name)
+    project, aj = verify_tool(api, project_id, element_type, element_name, insecure)
 
     if len(aj) == 0:
         if in_directory == out_directory:
