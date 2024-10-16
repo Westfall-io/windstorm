@@ -47,14 +47,14 @@ def check_for_api(api, project_id, verify=False):
         logger.info("API Server found.")
 
     if project_id != "":
-        r = requests.get(api + "/projects/" + project_id)
+        r = requests.get(api + "/projects/" + project_id, verify=verify)
         # Grab a specific project
     response = handle_request_response(r)
 
     if len(response) == 1:
         return response[0]
     elif len(response) == 0:
-        logger.error("Failed to find this project name.", verify=verify)
+        logger.error("Failed to find this project name.")
         sys.exit()
     else:
         logger.error(response)
