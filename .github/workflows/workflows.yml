@@ -34,6 +34,7 @@ jobs:
           unzip jupyter-sysml-kernel-0.42.0.zip -d /tmp
           python /tmp/install.py --prefix=/opt/hostedtoolcache/Python/3.12.4/x64/
           pip install pytest-timeout pytest-html papermill nbformat
+          jupyter kernelspec list
           python ./tests/mocks/make_mocks.py
       - name: Test ${{ github.event.push.head }} coverage
         env:
