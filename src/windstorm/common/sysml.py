@@ -12,11 +12,52 @@ from jinja2 import Template
 from jinja2.exceptions import TemplateSyntaxError
 
 try:
-    from windstorm.common.api import get_element_by_id
-    from windstorm.common.functions import remove_file, rename_file, zip_file
-except:
-    from common.api import get_element_by_id
-    from common.functions import remove_file, rename_file, zip_file
+    # Installed from PyPI
+    from windstorm.common.api import check_for_api, query_for_element, build_query
+except ModuleNotFoundError:
+    try:
+        # Local Dev
+        from common.api import check_for_api, query_for_element, build_query
+    except ModuleNotFoundError as e:
+        logger.error("Module import error. Please submit a issue on github.")
+        raise e
+
+
+def setup_logging(debug):
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    handler.setFormatter(formatter)
+
+    loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+
+    for logger in loggers:
+        if not logger.handlers:
+            if debug:
+                logger.setLevel(logging.DEBUG)
+            else:
+                logger.setLevel(logging.INFO)
+
+            logger.addHandler(handler)
+            logger.propagate = False
+
+
+def is_valid_uuid(val):
+    if val == "":
+        return val
+    else:
+        try:
+            uuid.UUID(str(val))
+            return val
+        except ValueError:
+            logger.error("The project id was not passed as a valid uuid.")
+            sys.exit()
+========
+from windstorm.common.api import get_element_by_id
+from windstorm.common.functions import remove_file, rename_file, zip_file
+>>>>>>>> dev0.5.x:src/windstorm/common/sysml.py
+>>>>>>> dev0.5.x
 
 
 def handle_literals(element):
@@ -327,21 +368,6 @@ def template_files(
                         # Skip the .git folder
                         data = f.read()
                     f.close()
-
-                    # Handle direct substitution
-                    data = data.replace("{{ `}`}}", "specialWSRule(closeBracket)")
-                    m = re.findall(r"{{[^}]+}}", data)
-                    for match in m:
-                        if not "windstorm" in match:
-                            m1 = match.replace("{{", "[|")
-                            m2 = m1.replace("}}", "|]")
-                            data = data.replace(match, m2)
-                    # data = data.replace("`}`", "+#125+")
-                    # data = data.replace("`", "+{'}")
-
-                    # data = data.replace("\\\\", "+|+/\\/\\+|+")
-                    # data = data.replace("\\", "+|+/\\+|+")
-                    # TODO: Handle for loops
                     template = Template(data, keep_trailing_newline=True)
                 except UnicodeDecodeError:
                     with open(thisfile, "rb") as f:
@@ -398,24 +424,14 @@ def template_files(
 
                 # Overwrite anything in the current folder with the artifact
                 with open(outfile, "w") as f:
-                    data = template.render(
-                        windstorm=windstorm,
-                        keep_trailing_newline=True,
-                        **output,
+                    f.write(
+                        template.render(
+                            windstorm=windstorm,
+                            keep_trailing_newline=True,
+                            **output,
+                        )
                     )
-                    # Handle extra variables
-                    data = data.replace("specialWSRule(closeBracket)", "{{ `}`}}")
-                    m = re.findall(r"\[\|[^\|]+\|\]", data)
-                    for match in m:
-                        m1 = match.replace("[|", "{{")
-                        m2 = m1.replace("|]", "}}")
-                        # logger.info("{} - {} - {}".format(match, m1, m2))
-                        data = data.replace(match, m2)
-                    data = data.replace("+#125+", "`}`")
-                    data = data.replace("+{'}", "`")
-                    # data = data.replace("+|+/\\/\\+|+", "\\\\")
-                    # data = data.replace("+|+/\\+|+", "\\")
-                    f.write(data)
+                f.close()
 
     if xlsx["unzip"]:
         # Tell the user

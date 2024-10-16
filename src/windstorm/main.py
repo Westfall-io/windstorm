@@ -4,14 +4,9 @@ logger = logging.getLogger("windstorm")
 
 import fire
 
-try:
-    from windstorm.common.functions import setup_logging
-    from windstorm.common.api import verify_tool
-    from windstorm.common.sysml import init_variables, template_files
-except ModuleNotFoundError:
-    from common.functions import setup_logging
-    from common.api import verify_tool
-    from common.sysml import init_variables, template_files
+from windstorm.common.functions import setup_logging
+from windstorm.common.api import verify_tool
+from windstorm.common.sysml import init_variables, template_files
 
 
 def galestorm(
