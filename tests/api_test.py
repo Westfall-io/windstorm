@@ -14,12 +14,13 @@ project_response = project_response_fn()
 
 defaultUrl = "http://sysml2-dev.intercax.com:9000"
 
+
 @responses.activate
 def test_404_response():
     with pytest.raises(SystemExit):
         responses.add(
             responses.GET,
-            defaultUrl+"/projects?page%5Bsize%5D=1",
+            defaultUrl + "/projects?page%5Bsize%5D=1",
             json={},
             status=404,
         )
@@ -32,7 +33,7 @@ def test_500_response():
     with pytest.raises(NotImplementedError) as e_info:
         responses.add(
             responses.GET,
-            defaultUrl+"/projects?page%5Bsize%5D=1",
+            defaultUrl + "/projects?page%5Bsize%5D=1",
             json={},
             status=500,
         )
@@ -44,7 +45,7 @@ def test_wrong_type_response():
     with pytest.raises(KeyError) as e_info:
         responses.add(
             responses.GET,
-            defaultUrl+"/projects?page%5Bsize%5D=1",
+            defaultUrl + "/projects?page%5Bsize%5D=1",
             json={},
             status=200,
         )
@@ -57,7 +58,7 @@ def test_no_json_response():
     with pytest.raises(NotImplementedError) as e_info:
         responses.add(
             responses.GET,
-            defaultUrl+"/projects?page%5Bsize%5D=1",
+            defaultUrl + "/projects?page%5Bsize%5D=1",
             body="",
             status=200,
         )
@@ -70,14 +71,14 @@ def test_no_project_response():
     with pytest.raises(SystemExit) as e_info:
         responses.add(
             responses.GET,
-            defaultUrl+"/projects?page%5Bsize%5D=1",
+            defaultUrl + "/projects?page%5Bsize%5D=1",
             json=project_response,
             status=200,
         )
 
         responses.add(
             responses.GET,
-            defaultUrl+"/projects/00270ef6-e518-455a-b59e-324ffeb1c9da",
+            defaultUrl + "/projects/00270ef6-e518-455a-b59e-324ffeb1c9da",
             json=[],
             status=200,
         )
@@ -93,14 +94,14 @@ def test_bad_project_response():
     with pytest.raises(NotImplementedError) as e_info:
         responses.add(
             responses.GET,
-            defaultUrl+"/projects?page%5Bsize%5D=1",
+            defaultUrl + "/projects?page%5Bsize%5D=1",
             json=project_response,
             status=200,
         )
 
         responses.add(
             responses.GET,
-            defaultUrl+"/projects/00270ef6-e518-455a-b59e-324ffeb1c9da",
+            defaultUrl + "/projects/00270ef6-e518-455a-b59e-324ffeb1c9da",
             json=[project_response, project_response],
             status=200,
         )
@@ -116,14 +117,14 @@ def test_no_element_found():
     with pytest.raises(SystemExit) as e_info:
         responses.add(
             responses.GET,
-            defaultUrl+"/projects?page%5Bsize%5D=1",
+            defaultUrl + "/projects?page%5Bsize%5D=1",
             json=project_response,
             status=200,
         )
 
         responses.add(
             responses.POST,
-            defaultUrl+"/projects/00270ef6-e518-455a-b59e-324ffeb1c9da/query-results",
+            defaultUrl + "/projects/00270ef6-e518-455a-b59e-324ffeb1c9da/query-results",
             json=[],
             status=200,
         )
