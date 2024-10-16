@@ -6,6 +6,12 @@ authors = ["Christopher Cox"]
 license = "MIT"
 readme = "README.md"
 packages = [{ include = "windstorm", from = "src" }]
+classifiers = [
+    "Development Status :: 4 - Beta"
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -116,7 +122,7 @@ description = "SysML v2.0 Parser"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
