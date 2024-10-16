@@ -14,6 +14,7 @@ from jinja2.exceptions import TemplateSyntaxError
 from windstorm.common.api import get_element_by_id
 from windstorm.common.functions import remove_file, rename_file, zip_file
 
+
 def handle_literals(element):
     if element["@type"] == "LiteralInteger":
         logger.info("         Value: {}".format(element["value"]))
