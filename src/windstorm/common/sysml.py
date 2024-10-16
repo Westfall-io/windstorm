@@ -325,15 +325,15 @@ def template_files(
                     f.close()
 
                     # Handle direct substitution
-                    data = data.replace('{{ `}`}}', 'specialWSRule(closeBracket)')
+                    data = data.replace("{{ `}`}}", "specialWSRule(closeBracket)")
                     m = re.findall(r"{{[^}]+}}", data)
                     for match in m:
                         if not "windstorm" in match:
                             m1 = match.replace("{{", "[|")
                             m2 = m1.replace("}}", "|]")
                             data = data.replace(match, m2)
-                    #data = data.replace("`}`", "+#125+")
-                    #data = data.replace("`", "+{'}")
+                    # data = data.replace("`}`", "+#125+")
+                    # data = data.replace("`", "+{'}")
 
                     # data = data.replace("\\\\", "+|+/\\/\\+|+")
                     # data = data.replace("\\", "+|+/\\+|+")
@@ -400,7 +400,7 @@ def template_files(
                         **output,
                     )
                     # Handle extra variables
-                    data = data.replace('specialWSRule(closeBracket)', '{{ `}`}}')
+                    data = data.replace("specialWSRule(closeBracket)", "{{ `}`}}")
                     m = re.findall(r"\[\|[^\|]+\|\]", data)
                     for match in m:
                         m1 = match.replace("[|", "{{")
