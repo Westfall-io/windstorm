@@ -1,58 +1,18 @@
 import os
+import re
 import sys
-import uuid
 import logging
+
+logger = logging.getLogger("windstorm.common.sysml")
 import shutil
 
-logger = logging.getLogger("windstorm")
 from pathlib import Path
 
-import fire
 from jinja2 import Template
 from jinja2.exceptions import TemplateSyntaxError
 
-try:
-    # Installed from PyPI
-    from windstorm.api.functions import check_for_api, query_for_element, build_query
-except ModuleNotFoundError:
-    try:
-        # Local Dev
-        from api.functions import check_for_api, query_for_element, build_query
-    except ModuleNotFoundError as e:
-        logger.error("Module import error. Please submit a issue on github.")
-        raise e
-
-
-def setup_logging(debug):
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    handler.setFormatter(formatter)
-
-    loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
-
-    for logger in loggers:
-        if not logger.handlers:
-            if debug:
-                logger.setLevel(logging.DEBUG)
-            else:
-                logger.setLevel(logging.INFO)
-
-            logger.addHandler(handler)
-            logger.propagate = False
-
-
-def is_valid_uuid(val):
-    if val == "":
-        return val
-    else:
-        try:
-            uuid.UUID(str(val))
-            return val
-        except ValueError:
-            logger.error("The project id was not passed as a valid uuid.")
-            sys.exit()
+from windstorm.common.api import get_element_by_id
+from windstorm.common.functions import remove_file, rename_file, zip_file
 
 
 def handle_literals(element):
@@ -88,14 +48,7 @@ def check_append(v1, v2):
 
 def handle_operator_expression(api, project, base_element, thisvar):
     for arg_id in base_element["argument"]:
-        q = build_query(
-            {
-                "property": ["@id"],
-                "operator": ["="],
-                "value": [arg_id["@id"]],
-            }
-        )
-        arg_element = query_for_element(api, project, q)
+        arg_element = get_element_by_id(api, project, arg_id["@id"])
         literal, value = handle_literals(arg_element)
         if literal:
             thisvar = check_append(value, thisvar)
@@ -121,14 +74,7 @@ def handle_operator_expression(api, project, base_element, thisvar):
 
 
 def handle_feature_element(api, project, key, thisvar):
-    q = build_query(
-        {
-            "property": ["@id"],
-            "operator": ["="],
-            "value": [key["@id"]],
-        }
-    )
-    v2 = query_for_element(api, project, q)
+    v2 = get_element_by_id(api, project, key["@id"])
     logger.info("         Target Element: {}".format(v2["@type"]))
 
     literal, v = handle_literals(v2)
@@ -164,28 +110,17 @@ def handle_feature_element(api, project, key, thisvar):
 
 def handle_feature_chain(api, project, voeid, thisvar):
     # logger.debug(voeid)
-    q = build_query(
-        {
-            "property": ["@id"],
-            "operator": ["="],
-            "value": [voeid["targetFeature"]["@id"]],
-        }
-    )
-    valid = query_for_element(api, project, q)
+    valid = get_element_by_id(api, project, voeid["targetFeature"]["@id"])
+
     logger.debug("         TargetElement: {}".format(valid["@type"]))
     if "chainingFeature" in valid:
 
         if len(valid["chainingFeature"]) == 0:
             chainid = valid
         else:
-            q = build_query(
-                {
-                    "property": ["@id"],
-                    "operator": ["="],
-                    "value": [valid["chainingFeature"][-1]["@id"]],
-                }
+            chainid = get_element_by_id(
+                api, project, valid["chainingFeature"][-1]["@id"]
             )
-            chainid = query_for_element(api, project, q)
             logger.debug("         ChainElement: {}".format(chainid["@type"]))
 
         if len(chainid["ownedElement"]) == 1:
@@ -213,52 +148,30 @@ def init_variables(api, project, aj):
     vars = []
     for a in aj:
         # Reset to base element
-        q = build_query({"property": ["@id"], "operator": ["="], "value": [a["@id"]]})
-        eid = query_for_element(api, project, q)
+        eid = get_element_by_id(api, project, a["@id"])
         logger.info("Action: {}".format(eid["declaredName"]))
         for var in eid["input"]:
             # Check each input
-            q = build_query(
-                {"property": ["@id"], "operator": ["="], "value": [var["@id"]]}
-            )
-            varid = query_for_element(api, project, q)
+            varid = get_element_by_id(api, project, var["@id"])
             logger.info("   Input: {}".format(varid["declaredName"]))
             toolvarbool = False
             if "ownedElement" in varid:
                 for voe in varid["ownedElement"]:
-                    q = build_query(
-                        {"property": ["@id"], "operator": ["="], "value": [voe["@id"]]}
-                    )
-                    voeid = query_for_element(api, project, q)
+                    voeid = get_element_by_id(api, project, voe["@id"])
 
                     if voeid["@type"].lower() == "MetaDataUsage".lower():
-                        q = build_query(
-                            {
-                                "property": ["@id"],
-                                "operator": ["="],
-                                "value": [voeid["metadataDefinition"]["@id"]],
-                            }
+                        mdid = get_element_by_id(
+                            api, project, voeid["metadataDefinition"]["@id"]
                         )
-                        mdid = query_for_element(api, project, q)
 
                         if mdid["qualifiedName"] == "AnalysisTooling::ToolVariable":
-                            q = build_query(
-                                {
-                                    "property": ["@id"],
-                                    "operator": ["="],
-                                    "value": [voeid["ownedElement"][0]["@id"]],
-                                }
+                            toolvar = get_element_by_id(
+                                api, project, voeid["ownedElement"][0]["@id"]
                             )
-                            toolvar = query_for_element(api, project, q)
                             if toolvar["name"] == "name":
-                                q = build_query(
-                                    {
-                                        "property": ["@id"],
-                                        "operator": ["="],
-                                        "value": [toolvar["ownedElement"][0]["@id"]],
-                                    }
+                                toolname = get_element_by_id(
+                                    api, project, toolvar["ownedElement"][0]["@id"]
                                 )
-                                toolname = query_for_element(api, project, q)
                                 logger.info(
                                     "      Tool Variable: {}".format(toolname["value"])
                                 )
@@ -276,14 +189,7 @@ def init_variables(api, project, aj):
                 if "ownedElement" in varid:
                     for voe in varid["ownedElement"]:
                         # Look for a feature chain expression
-                        q = build_query(
-                            {
-                                "property": ["@id"],
-                                "operator": ["="],
-                                "value": [voe["@id"]],
-                            }
-                        )
-                        voeid = query_for_element(api, project, q)
+                        voeid = get_element_by_id(api, project, voe["@id"])
                         if voeid["@type"].lower() == "MetadataUsage".lower():
                             # Just skip it
                             continue
@@ -391,6 +297,11 @@ def template_files(
                         )
                     )
                     continue
+                except PermissionError:
+                    logger.error(
+                        "Could not write files to template file: {}".format(thisfile)
+                    )
+                    sys.exit()
 
                 # Run templates on all temporary files.
                 template_files(
@@ -480,188 +391,18 @@ def template_files(
     if xlsx["unzip"]:
         # Tell the user
         logger.info("Rezipping file to {}.".format(xlsx["filename"]))
-        # Zip the file and overwrite
-        try:
-            os.remove(xlsx["filename"] + ".zip")
-        except OSError:
-            pass
 
-        shutil.make_archive(xlsx["filename"], "zip", "./tmpzip")
-        # Remove the extra temporary folder
-        shutil.rmtree("./tmpzip")
+        # Zip the file and overwrite
+        zip_file(xlsx["filename"])
 
         # Ensure there isn't a file already there.
-        try:
-            os.remove(xlsx["filename"])
-        except OSError:
-            pass
+        remove_file(xlsx["filename"])
 
         # Remove the trailing .zip
-        os.rename(xlsx["filename"] + ".zip", xlsx["filename"])
+        rename_file(xlsx["filename"] + ".zip", xlsx["filename"])
 
-        try:
-            os.remove(xlsx["filename"] + ".zip")
-        except OSError:
-            pass
+        # Remove the file if it still exists
+        remove_file(xlsx["filename"] + ".zip")
     else:
         # Tell the user
         logger.info("Templating completed.")
-
-
-def galestorm(
-    element_name: str,
-    api: str = "http://sysml2.intercax.com:9000",
-    project_id: str = "",
-    element_type: str = "AnalysisCaseDefinition",
-    in_directory: str = ".",
-    out_directory: str = ".",
-    graph_templates: bool = False,
-    force_render_error_continue: bool = False,
-    debug: bool = False,
-):
-    """
-    This is a description of the program.
-
-    """
-    setup_logging(debug)
-
-    # Grab the project from the API - either the latest or a specific one
-    project = check_for_api(api, is_valid_uuid(project_id))
-    if "name" in project and "@id" in project:
-        logger.info('Found project "{}" - {}'.format(project["name"], project["@id"]))
-    else:
-        logger.info("Response was {}.".format(project))
-        raise KeyError
-
-    # Check for analysis in the model
-    q = build_query(
-        {
-            "property": ["@type", "declaredName"],
-            "operator": ["=", "="],
-            "value": [element_type, element_name],
-        }
-    )
-
-    eid = query_for_element(api, project, q)
-
-    if "ownedAction" in eid:
-        actions = []
-        for oa in eid["ownedAction"]:
-            actions.append(oa)
-
-    logger.info("Found {} actions.".format(len(actions)))
-
-    if len(actions) == 0:
-        # No actions, so the analysis definition is the main element
-        actions = [eid]
-
-    aj = []
-    for a in actions:
-        try:
-            q = build_query(
-                {"property": ["@id"], "operator": ["="], "value": [a["@id"]]}
-            )
-        except KeyError:
-            print("{}".format(sorted(list(a.keys()))))
-            raise KeyError
-        eid = query_for_element(api, project, q)
-        logger.info("Action: {}".format(eid["declaredName"]))
-
-        # Check if this is a valid action with associated metadata
-        if "ownedElement" in eid:
-            for oe in eid["ownedElement"]:
-                q = build_query(
-                    {"property": ["@id"], "operator": ["="], "value": [oe["@id"]]}
-                )
-                oid = query_for_element(api, project, q)
-                if "declaredName" in oid:
-                    logger.info("   Element: {}".format(oid["declaredName"]))
-                else:
-                    logger.info("   Element Type: {}".format(oid["@type"]))
-
-                if oid["@type"].lower() == "MetadataUsage".lower():
-                    logger.info("      Found metadata.")
-                    q = build_query(
-                        {
-                            "property": ["@id"],
-                            "operator": ["="],
-                            "value": [oid["metadataDefinition"]["@id"]],
-                        }
-                    )
-                    mdid = query_for_element(api, project, q)
-
-                    if mdid["qualifiedName"] == "AnalysisTooling::ToolExecution":
-                        logger.info("         Found analysis tool metadata.")
-
-                        for mdoe in oid["ownedElement"]:
-                            q = build_query(
-                                {
-                                    "property": ["@id"],
-                                    "operator": ["="],
-                                    "value": [mdoe["@id"]],
-                                }
-                            )
-                            mdoeid = query_for_element(api, project, q)
-
-                            if (
-                                mdoeid["@type"] == "ReferenceUsage"
-                                and mdoeid["name"] == "toolName"
-                            ):
-                                if len(mdoeid["ownedElement"]) > 1:
-                                    raise NotImplementedError(
-                                        "Unhandled "
-                                        + "response: ReferenceUsage had more "
-                                        + "than one response"
-                                    )
-                                else:
-                                    q = build_query(
-                                        {
-                                            "property": ["@id"],
-                                            "operator": ["="],
-                                            "value": [mdoeid["ownedElement"][0]["@id"]],
-                                        }
-                                    )
-                                    f = query_for_element(api, project, q)
-                                    if f["value"] == "Windstorm":
-                                        logger.info(
-                                            "            Found windstorm tool metadata."
-                                        )
-                                        logger.info(
-                                            "            Adding action as valid windstorm analysis: {}".format(
-                                                eid["declaredName"]
-                                            )
-                                        )
-                                        aj.append(eid)
-                            if len(aj) > 0:
-                                break
-                else:
-                    # This owned element is not a MetaData
-                    logger.info("      Skipping non-metadata element.")
-
-                if len(aj) > 0:
-                    break
-            ###### END LOOP for each element in owned element
-        else:
-            # This element doesn't own others
-            logger.warning("Could not find ownedElement in action.")
-    ###### END LOOP for each action
-
-    if len(aj) == 0:
-        if in_directory == out_directory:
-            logger.info("Nothing to do, closing...")
-        else:
-            logger.info("Copying all files from input to output, no changes...")
-            from distutils.dir_util import copy_tree
-
-            copy_tree(in_directory, out_directory)
-    else:
-        output = init_variables(api, project, aj)
-        template_files(in_directory, out_directory, output, force_render_error_continue)
-
-
-def main():
-    fire.Fire(galestorm)
-
-
-if __name__ == "__main__":
-    main()
