@@ -6,4 +6,4 @@ Created on Sun Jul 23 20:12:45 2023
 @author: christophercox
 """
 
-# version = "0.1.0"
+__version__ = "0.1.0"
