@@ -3,6 +3,28 @@
 
 
 
+## v0.5.5 (2024-10-17)
+### Features
+### Fixes
+
+#### :bug:
+
+* :bug: More workflow fixes ([`bad9379`](https://github.com/Westfall-io/windstorm/commit/bad9379947e936b2373682d0af15b8464f4e43a1))
+
+* :bug: Fixed an issue with release workflow ([`9f149fe`](https://github.com/Westfall-io/windstorm/commit/9f149fe4dd7e271d16b64cb6ce3e89e8d905b370))
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
+#### Other
+
+* :construction: Adding fetch depth back ([`d343869`](https://github.com/Westfall-io/windstorm/commit/d343869d124ee5881a8df0f2226ea484a7eb822b))
+
+* :construction: Correcting inputs ([`e08efe6`](https://github.com/Westfall-io/windstorm/commit/e08efe6956fdcae992e04b584dd29362f61a25a0))
+
+* :green_heart: Fixes for coverage and failure on multi-commit action ([`2db2249`](https://github.com/Westfall-io/windstorm/commit/2db224910fd13bca3ee3fc48311dbed28b5ed67f))
+
 ## v0.5.4 (2024-10-16)
 ### Features
 ### Fixes
