@@ -13,6 +13,7 @@ from windstorm.common.functions import github_issue_error, is_valid_uuid
 
 
 def handle_request_response(r):
+    """ This validates an API response and ensures the format """
     if r.status_code == 404:
         logger.error("The project id could not be found.")
         sys.exit()

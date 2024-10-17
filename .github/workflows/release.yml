@@ -25,8 +25,6 @@ jobs:
 
   codecoverage:
     name: Determine code and documentation coverage
-    outputs:
-      sha: ${{ steps.postcommit.newsha }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -72,11 +70,6 @@ jobs:
         message: ":robot: Add coverage badge"
         add: "doc-cov.svg"
         branch: ${{ github.ref }}
-    - name: Push git sha to next step
-      run: |
-        echo newsha=$(git rev-parse HEAD) >> $GITHUB_OUTPUT
-      id: postcommit
-      shell: bash
 
   versioning:
     name: Semantic Versioning
@@ -88,14 +81,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: ${{ needs.codecoverage.outputs.sha }}
         fetch-depth: 0
+    - name: Pull to latest
+      run: |
+        git pull
+      id: pulllatest
+      shell: bash
     - name: Python Semantic Release 📦 to PyPI
       id: release
       uses: python-semantic-release/python-semantic-release@v9.8.5
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        commit: ${{ needs.codecoverage.outputs.sha }}
     - name: Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       if: ${{ steps.release.outputs.released }} == 'true'
