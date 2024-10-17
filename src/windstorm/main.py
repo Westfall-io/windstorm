@@ -43,6 +43,7 @@ def galestorm(
 
 
 def main():
+    """ This function uses Fire to generate a command-line interface """
     fire.Fire(galestorm)
 
 
