@@ -64,6 +64,7 @@ jobs:
         pip install docstr-coverage
         docstr-coverage src/windstorm --badge=doc-cov --fail-under=0 -e ".*/(docs|tests)"
     - name: Commit changes
+      id: commit
       uses: EndBug/add-and-commit@v4
       with:
         author_name: ${{ github.actor }}
@@ -93,8 +94,7 @@ jobs:
       uses: python-semantic-release/python-semantic-release@v9.8.5
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        repository_username: __token__
-        repository_password: ${{ secrets.PYPI_API_TOKEN }}
+        commit: ${{ needs.codecoverage.outputs.sha }}
     - name: Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       if: ${{ steps.release.outputs.released }} == 'true'
