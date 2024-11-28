@@ -155,30 +155,44 @@ def init_variables(api, project, aj):
             varid = get_element_by_id(api, project, var["@id"])
             logger.info("   Input: {}".format(varid["declaredName"]))
             toolvarbool = False
-            if "ownedElement" in varid:
-                for voe in varid["ownedElement"]:
-                    voeid = get_element_by_id(api, project, voe["@id"])
 
-                    if voeid["@type"].lower() == "MetaDataUsage".lower():
-                        mdid = get_element_by_id(
-                            api, project, voeid["metadataDefinition"]["@id"]
-                        )
-
-                        if mdid["qualifiedName"] == "AnalysisTooling::ToolVariable":
-                            toolvar = get_element_by_id(
-                                api, project, voeid["ownedElement"][0]["@id"]
-                            )
-                            if toolvar["name"] == "name":
-                                toolname = get_element_by_id(
-                                    api, project, toolvar["ownedElement"][0]["@id"]
-                                )
-                                logger.info(
-                                    "      Tool Variable: {}".format(toolname["value"])
-                                )
-                                toolvarbool = True
-                                thisvar = {"name": toolname["value"]}
-            else:
+            # No input condition
+            if not "ownedElement" in varid:
                 logger.warning("No owned elements in this variable.")
+                continue
+
+            for voe in varid["ownedElement"]:
+                voeid = get_element_by_id(api, project, voe["@id"])
+
+                # No metadata associated with this input condition
+                if voeid["@type"].lower() != "MetaDataUsage".lower():
+                    continue
+
+                mdid = get_element_by_id(
+                    api, project, voeid["metadataDefinition"]["@id"]
+                )
+
+                # Metadata not associated with analysis tooling
+                if mdid["qualifiedName"] != "AnalysisTooling::ToolVariable":
+                    continue
+
+                toolvar = get_element_by_id(
+                    api, project, voeid["ownedElement"][0]["@id"]
+                )
+
+                # Analysis tooling doesn't have a name condition
+                if toolvar["name"] != "name":
+                    continue
+
+                toolname = get_element_by_id(
+                    api, project, toolvar["ownedElement"][0]["@id"]
+                )
+                logger.info(
+                    "      Tool Variable: {}".format(toolname["value"])
+                )
+                toolvarbool = True
+                thisvar = {"name": toolname["value"]}
+
 
             logger.info("      ---------------------------------")
             logger.info(
