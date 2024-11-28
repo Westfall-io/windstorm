@@ -3,6 +3,14 @@
 
 
 
+## v0.5.6 (2024-11-28)
+### Features
+### Fixes
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
 ## v0.5.5 (2024-10-17)
 ### Features
 ### Fixes
@@ -16,6 +24,10 @@
 ### Tests and Documentation
 
 ### Others (CI/CD, Dependencies)
+
+#### :zap:
+
+* :zap: Improvements to code readability ([`96b8314`](https://github.com/Westfall-io/windstorm/commit/96b8314ed8394d6b1ae33c152e60d4d29947f9a5))
 
 #### Other
 
