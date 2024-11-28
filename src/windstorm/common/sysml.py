@@ -187,12 +187,9 @@ def init_variables(api, project, aj):
                 toolname = get_element_by_id(
                     api, project, toolvar["ownedElement"][0]["@id"]
                 )
-                logger.info(
-                    "      Tool Variable: {}".format(toolname["value"])
-                )
+                logger.info("      Tool Variable: {}".format(toolname["value"]))
                 toolvarbool = True
                 thisvar = {"name": toolname["value"]}
-
 
             logger.info("      ---------------------------------")
             logger.info(
