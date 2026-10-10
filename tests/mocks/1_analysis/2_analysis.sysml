@@ -1,6 +1,6 @@
 package Analysis {
-    import a::*;
-    import AnalysisTooling::*;
+    public import a::*;
+    public import AnalysisTooling::*;
 
     // Run Matrix
     // No Action, Action, Two Actions

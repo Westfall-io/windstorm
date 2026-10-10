@@ -1,0 +1,7 @@
+{
+  "@id": "AnalysisTooling::ToolExecution",
+  "@type": "MetadataDefinition",
+  "declaredName": "ToolExecution",
+  "qualifiedName": "AnalysisTooling::ToolExecution",
+  "isLibraryElement": true
+}

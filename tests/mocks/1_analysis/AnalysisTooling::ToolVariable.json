@@ -1,0 +1,7 @@
+{
+  "@id": "AnalysisTooling::ToolVariable",
+  "@type": "MetadataDefinition",
+  "declaredName": "ToolVariable",
+  "qualifiedName": "AnalysisTooling::ToolVariable",
+  "isLibraryElement": true
+}

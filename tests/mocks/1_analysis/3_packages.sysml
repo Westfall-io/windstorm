@@ -1,4 +1,4 @@
 package Model33 {
-    import Analysis;
-    import a;
+    public import Analysis;
+    public import a;
 }

@@ -1,6 +1,6 @@
 package a {
-    import ScalarValues::*;
-    import SI::*;
+    public import ScalarValues::*;
+    public import SI::*;
 
     part def G {
         attribute h : Real = 4;

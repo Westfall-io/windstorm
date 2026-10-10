@@ -145,8 +145,8 @@ def verify_tool(api, project_id, element_type, element_name, verify=False):
     # Check for analysis in the model
     eid = get_element_by_name_type(api, project, element_name, element_type)
 
+    actions = []
     if "ownedAction" in eid:
-        actions = []
         for oa in eid["ownedAction"]:
             actions.append(oa)
 
