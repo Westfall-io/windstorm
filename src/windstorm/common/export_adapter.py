@@ -200,7 +200,7 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
                 # expression) must appear in ownedElement (API shape).
                 for child in _resolve_related(rp, index):
                     cp = child.get("payload", {})
-                    if cp.get("@type", "").startswith("Literal") or "value" in cp or cp.get("@type") in ("FeatureChainExpression", "FeatureValue"):
+                    if cp.get("@type", "").startswith("Literal") or "value" in cp or cp.get("@type") in ("FeatureChainExpression", "FeatureValue", "OperatorExpression"):
                         element_children.append(child)
 
         if action_children:
