@@ -33,7 +33,14 @@ from __future__ import annotations
 from typing import Any
 
 # Relationship @types that carry an owned child / semantic member.
-_MEMBERSHIP_TYPES = {"OwningMembership", "FeatureMembership", "SubjectMembership", "ParameterMembership", "ReturnParameterMembership", "Membership"}
+_MEMBERSHIP_TYPES = {
+    "OwningMembership",
+    "FeatureMembership",
+    "SubjectMembership",
+    "ParameterMembership",
+    "ReturnParameterMembership",
+    "Membership",
+}
 _IMPORT_TYPES = {"NamespaceImport"}
 _TYPING_TYPES = {"FeatureTyping", "Subclassification"}
 _VALUE_TYPES = {"FeatureValue"}
@@ -104,14 +111,18 @@ def _collect_imported_members(pkg: dict, index: dict[str, dict]) -> dict[str, di
             continue
         rp = rel.get("payload", {})
         if rp.get("@type") in _IMPORT_TYPES:
-            imported = _resolve(rp.get("memberElement"), index) or _resolve(rp.get("importedNamespace"), index)
+            imported = _resolve(rp.get("memberElement"), index) or _resolve(
+                rp.get("importedNamespace"), index
+            )
             if imported is not None:
                 for child in _children_of(imported, index):
                     out[child.get("payload", {}).get("declaredName", "")] = child
     return out
 
 
-def _children_of(elem: dict, index: dict[str, dict], key: str = "ownedElement") -> list[dict]:
+def _children_of(
+    elem: dict, index: dict[str, dict], key: str = "ownedElement"
+) -> list[dict]:
     """Return children of an element following the API shape, with named classification."""
     payload = elem.get("payload", {})
     rels = []
@@ -131,7 +142,10 @@ def _children_of(elem: dict, index: dict[str, dict], key: str = "ownedElement") 
 
 
 def _is_action(p: dict) -> bool:
-    return "Action" in p.get("@type", "") or p.get("@type") in ("ActionUsage", "ActionDefinition")
+    return "Action" in p.get("@type", "") or p.get("@type") in (
+        "ActionUsage",
+        "ActionDefinition",
+    )
 
 
 def _is_metadata(p: dict) -> bool:
@@ -145,7 +159,11 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
     ``ownedElement`` / ``metadataDefinition`` / ``value`` / ``qualifiedName``
     resolved where applicable).
     """
-    elements = export_json if isinstance(export_json, list) else export_json.get("elements", [])
+    elements = (
+        export_json
+        if isinstance(export_json, list)
+        else export_json.get("elements", [])
+    )
     index = {}
     for el in elements:
         p = el.get("payload", {})
@@ -200,13 +218,26 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
                 # expression) must appear in ownedElement (API shape).
                 for child in _resolve_related(rp, index):
                     cp = child.get("payload", {})
-                    if cp.get("@type", "").startswith("Literal") or "value" in cp or cp.get("@type") in ("FeatureChainExpression", "FeatureValue", "OperatorExpression"):
+                    if (
+                        cp.get("@type", "").startswith("Literal")
+                        or "value" in cp
+                        or cp.get("@type")
+                        in (
+                            "FeatureChainExpression",
+                            "FeatureValue",
+                            "OperatorExpression",
+                        )
+                    ):
                         element_children.append(child)
 
         if action_children:
-            payload["ownedAction"] = [{"@id": c["payload"].get("@id")} for c in action_children]
+            payload["ownedAction"] = [
+                {"@id": c["payload"].get("@id")} for c in action_children
+            ]
         if element_children:
-            payload["ownedElement"] = [{"@id": c["payload"].get("@id")} for c in element_children]
+            payload["ownedElement"] = [
+                {"@id": c["payload"].get("@id")} for c in element_children
+            ]
 
         # Reconstruct `input` (the API shape carries it directly on the analysis): the
         # named members carried by FeatureMembership relationships (the inputs), excluding
@@ -226,7 +257,11 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
                 payload["input"] = inputs
 
         # metadataDefinition resolution
-        is_analysis = payload.get("@type") in ("AnalysisCaseDefinition", "ActionUsage", "ActionDefinition")
+        is_analysis = payload.get("@type") in (
+            "AnalysisCaseDefinition",
+            "ActionUsage",
+            "ActionDefinition",
+        )
         for child in element_children:
             cp = child.get("payload", {})
             if cp.get("@type") == "MetadataUsage":
@@ -240,9 +275,13 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
                 #   - owned by an input feature -> AnalysisTooling::ToolVariable
                 #     (its child reference carries the variable's name / value, e.g. name -> "deltaT")
                 if is_analysis:
-                    meta_api.setdefault("metadataDefinition", {"@id": "AnalysisTooling::ToolExecution"})
+                    meta_api.setdefault(
+                        "metadataDefinition", {"@id": "AnalysisTooling::ToolExecution"}
+                    )
                 else:
-                    meta_api.setdefault("metadataDefinition", {"@id": "AnalysisTooling::ToolVariable"})
+                    meta_api.setdefault(
+                        "metadataDefinition", {"@id": "AnalysisTooling::ToolVariable"}
+                    )
 
                 # The MetadataUsage's child reference(s): the export carries the value chain
                 # (ReferenceUsage -> FeatureValue -> literal) but not the API shape windstorm
@@ -276,7 +315,11 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
                                                     # LiteralString exports its quoted content
                                                     # ("..."). windstorm compares against the bare
                                                     # string; unquote here (export untouched).
-                                                    if lp.get("@type") == "LiteralString" and isinstance(lit, str):
+                                                    if lp.get(
+                                                        "@type"
+                                                    ) == "LiteralString" and isinstance(
+                                                        lit, str
+                                                    ):
                                                         lit = lit.strip('"')
                                     if lit_eid is not None:
                                         # ReferenceUsage.ownedElement[0] -> literal value.
@@ -284,7 +327,9 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
                                     # Assign the API `name` windstorm keys on:
                                     #   - ToolExecution child reference: name == "toolName"
                                     #   - ToolVariable child reference: name == "name"
-                                    lit_str = str(lit).strip('"') if lit is not None else None
+                                    lit_str = (
+                                        str(lit).strip('"') if lit is not None else None
+                                    )
                                     if is_analysis and lit_str == "Windstorm":
                                         ref_api["name"] = "toolName"
                                     elif not is_analysis:
@@ -305,14 +350,18 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
                         lp = lr.get("payload", {})
                         if "value" in lp:
                             val = lp["value"]
-                            if lp.get("@type") == "LiteralString" and isinstance(val, str):
+                            if lp.get("@type") == "LiteralString" and isinstance(
+                                val, str
+                            ):
                                 val = val.strip('"')
                             payload["value"] = val
 
     # Third pass: unquote LiteralString elements' own `value` (the export serializes
     # them quoted, but windstorm compares/renders the bare string). Export untouched.
     for eid, payload in api.items():
-        if payload.get("@type") == "LiteralString" and isinstance(payload.get("value"), str):
+        if payload.get("@type") == "LiteralString" and isinstance(
+            payload.get("value"), str
+        ):
             payload["value"] = payload["value"].strip('"')
 
     # Leaf FeatureChainExpression: the pilot export sometimes collapses a literal value
@@ -321,7 +370,11 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
     # expression would go to handle_feature_chain and fail (no targetFeature). Adapt it
     # to a LiteralString so the value flows through. Export untouched.
     for eid, payload in api.items():
-        if payload.get("@type") in ("FeatureChainExpression", "FeatureValue") and "value" in payload and not payload.get("ownedRelationship"):
+        if (
+            payload.get("@type") in ("FeatureChainExpression", "FeatureValue")
+            and "value" in payload
+            and not payload.get("ownedRelationship")
+        ):
             payload["@type"] = "LiteralString"
             if isinstance(payload.get("value"), str):
                 payload["value"] = payload["value"].strip('"')

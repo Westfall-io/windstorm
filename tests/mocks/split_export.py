@@ -10,6 +10,7 @@ consume:
 - writes <dir>/<@id>.json                    (always, when @id present)
 - writes <dir>/<@type>_<declaredName>.json   (when @type + declaredName present)
 """
+
 import json
 import os
 import sys
@@ -33,7 +34,10 @@ def split_export(export_path: str, out_dir: str) -> tuple[int, int]:
         written += 1
         if "@type" in payload and "declaredName" in payload:
             with open(
-                os.path.join(out_dir, payload["@type"] + "_" + payload["declaredName"] + ".json"), "w"
+                os.path.join(
+                    out_dir, payload["@type"] + "_" + payload["declaredName"] + ".json"
+                ),
+                "w",
             ) as g:
                 g.write(json.dumps(payload))
             named += 1
