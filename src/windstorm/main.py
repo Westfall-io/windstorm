@@ -34,9 +34,9 @@ def galestorm(
             logger.info("Nothing to do, closing...")
         else:
             logger.info("Copying all files from input to output, no changes...")
-            from distutils.dir_util import copy_tree
+            import shutil
 
-            copy_tree(in_directory, out_directory)
+            shutil.copytree(in_directory, out_directory, dirs_exist_ok=True)
     else:
         output = init_variables(api, project, aj)
         template_files(in_directory, out_directory, output, force_render_error_continue)

@@ -33,7 +33,7 @@ def are_dir_trees_equal(dir1, dir2):
         or len(dirs_cmp.funny_files) > 0
     ):
         return False
-    (_, mismatch, errors) = filecmp.cmpfiles(
+    _, mismatch, errors = filecmp.cmpfiles(
         dir1, dir2, dirs_cmp.common_files, shallow=False
     )
     if len(mismatch) > 0 or len(errors) > 0:
