@@ -12,6 +12,12 @@ headers = {"Content-type": "application/json", "Accept": "text/plain"}
 from windstorm.common.functions import github_issue_error, is_valid_uuid
 
 
+def _is_store(obj):
+    """True when the first arg is a local ElementStore (offline mode)."""
+    return hasattr(obj, "get_element_by_id") and hasattr(obj, "query")
+
+
+
 def handle_request_response(r):
     """This validates an API response and ensures the format"""
     if r.status_code == 404:
@@ -100,6 +106,16 @@ def build_query(params):
 
 
 def query_for_element(api, project, base_query, verify=False):
+    if _is_store(api):
+        results = api.query(base_query)
+        if len(results) == 1:
+            return results[0]
+        elif len(results) == 0:
+            logger.error("Failed to find this element name.")
+            sys.exit()
+        logger.error("Unexpected {} results".format(len(results)))
+        sys.exit()
+
     logger.debug(base_query)
 
     url = api + "/projects/" + project["@id"] + "/query-results"
@@ -114,12 +130,16 @@ def query_for_element(api, project, base_query, verify=False):
 
 
 def get_element_by_id(api, project, eid, verify=False):
+    if _is_store(api):
+        return api.get_element_by_id(eid)
     q = build_query({"property": ["@id"], "operator": ["="], "value": [eid]})
     e = query_for_element(api, project, q, verify)
     return e
 
 
 def get_element_by_name_type(api, project, element_name, element_type, verify=False):
+    if _is_store(api):
+        return api.get_element_by_name_type(element_name, element_type)
 
     q = build_query(
         {
@@ -133,15 +153,12 @@ def get_element_by_name_type(api, project, element_name, element_type, verify=Fa
     return eid
 
 
-def verify_tool(api, project_id, element_type, element_name, verify=False):
-    # Grab the project from the API - either the latest or a specific one
-    project = check_for_api(api, is_valid_uuid(project_id), verify)
-    if "name" in project and "@id" in project:
-        logger.info('Found project "{}" - {}'.format(project["name"], project["@id"]))
-    else:
-        logger.info("Response was {}.".format(project))
-        raise KeyError
+def _verify_action_walk(api, project, element_type, element_name, verify):
+    """Shared action-walking used by both API and local verify paths.
 
+    Returns ``(project, aj)`` where ``aj`` is the list of valid windstorm
+    analysis actions (or the element itself when it has no ownedAction).
+    """
     # Check for analysis in the model
     eid = get_element_by_name_type(api, project, element_name, element_type)
 
@@ -179,7 +196,7 @@ def verify_tool(api, project_id, element_type, element_name, verify=False):
             else:
                 logger.info("   Element Type: {}".format(oid["@type"]))
 
-            if oid["@type"].lower() != "MetadataUsage".lower():
+            if oid["@type"].lower() != "MetaDataUsage".lower():
                 # This owned element is not a MetaData
                 logger.info("      Skipping non-metadata element.")
                 continue
@@ -229,3 +246,25 @@ def verify_tool(api, project_id, element_type, element_name, verify=False):
             ###### END LOOP for each element in owned element
     ###### END LOOP for each action
     return project, aj
+
+
+def verify_tool(api, project_id, element_type, element_name, verify=False):
+    if _is_store(api):
+        # Local store: project == api itself (a project-lookalike).
+        project = api
+        if "name" in project and "@id" in project:
+            logger.info('Found project "{}" - {}'.format(project["name"], project["@id"]))
+        else:
+            logger.info("Response was {}.".format(project))
+            raise KeyError
+        return _verify_action_walk(api, project, element_type, element_name, verify)
+
+    # Grab the project from the API - either the latest or a specific one
+    project = check_for_api(api, is_valid_uuid(project_id), verify)
+    if "name" in project and "@id" in project:
+        logger.info('Found project "{}" - {}'.format(project["name"], project["@id"]))
+    else:
+        logger.info("Response was {}.".format(project))
+        raise KeyError
+
+    return _verify_action_walk(api, project, element_type, element_name, verify)
