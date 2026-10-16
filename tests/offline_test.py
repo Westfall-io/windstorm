@@ -22,9 +22,7 @@ def test_offline_source_renders_without_api(tmp_path):
 
         galestorm(
             "case3",
-            source=os.path.join(
-                os.path.dirname(__file__), "mocks", "1_analysis"
-            ),
+            source=os.path.join(os.path.dirname(__file__), "mocks", "1_analysis"),
             in_directory=str(tmp_path / "input"),
             out_directory=str(tmp_path / "output"),
         )

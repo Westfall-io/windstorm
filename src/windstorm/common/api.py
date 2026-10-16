@@ -17,7 +17,6 @@ def _is_store(obj):
     return hasattr(obj, "get_element_by_id") and hasattr(obj, "query")
 
 
-
 def handle_request_response(r):
     """This validates an API response and ensures the format"""
     if r.status_code == 404:
@@ -253,7 +252,9 @@ def verify_tool(api, project_id, element_type, element_name, verify=False):
         # Local store: project == api itself (a project-lookalike).
         project = api
         if "name" in project and "@id" in project:
-            logger.info('Found project "{}" - {}'.format(project["name"], project["@id"]))
+            logger.info(
+                'Found project "{}" - {}'.format(project["name"], project["@id"])
+            )
         else:
             logger.info("Response was {}.".format(project))
             raise KeyError

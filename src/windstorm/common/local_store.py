@@ -75,9 +75,10 @@ class ElementStore:
         """Find an element by (declaredName, @type) — mirrors the API query."""
         matches = []
         for payload in self._elements.values():
-            if payload.get("declaredName") == element_name and payload.get(
-                "@type"
-            ) == element_type:
+            if (
+                payload.get("declaredName") == element_name
+                and payload.get("@type") == element_type
+            ):
                 matches.append(payload)
         if len(matches) == 1:
             return matches[0]
@@ -211,7 +212,10 @@ def verify_local(store: ElementStore, element_type: str, element_name: str):
             for mdoe in oid["ownedElement"]:
                 mdoeid = store.get_element_by_id(mdoe["@id"])
 
-                if mdoeid["@type"] != "ReferenceUsage" or mdoeid.get("name") != "toolName":
+                if (
+                    mdoeid["@type"] != "ReferenceUsage"
+                    or mdoeid.get("name") != "toolName"
+                ):
                     continue
 
                 if len(mdoeid["ownedElement"]) > 1:

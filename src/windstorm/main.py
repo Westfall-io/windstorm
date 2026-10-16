@@ -39,7 +39,11 @@ def _load_local_store(source_dir: str):
             with open(path, "r") as f:
                 adapted = adapt(json.load(f))
             store.extend(adapted)
-        logger.info("Loaded {} export JSON file(s) -> {}".format(len(export_files), len(store._elements)))
+        logger.info(
+            "Loaded {} export JSON file(s) -> {}".format(
+                len(export_files), len(store._elements)
+            )
+        )
     elif sysml_files:
         # No exports yet: run the windtrader jar to produce per-file export JSON.
         jar = os.environ.get("WINDTRADER_JAR", "windtrader-java.jar")
@@ -57,7 +61,9 @@ def _load_local_store(source_dir: str):
                 )
             if proc.returncode != 0:
                 logger.warning(
-                    "batch-export failed for {}: {}".format(name, proc.stderr.decode()[-300:])
+                    "batch-export failed for {}: {}".format(
+                        name, proc.stderr.decode()[-300:]
+                    )
                 )
                 continue
             out = os.path.join(tmp, name + ".export.json")
@@ -107,9 +113,7 @@ def galestorm(
         # Offline mode: build an ElementStore from local files and run the
         # exact same templating core against it (no network).
         api_store = _load_local_store(source)
-        project, aj = verify_tool(
-            api_store, "", element_type, element_name, insecure
-        )
+        project, aj = verify_tool(api_store, "", element_type, element_name, insecure)
     else:
         project, aj = verify_tool(api, project_id, element_type, element_name, insecure)
 
@@ -124,7 +128,6 @@ def galestorm(
     else:
         output = init_variables(api_store if source else api, project, aj)
         template_files(in_directory, out_directory, output, force_render_error_continue)
-
 
 
 def main():
