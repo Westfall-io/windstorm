@@ -1,4 +1,5 @@
 import logging
+import shutil
 
 logger = logging.getLogger("windstorm")
 
@@ -48,28 +49,31 @@ def _load_local_store(source_dir: str):
         # No exports yet: run the windtrader jar to produce per-file export JSON.
         jar = os.environ.get("WINDTRADER_JAR", "windtrader-java.jar")
         tmp = tempfile.mkdtemp(prefix="windstorm-export-")
-        for path in sysml_files:
-            name = os.path.basename(path)
-            # batch-export reads file paths on stdin; run one at a time into tmp.
-            with open(path, "rb") as infile:
-                proc = subprocess.run(
-                    ["java", "-jar", jar, "batch-export"],
-                    input=path.encode(),
-                    capture_output=True,
-                    cwd=tmp,
-                    timeout=300,
-                )
-            if proc.returncode != 0:
-                logger.warning(
-                    "batch-export failed for {}: {}".format(
-                        name, proc.stderr.decode()[-300:]
+        try:
+            for path in sysml_files:
+                name = os.path.basename(path)
+                # batch-export reads file paths on stdin; run one at a time into tmp.
+                with open(path, "rb") as infile:
+                    proc = subprocess.run(
+                        ["java", "-jar", jar, "batch-export"],
+                        input=path.encode(),
+                        capture_output=True,
+                        cwd=tmp,
+                        timeout=300,
                     )
-                )
-                continue
-            out = os.path.join(tmp, name + ".export.json")
-            if os.path.exists(out):
-                with open(out, "r") as f:
-                    store.extend(adapt(json.load(f)))
+                if proc.returncode != 0:
+                    logger.warning(
+                        "batch-export failed for {}: {}".format(
+                            name, proc.stderr.decode()[-300:]
+                        )
+                    )
+                    continue
+                out = os.path.join(tmp, name + ".export.json")
+                if os.path.exists(out):
+                    with open(out, "r") as f:
+                        store.extend(adapt(json.load(f)))
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
         if len(store._elements) == 0:
             raise RuntimeError(
                 "No elements could be exported from .sysml in {}. "
