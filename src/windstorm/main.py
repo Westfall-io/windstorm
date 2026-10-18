@@ -84,7 +84,7 @@ def _load_local_store(source_dir: str):
     return store
 
 
-def galestorm(
+def windstorm(
     element_name: str,
     api: str = "http://sysml2-dev.intercax.com:9000",
     source: str = "",
@@ -132,7 +132,7 @@ def galestorm(
 
 def main():
     """This function uses Fire to generate a command-line interface"""
-    fire.Fire(galestorm)
+    fire.Fire(windstorm)
 
 
 if __name__ == "__main__":

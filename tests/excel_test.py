@@ -9,7 +9,7 @@ import shutil
 import pytest
 import responses
 
-from windstorm.main import galestorm
+from windstorm.main import windstorm
 from tests.common.functions import *
 
 # Get the default project endpoint response.
@@ -28,7 +28,7 @@ def test_analysis_xlsx_pass():
     )
 
     # Update the excel file using the long chain version, doesn't really matter
-    galestorm(
+    windstorm(
         "case5",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -78,7 +78,7 @@ def test_analysis_xlsx_force_skip():
     f.close()
 
     # Update the excel file using the long chain version, doesn't really matter
-    galestorm(
+    windstorm(
         "case5",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -109,7 +109,7 @@ def test_analysis_xlsx_file_exists():
     shutil.copyfile(f1, f2 + ".zip")
 
     # Update the excel file using the long chain version, doesn't really matter
-    galestorm(
+    windstorm(
         "case5",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",

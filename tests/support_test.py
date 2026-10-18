@@ -5,7 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 
 import pytest
 
-from windstorm.main import galestorm
+from windstorm.main import windstorm
 import windstorm.common.api as apif
 
 
@@ -37,7 +37,7 @@ def test_build_query_3():
 
 def test_invalid_uuid():
     with pytest.raises(SystemExit):
-        galestorm("case3", project_id="111")
+        windstorm("case3", project_id="111")
 
 
 if __name__ == "__main__":

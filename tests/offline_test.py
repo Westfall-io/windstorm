@@ -6,7 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 import pytest
 import responses
 
-from windstorm.main import galestorm
+from windstorm.main import windstorm
 
 
 def test_offline_source_renders_without_api(tmp_path):
@@ -20,7 +20,7 @@ def test_offline_source_renders_without_api(tmp_path):
     with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
         rsps.add_passthru("http://placeholder.invalid")  # ensure nothing matches
 
-        galestorm(
+        windstorm(
             "case3",
             source=os.path.join(os.path.dirname(__file__), "mocks", "1_analysis"),
             in_directory=str(tmp_path / "input"),
