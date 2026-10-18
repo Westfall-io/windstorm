@@ -6,7 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 import pytest
 import responses
 
-from windstorm.main import galestorm
+from windstorm.main import windstorm
 from tests.common.functions import *
 
 # Get the default project endpoint response.
@@ -31,7 +31,7 @@ def test_analysis_no_meta_no_action():
     except:
         pass
 
-    galestorm(
+    windstorm(
         "case1",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -59,7 +59,7 @@ def test_analysis_no_meta():
     except:
         pass
 
-    galestorm(
+    windstorm(
         "case2",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -81,7 +81,7 @@ def test_analysis_success():
 
     template("{{ windstorm('deltaT') }}")
 
-    galestorm(
+    windstorm(
         "case3",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -99,7 +99,7 @@ def test_analysis_success_debug():
 
     template("{{ windstorm('deltaT') }}")
 
-    galestorm(
+    windstorm(
         "case3",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -118,7 +118,7 @@ def test_analysis_featurechain():
 
     template("{{ windstorm('deltaT') }}")
 
-    galestorm(
+    windstorm(
         "case4",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -136,7 +136,7 @@ def test_analysis_featurechain_deeper():
 
     template("{{ windstorm('deltaT') }}")
 
-    galestorm(
+    windstorm(
         "case5",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -154,7 +154,7 @@ def test_analysis_units():
 
     template("{{ windstorm('deltaT') }}")
 
-    galestorm(
+    windstorm(
         "case6",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -173,7 +173,7 @@ def test_failed_template():
     template("{{ windstorm('deltaE') }}")
 
     with pytest.raises(SystemExit):
-        galestorm(
+        windstorm(
             "case3",
             api="http://sysml2.intercax.com:9000",
             in_directory="./tests/mocks/1_analysis/input",
@@ -188,7 +188,7 @@ def test_failed_template_success():
 
     template("{{ windstorm('deltaE', 1) }}")
 
-    galestorm(
+    windstorm(
         "case3",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -206,7 +206,7 @@ def test_failed_template_forced_skip():
 
     template("{{ }")
 
-    galestorm(
+    windstorm(
         "case3",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -231,7 +231,7 @@ def test_analysis_success_binary_skip():
         f.write(ba)
     f.close()
 
-    galestorm(
+    windstorm(
         "case3",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -254,7 +254,7 @@ def test_analysis_novariables():
     template("{{ windstorm('deltaT') }}")
 
     with pytest.raises(SystemExit):
-        galestorm(
+        windstorm(
             "case7",
             api="http://sysml2.intercax.com:9000",
             in_directory="./tests/mocks/1_analysis/input",
@@ -269,7 +269,7 @@ def test_analysis_reference():
 
     template("{{ windstorm('deltaT') }}")
 
-    galestorm(
+    windstorm(
         "case8",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -288,7 +288,7 @@ def test_analysis_list():
 
     template("{{ windstorm('deltaT') }}")
 
-    galestorm(
+    windstorm(
         "case9",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -313,7 +313,7 @@ def test_analysis_jinjafor():
     # f.close()
     template("Geopoint({{ windstorm('deltaT')|join(',') }})")
 
-    galestorm(
+    windstorm(
         "case9",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -333,7 +333,7 @@ def test_analysis_boolean():
 
     template("{{ windstorm('deltaT') }}")
 
-    galestorm(
+    windstorm(
         "case10",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",
@@ -354,7 +354,7 @@ def test_analysis_multiple_inputs():
         "{{ windstorm('deltaT') }}|{{ windstorm('deltaC') }}|{{ windstorm('deltaE') }}|{{ windstorm('deltaG') }}|{{ windstorm('deltaF') }}"
     )
 
-    galestorm(
+    windstorm(
         "case11",
         api="http://sysml2.intercax.com:9000",
         in_directory="./tests/mocks/1_analysis/input",

@@ -6,7 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 import pytest
 import responses
 
-from windstorm.main import galestorm
+from windstorm.main import windstorm
 from tests.common.functions import *
 
 # Get the default project endpoint response.
@@ -25,7 +25,7 @@ def test_404_response():
             status=404,
         )
 
-        galestorm("case1", api=defaultUrl)
+        windstorm("case1", api=defaultUrl)
 
 
 @responses.activate
@@ -37,7 +37,7 @@ def test_500_response():
             json={},
             status=500,
         )
-        galestorm("case1", api=defaultUrl)
+        windstorm("case1", api=defaultUrl)
 
 
 @responses.activate
@@ -50,7 +50,7 @@ def test_wrong_type_response():
             status=200,
         )
 
-        galestorm("case1", api=defaultUrl)
+        windstorm("case1", api=defaultUrl)
 
 
 @responses.activate
@@ -63,7 +63,7 @@ def test_no_json_response():
             status=200,
         )
 
-        galestorm("case1", api=defaultUrl)
+        windstorm("case1", api=defaultUrl)
 
 
 @responses.activate
@@ -82,7 +82,7 @@ def test_no_project_response():
             json=[],
             status=200,
         )
-        galestorm(
+        windstorm(
             "case1",
             api=defaultUrl,
             project_id="00270ef6-e518-455a-b59e-324ffeb1c9da",
@@ -105,7 +105,7 @@ def test_bad_project_response():
             json=[project_response, project_response],
             status=200,
         )
-        galestorm(
+        windstorm(
             "case1",
             api=defaultUrl,
             project_id="00270ef6-e518-455a-b59e-324ffeb1c9da",
@@ -129,4 +129,4 @@ def test_no_element_found():
             status=200,
         )
 
-        galestorm("case1", api=defaultUrl)
+        windstorm("case1", api=defaultUrl)
