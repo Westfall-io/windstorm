@@ -3,6 +3,27 @@
 
 
 
+## v0.6.0 (2026-10-19)
+### Features
+#### :sparkles:
+
+* :sparkles: rewrite README documenting local-file (--source) offline mode
+
+Expanded the README into a detailed usage guide:
+- overview + quick start
+- both modes: live SysMLv2 API and local .sysml / .export.json (--source)
+- templating examples (loops, tool variables)
+- full CLI reference
+- development + release notes
+
+Documents the v0.6.0 offline capability. ([`3795108`](https://github.com/Westfall-io/windstorm/commit/3795108c69cae04093f1b4c41fddbd2fc0ae53e6))
+
+### Fixes
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
 ## v0.5.7 (2026-10-19)
 ### Features
 ### Fixes
