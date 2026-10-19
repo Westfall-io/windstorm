@@ -31,7 +31,16 @@ def make_mocks():
         with open(fname, "w") as f:
             nbf.write(nb, f)
 
-        pm.execute_notebook(fname, fname, kernel_name="sysml")
+        pm.execute_notebook(
+            fname,
+            fname,
+            kernel_name="sysml",
+            # The SysML kernel emits very large outputs; the nbclient default
+            # IOPub timeout (~4s) is far too short and makes regeneration flaky
+            # on CI. Timeout at the cell level and give IOPub room to breathe.
+            execution_timeout=300,
+            iopub_timeout=120,
+        )
 
         with open(fname, "r") as f:
             # Read the notebook

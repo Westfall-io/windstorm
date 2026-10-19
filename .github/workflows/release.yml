@@ -40,15 +40,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Install SysML environment and make mocks
+    - name: Install test dependencies
       run: |
-        pip install jupyter
-        wget https://github.com/Systems-Modeling/SysML-v2-Pilot-Implementation/releases/download/2024-05/jupyter-sysml-kernel-0.42.0.zip
-        unzip jupyter-sysml-kernel-0.42.0.zip -d /tmp
-        python /tmp/install.py --prefix=/opt/hostedtoolcache/Python/3.12.7/x64/
         pip install pytest-timeout pytest-html papermill nbformat
-        jupyter kernelspec list
-        python ./tests/mocks/make_mocks.py
     - name: Test ${{ github.event.push.head }} coverage
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
