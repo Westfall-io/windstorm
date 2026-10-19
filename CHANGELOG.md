@@ -3,6 +3,14 @@
 
 
 
+## v0.5.7 (2026-10-19)
+### Features
+### Fixes
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
 ## v0.5.6 (2024-11-28)
 ### Features
 ### Fixes
