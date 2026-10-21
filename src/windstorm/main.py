@@ -201,7 +201,14 @@ def _load_local_store(
         try:
             with open(path, "r") as f:
                 adapted = adapt(json.load(f))
-        except (json.JSONDecodeError, OSError, ValueError, AttributeError, TypeError, KeyError) as e:
+        except (
+            json.JSONDecodeError,
+            OSError,
+            ValueError,
+            AttributeError,
+            TypeError,
+            KeyError,
+        ) as e:
             raise RuntimeError(
                 "Failed to load export JSON from {}: {}".format(path, e)
             ) from e
@@ -239,9 +246,7 @@ def _load_local_store(
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copy2(out, dst)
             dumped += 1
-        logger.info(
-            "Dumped {} export JSON file(s) to {}.".format(dumped, dump_dir)
-        )
+        logger.info("Dumped {} export JSON file(s) to {}.".format(dumped, dump_dir))
 
     if len(store) == 0:
         if not sysml_files and not export_files:

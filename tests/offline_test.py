@@ -112,7 +112,9 @@ def test_load_local_store_preflight_jar_missing_with_java(tmp_path, monkeypatch)
     import windstorm.common.windtrader_jar as wj
 
     monkeypatch.setattr(wj, "_java_available", lambda: True)
-    monkeypatch.setattr(wj, "_java_version", lambda: 21)  # pin so host Java is irrelevant
+    monkeypatch.setattr(
+        wj, "_java_version", lambda: 21
+    )  # pin so host Java is irrelevant
     monkeypatch.delenv("WINDTRADER_JAR", raising=False)
     with pytest.raises(RuntimeError) as ei:
         _load_local_store(str(tmp_path))
