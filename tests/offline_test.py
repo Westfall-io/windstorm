@@ -170,7 +170,9 @@ def test_dump_export_json_copies_exports(tmp_path, monkeypatch):
     assert (dumpdir / "models" / "m.sysml.export.json").exists()
 
 
-def test_load_local_store_reuses_fresh_exports_and_refreshes_stale(tmp_path, monkeypatch):
+def test_load_local_store_reuses_fresh_exports_and_refreshes_stale(
+    tmp_path, monkeypatch
+):
     """A .sysml whose export is older is re-exported; a fresh export is reused."""
     sub = tmp_path / "src"
     sub.mkdir()
@@ -189,12 +191,14 @@ def test_load_local_store_reuses_fresh_exports_and_refreshes_stale(tmp_path, mon
         }
     ]
     import json, time as _time
+
     (sub / "m.sysml.export.json").write_text(json.dumps(export))
     # Make the export OLDER than the sysml -> stale -> must re-export.
     old = _time.time() - 1000
     os.utime(sub / "m.sysml.export.json", (old, old))
 
     calls = {"n": 0}
+
     def fake_batch_export(sysml_paths):
         calls["n"] += 1
         # Re-write the export so it's fresh this run (newer than the snapshot).
@@ -228,6 +232,7 @@ def test_load_local_store_mixed_tree_loads_both(tmp_path, monkeypatch):
         }
     ]
     import json
+
     (sub / "a.sysml.export.json").write_text(json.dumps(a_export))
     (sub / "b.sysml").write_text("part B;")
 
@@ -244,6 +249,7 @@ def test_load_local_store_mixed_tree_loads_both(tmp_path, monkeypatch):
         }
     ]
     calls = {"n": 0}
+
     def fake_batch_export(sysml_paths):
         calls["n"] += 1
         # Only the bare b.sysml should be passed.
@@ -287,9 +293,11 @@ def test_dump_export_json_noop_when_all_fresh(tmp_path, monkeypatch):
         }
     ]
     import json
+
     (sub / "m.sysml.export.json").write_text(json.dumps(export))  # fresh (no utime)
 
     calls = {"n": 0}
+
     def fake_batch_export(sysml_paths):
         calls["n"] += 1
         raise AssertionError("should not export when export is fresh")
@@ -307,10 +315,12 @@ def test_batch_export_stdin_has_trailing_newline(tmp_path, monkeypatch):
 
     def fake_run(*args, **kwargs):
         captured["input"] = kwargs.get("input")
+
         class FakeProc:
             returncode = 0
             stderr = b"batch-export complete\n"
             stdout = b"OK\n"
+
         return FakeProc()
 
     import windstorm.common.windtrader_jar as wj
@@ -326,12 +336,14 @@ def test_batch_export_stdin_has_trailing_newline(tmp_path, monkeypatch):
     # first call (pre-snapshot) sees no export, later calls (post) see it.
     real_orig = wj._stat_sig
     stat_calls = {"n": 0}
+
     def fake_stat(p):
         stat_calls["n"] += 1
         if p.endswith(".export.json"):
             # Pre-snapshot is call #1 per path; after that the file exists.
             return None if stat_calls["n"] <= 2 else 123.0
         return real_orig(p)
+
     monkeypatch.setattr(wj, "_stat_sig", fake_stat)
 
     produced = wj.batch_export([str(a), str(b)])
@@ -343,12 +355,15 @@ def test_batch_export_stdin_has_trailing_newline(tmp_path, monkeypatch):
 def test_batch_export_rejects_newline_paths(tmp_path, monkeypatch):
     """A .sysml path containing a newline is refused (stdin protocol safety)."""
     import windstorm.common.windtrader_jar as wj
+
     monkeypatch.setattr(wj, "_jar_path", lambda: "/opt/data/fake.jar")
     # Don't even need a fake subprocess: the guard fires before invocation.
     called = {"n": 0}
+
     def fake_run(*a, **k):
         called["n"] += 1
         raise AssertionError("should not reach subprocess")
+
     monkeypatch.setattr(wj.subprocess, "run", fake_run)
 
     with pytest.raises(ValueError, match="newline"):
@@ -359,6 +374,7 @@ def test_batch_export_rejects_newline_paths(tmp_path, monkeypatch):
 def test_batch_export_java_too_old_preflight(tmp_path, monkeypatch):
     """Preflight rejects java that is present but too old (< 21)."""
     import windstorm.common.windtrader_jar as wj
+
     monkeypatch.setattr(wj, "_java_available", lambda: True)
     monkeypatch.setattr(wj, "_java_version", lambda: 8)
     with pytest.raises(RuntimeError, match="Java 8") as ei:
@@ -370,12 +386,13 @@ def test_batch_export_timeout_raises_clear_error(tmp_path, monkeypatch):
     """A jar timeout raises a clear RuntimeError (not a raw TimeoutExpired)."""
     import subprocess as sp
     import windstorm.common.windtrader_jar as wj
+
     monkeypatch.setattr(wj, "_jar_path", lambda: "/opt/data/fake.jar")
 
     def fake_run(*a, **k):
         raise sp.TimeoutExpired(cmd=["java"], timeout=600)
+
     monkeypatch.setattr(wj.subprocess, "run", fake_run)
 
     with pytest.raises(RuntimeError, match="timed out"):
         wj.batch_export(["/tmp/a.sysml"])
-

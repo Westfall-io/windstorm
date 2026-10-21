@@ -16,9 +16,7 @@ _JAVA_VERSION_RE = re.compile(r'version "(\d+)(?:\.(\d+))?')
 def _java_version() -> int:
     """Return the detected java major version, or 0 if it cannot be determined."""
     try:
-        proc = subprocess.run(
-            ["java", "-version"], capture_output=True, timeout=10
-        )
+        proc = subprocess.run(["java", "-version"], capture_output=True, timeout=10)
     except (OSError, subprocess.TimeoutExpired):
         return 0
     text = proc.stderr.decode(errors="replace") + proc.stdout.decode(errors="replace")
@@ -86,7 +84,9 @@ def _assert_no_newlines(sysml_paths):
         if "\n" in p or "\r" in p:
             raise ValueError(
                 "Refusing to export a .sysml path containing a newline "
-                "character (would break the batch-export stdin protocol): {!r}".format(p)
+                "character (would break the batch-export stdin protocol): {!r}".format(
+                    p
+                )
             )
 
 

@@ -71,7 +71,9 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
     produced = []
     if need_export:
         logger.info(
-            "Exporting {} .sysml file(s) (missing/stale export).".format(len(need_export))
+            "Exporting {} .sysml file(s) (missing/stale export).".format(
+                len(need_export)
+            )
         )
         produced = batch_export(need_export)
 
@@ -123,7 +125,9 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 shutil.copy2(out, dst)
                 dumped += 1
-            logger.info("Dumped {} export JSON file(s) to {}.".format(dumped, dump_export_json))
+            logger.info(
+                "Dumped {} export JSON file(s) to {}.".format(dumped, dump_export_json)
+            )
 
     if len(store._elements) == 0:
         raise RuntimeError(
