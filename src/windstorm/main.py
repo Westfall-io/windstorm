@@ -37,65 +37,110 @@ def _collect_source_files(source_dir: str):
 def _load_local_store(source_dir: str, dump_export_json: str = ""):
     """Build an offline ElementStore from .sysml / .export.json in a directory.
 
-    Recursively scans ``source_dir`` (including subdirectories). Three layouts:
-      - Already-exported JSON: ``*.export.json`` files are adapted directly.
-      - Raw ``.sysml``: each file is exported via the windtrader-java JAR
-        (``batch-export`` writes ``<path>.export.json`` next to the source),
-        then adapted. Requires ``WINDTRADER_JAR``; see the preflight error.
-      - ``dump_export_json``: after a raw ``.sysml`` export, copy the generated
-        ``*.export.json`` files into this directory so they can be reused
-        directly (the fast, Java-free, fully-offline path).
+    Recursively scans ``source_dir`` (including subdirectories). Sources and
+    already-exported JSON are treated as *complementary*, not exclusive:
+
+      - ``*.export.json`` files are adapted directly.
+      - Raw ``.sysml`` files are exported via the windtrader-java JAR
+        (``batch-export`` writes ``<path>.export.json`` next to each source).
+        A ``.sysml`` whose export is missing OR older than the source is
+        re-exported; a fresh export is reused (so an edit to a model is not
+        silently ignored on the next run).
+      - ``dump_export_json``: after exporting, copy the generated
+        ``*.export.json`` files into this directory (mirroring the relative
+        tree) so they can be reused directly — the fast, Java-free path.
 
     Returns a populated ``ElementStore`` (API-shaped graph keyed by @id).
     """
     store = ElementStore()
 
+    source_dir = os.path.abspath(source_dir)
     export_files, sysml_files = _collect_source_files(source_dir)
 
-    if export_files:
-        for path in export_files:
-            with open(path, "r") as f:
-                adapted = adapt(json.load(f))
-            store.extend(adapted)
+    # Which .sysml files need (re-)exporting: missing or stale export.
+    need_export = []
+    for path in sysml_files:
+        out = path + ".export.json"
+        export_mtime = _file_mtime(out)
+        sysml_mtime = _file_mtime(path)
+        if export_mtime is None or (
+            sysml_mtime is not None and export_mtime < sysml_mtime
+        ):
+            need_export.append(path)
+
+    produced = []
+    if need_export:
         logger.info(
-            "Loaded {} export JSON file(s) -> {} element(s).".format(
-                len(export_files), len(store._elements)
-            )
+            "Exporting {} .sysml file(s) (missing/stale export).".format(len(need_export))
         )
-    elif sysml_files:
-        # No exports yet: run the windtrader jar's batch-export over ALL files in
-        # a single JVM invocation. It writes <path>.export.json next to each
-        # source, so the exports persist and are reused on the next run.
-        produced = batch_export(sysml_files)
+        produced = batch_export(need_export)
 
-        if dump_export_json:
-            import shutil
+    # Adapt the union: standalone .export.json files + freshly produced exports.
+    # Don't double-count a .sysml's export that was produced and also present as
+    # a standalone file (they are the same file path).
+    adapt_paths = []
+    seen = set()
+    for path in export_files:
+        lo = path.lower()
+        if lo not in seen:
+            adapt_paths.append(path)
+            seen.add(lo)
+    for out in produced:
+        lo = os.path.abspath(out).lower()
+        if lo not in seen:
+            adapt_paths.append(out)
+            seen.add(lo)
 
-            os.makedirs(dump_export_json, exist_ok=True)
-            for out in produced:
-                shutil.copy2(out, dump_export_json)
-            logger.info(
-                "Dumped {} export JSON file(s) to {}.".format(
-                    len(produced), dump_export_json
-                )
-            )
+    for path in adapt_paths:
+        with open(path, "r") as f:
+            adapted = adapt(json.load(f))
+        store.extend(adapted)
+    logger.info(
+        "Loaded {} export JSON file(s) -> {} element(s).".format(
+            len(adapt_paths), len(store._elements)
+        )
+    )
 
-        for out in produced:
-            with open(out, "r") as f:
-                store.extend(adapt(json.load(f)))
-
-        if len(store._elements) == 0:
+    # Dump the generated exports for this run (only after a raw .sysml export),
+    # mirroring the relative tree so nested subdir collisions are avoided.
+    if dump_export_json:
+        if not sysml_files:
             raise RuntimeError(
-                "No elements could be exported from .sysml under {}. "
-                "Check WINDTRADER_JAR and the .sysml files.".format(source_dir)
+                "--dump-export-json requires --source pointing at raw .sysml files; "
+                "there were no .sysml files under {}".format(source_dir)
             )
-    else:
+        if not produced:
+            logger.info(
+                "No exports were generated this run (all .sysml exports fresh); "
+                "nothing to dump to {}.".format(dump_export_json)
+            )
+        else:
+            os.makedirs(dump_export_json, exist_ok=True)
+            dumped = 0
+            for out in produced:
+                rel = os.path.relpath(out, source_dir)
+                dst = os.path.join(dump_export_json, rel)
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                shutil.copy2(out, dst)
+                dumped += 1
+            logger.info("Dumped {} export JSON file(s) to {}.".format(dumped, dump_export_json))
+
+    if len(store._elements) == 0:
         raise RuntimeError(
-            "No .export.json or .sysml files found under {}".format(source_dir)
+            "No elements could be exported from .sysml under {}. "
+            "Check WINDTRADER_JAR and the .sysml files.".format(source_dir)
         )
 
     logger.info("Local store built with {} element(s).".format(len(store._elements)))
     return store
+
+
+def _file_mtime(path):
+    """Return the mtime of ``path`` or None if it does not exist."""
+    try:
+        return os.stat(path).st_mtime
+    except OSError:
+        return None
 
 
 def windstorm(
@@ -119,10 +164,14 @@ def windstorm(
         element_name: The analysis element to render.
         api: Live SysMLv2 API address (ignored when --source is set).
         source: Directory of local .sysml / .export.json files to render from
-            instead of a live API.
+            instead of a live API. NOTE: for raw .sysml files, windstorm runs
+            the windtrader-java JAR, which writes ``<path>.export.json`` next
+            to each source (the source tree must be writable; add
+            ``*.export.json`` to .gitignore if the tree is a git checkout).
         dump_export_json: When set with --source and raw .sysml files, copy the
-            generated .export.json files into this directory so they can be used
-            directly on future runs (Java-free, fully offline).
+            generated .export.json files into this directory (mirroring the
+            relative tree) so they can be used directly on future runs
+            (Java-free, fully offline). Requires --source with .sysml files.
     """
     setup_logging(debug)
 

@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
@@ -17,13 +18,23 @@ def test_offline_source_renders_without_api(tmp_path):
     (tmp_path / "output").mkdir()
     (tmp_path / "input" / "template.txt").write_text('{{ windstorm("deltaT") }}')
 
+    # Use ONLY the already-exported JSON files (Java-free, fully-offline path).
+    # Copy them into a fresh source dir so no bare .sysml forces a jar export.
+    src = tmp_path / "src"
+    src.mkdir()
+    mocks = os.path.join(os.path.dirname(__file__), "mocks", "1_analysis")
+    exported = [f for f in os.listdir(mocks) if f.endswith(".export.json")]
+    assert exported, "expected exported mock JSONs"
+    for name in exported:
+        shutil.copy2(os.path.join(mocks, name), src / name)
+
     # Any network access would raise immediately -> proves offline path.
     with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
         rsps.add_passthru("http://placeholder.invalid")  # ensure nothing matches
 
         windstorm(
             "case3",
-            source=os.path.join(os.path.dirname(__file__), "mocks", "1_analysis"),
+            source=str(src),
             in_directory=str(tmp_path / "input"),
             out_directory=str(tmp_path / "output"),
         )
@@ -124,14 +135,15 @@ def test_load_local_store_preflight_jar_missing_with_java(tmp_path, monkeypatch)
 
 
 def test_dump_export_json_copies_exports(tmp_path, monkeypatch):
-    """--dump-export-json copies generated .export.json files to the target dir."""
+    """--dump-export-json creates the dir and copies generated exports, mirroring rel tree."""
     sub = tmp_path / "src"
     sub.mkdir()
-    (sub / "m.sysml").write_text("part M;")
-    dumpdir = tmp_path / "dumps"
-    dumpdir.mkdir()
+    # Put the .sysml in a subdir to prove relative-tree mirroring.
+    models = sub / "models"
+    models.mkdir()
+    (models / "m.sysml").write_text("part M;")
+    dumpdir = tmp_path / "dumps"  # deliberately NOT pre-created
 
-    # Fake batch_export to avoid needing a real jar/JVM in tests.
     fake_export = [
         {
             "payload": {
@@ -147,41 +159,223 @@ def test_dump_export_json_copies_exports(tmp_path, monkeypatch):
     import json
 
     def fake_batch_export(sysml_paths):
-        # Write the export next to source (as the real jar does), return the path.
         out = sysml_paths[0] + ".export.json"
-        (tmp_path / "src" / "m.sysml.export.json").write_text(json.dumps(fake_export))
+        (models / "m.sysml.export.json").write_text(json.dumps(fake_export))
         return [out]
 
     monkeypatch.setattr("windstorm.main.batch_export", fake_batch_export)
-    store = _load_local_store(str(tmp_path), dump_export_json=str(dumpdir))
+    store = _load_local_store(str(sub), dump_export_json=str(dumpdir))
     assert store.get("xyz-9") is not None
-    assert (dumpdir / "m.sysml.export.json").exists()
+    # Mirrored relative tree, not flattened: dumps/models/m.sysml.export.json
+    assert (dumpdir / "models" / "m.sysml.export.json").exists()
 
 
-def test_batch_export_stdin_has_trailing_newline(monkeypatch):
+def test_load_local_store_reuses_fresh_exports_and_refreshes_stale(tmp_path, monkeypatch):
+    """A .sysml whose export is older is re-exported; a fresh export is reused."""
+    sub = tmp_path / "src"
+    sub.mkdir()
+    (sub / "m.sysml").write_text("part M;")
+
+    export = [
+        {
+            "payload": {
+                "@id": "abc-123",
+                "@type": "PartUsage",
+                "declaredName": "myPart",
+                "ownedRelationship": [],
+                "ownedElement": [],
+            },
+            "identity": {"@id": "abc-123"},
+        }
+    ]
+    import json, time as _time
+    (sub / "m.sysml.export.json").write_text(json.dumps(export))
+    # Make the export OLDER than the sysml -> stale -> must re-export.
+    old = _time.time() - 1000
+    os.utime(sub / "m.sysml.export.json", (old, old))
+
+    calls = {"n": 0}
+    def fake_batch_export(sysml_paths):
+        calls["n"] += 1
+        # Re-write the export so it's fresh this run (newer than the snapshot).
+        (sub / "m.sysml.export.json").write_text(json.dumps(export))
+        now = _time.time()
+        os.utime(sub / "m.sysml.export.json", (now, now))
+        return [str(sub / "m.sysml.export.json")]
+
+    monkeypatch.setattr("windstorm.main.batch_export", fake_batch_export)
+    store = _load_local_store(str(tmp_path))
+    assert calls["n"] == 1, "stale export must trigger re-export"
+    assert store.get("abc-123") is not None
+
+
+def test_load_local_store_mixed_tree_loads_both(tmp_path, monkeypatch):
+    """A tree with both .export.json and bare .sysml loads the union, not one branch."""
+    sub = tmp_path / "src"
+    sub.mkdir()
+    # One .sysml with a fresh export (no re-export), one bare .sysml (re-export).
+    (sub / "a.sysml").write_text("part A;")
+    a_export = [
+        {
+            "payload": {
+                "@id": "aaa-1",
+                "@type": "PartUsage",
+                "declaredName": "aPart",
+                "ownedRelationship": [],
+                "ownedElement": [],
+            },
+            "identity": {"@id": "aaa-1"},
+        }
+    ]
+    import json
+    (sub / "a.sysml.export.json").write_text(json.dumps(a_export))
+    (sub / "b.sysml").write_text("part B;")
+
+    b_export = [
+        {
+            "payload": {
+                "@id": "bbb-2",
+                "@type": "PartUsage",
+                "declaredName": "bPart",
+                "ownedRelationship": [],
+                "ownedElement": [],
+            },
+            "identity": {"@id": "bbb-2"},
+        }
+    ]
+    calls = {"n": 0}
+    def fake_batch_export(sysml_paths):
+        calls["n"] += 1
+        # Only the bare b.sysml should be passed.
+        assert len(sysml_paths) == 1 and sysml_paths[0].endswith("b.sysml")
+        out = sysml_paths[0] + ".export.json"
+        (sub / "b.sysml.export.json").write_text(json.dumps(b_export))
+        return [out]
+
+    monkeypatch.setattr("windstorm.main.batch_export", fake_batch_export)
+    store = _load_local_store(str(tmp_path))
+    assert calls["n"] == 1
+    assert store.get("aaa-1") is not None, "a's fresh export must load"
+    assert store.get("bbb-2") is not None, "b's produced export must load"
+
+
+def test_dump_export_json_requires_sysml(tmp_path, monkeypatch):
+    """--dump-export-json without raw .sysml files raises a clear error."""
+    sub = tmp_path / "src"
+    sub.mkdir()
+    (sub / "e.export.json").write_text("[]")  # only an export, no .sysml
+
+    with pytest.raises(RuntimeError, match="requires --source"):
+        _load_local_store(str(tmp_path), dump_export_json=str(tmp_path / "dumps"))
+
+
+def test_dump_export_json_noop_when_all_fresh(tmp_path, monkeypatch):
+    """--dump-export-json with no exports generated (all fresh) is a clear no-op."""
+    sub = tmp_path / "src"
+    sub.mkdir()
+    (sub / "m.sysml").write_text("part M;")
+    export = [
+        {
+            "payload": {
+                "@id": "fff-7",
+                "@type": "PartUsage",
+                "declaredName": "fPart",
+                "ownedRelationship": [],
+                "ownedElement": [],
+            },
+            "identity": {"@id": "fff-7"},
+        }
+    ]
+    import json
+    (sub / "m.sysml.export.json").write_text(json.dumps(export))  # fresh (no utime)
+
+    calls = {"n": 0}
+    def fake_batch_export(sysml_paths):
+        calls["n"] += 1
+        raise AssertionError("should not export when export is fresh")
+
+    monkeypatch.setattr("windstorm.main.batch_export", fake_batch_export)
+    store = _load_local_store(str(tmp_path), dump_export_json=str(tmp_path / "dumps"))
+    assert calls["n"] == 0
+    assert store.get("fff-7") is not None
+    assert not (tmp_path / "dumps").exists(), "no dump dir when nothing produced"
+
+
+def test_batch_export_stdin_has_trailing_newline(tmp_path, monkeypatch):
     """Stdin for batch-export must end in a newline so the last path is read."""
-    import subprocess as sp
-
     captured = {}
 
-    def fake_run(cmd, input, capture_output, timeout):
-        captured["input"] = input
-        runner = sp.run  # real runner against a trivially-succeeding java
-
+    def fake_run(*args, **kwargs):
+        captured["input"] = kwargs.get("input")
         class FakeProc:
             returncode = 0
             stderr = b"batch-export complete\n"
             stdout = b"OK\n"
-
         return FakeProc()
 
     import windstorm.common.windtrader_jar as wj
 
     monkeypatch.setattr(wj, "_jar_path", lambda: "/opt/data/fake.jar")
-    monkeypatch.setattr(wj, "_java_available", lambda: True)
+    # Create real temp files so the freshness check is genuine (no global patch).
+    a = tmp_path / "a.sysml"
+    b = tmp_path / "b.sysml"
+    a.write_text("part A;")
+    b.write_text("part B;")
     monkeypatch.setattr(wj.subprocess, "run", fake_run)
-    monkeypatch.setattr(wj.os.path, "exists", lambda p: True)
+    # The jar writes <path>.export.json next to source; fake that after run:
+    # first call (pre-snapshot) sees no export, later calls (post) see it.
+    real_orig = wj._stat_sig
+    stat_calls = {"n": 0}
+    def fake_stat(p):
+        stat_calls["n"] += 1
+        if p.endswith(".export.json"):
+            # Pre-snapshot is call #1 per path; after that the file exists.
+            return None if stat_calls["n"] <= 2 else 123.0
+        return real_orig(p)
+    monkeypatch.setattr(wj, "_stat_sig", fake_stat)
 
-    produced = wj.batch_export(["/a.sysml", "/b.sysml"])
+    produced = wj.batch_export([str(a), str(b)])
     assert captured["input"].endswith(b"\n"), "stdin must end with newline"
-    assert captured["input"] == b"/a.sysml\n/b.sysml\n"
+    assert captured["input"] == (str(a) + "\n" + str(b) + "\n").encode()
+    assert len(produced) == 2
+
+
+def test_batch_export_rejects_newline_paths(tmp_path, monkeypatch):
+    """A .sysml path containing a newline is refused (stdin protocol safety)."""
+    import windstorm.common.windtrader_jar as wj
+    monkeypatch.setattr(wj, "_jar_path", lambda: "/opt/data/fake.jar")
+    # Don't even need a fake subprocess: the guard fires before invocation.
+    called = {"n": 0}
+    def fake_run(*a, **k):
+        called["n"] += 1
+        raise AssertionError("should not reach subprocess")
+    monkeypatch.setattr(wj.subprocess, "run", fake_run)
+
+    with pytest.raises(ValueError, match="newline"):
+        wj.batch_export(["/tmp/a\nb.sysml"])
+    assert called["n"] == 0
+
+
+def test_batch_export_java_too_old_preflight(tmp_path, monkeypatch):
+    """Preflight rejects java that is present but too old (< 21)."""
+    import windstorm.common.windtrader_jar as wj
+    monkeypatch.setattr(wj, "_java_available", lambda: True)
+    monkeypatch.setattr(wj, "_java_version", lambda: 8)
+    with pytest.raises(RuntimeError, match="Java 8") as ei:
+        wj._jar_path()
+    assert "requires Java 21" in str(ei.value)
+
+
+def test_batch_export_timeout_raises_clear_error(tmp_path, monkeypatch):
+    """A jar timeout raises a clear RuntimeError (not a raw TimeoutExpired)."""
+    import subprocess as sp
+    import windstorm.common.windtrader_jar as wj
+    monkeypatch.setattr(wj, "_jar_path", lambda: "/opt/data/fake.jar")
+
+    def fake_run(*a, **k):
+        raise sp.TimeoutExpired(cmd=["java"], timeout=600)
+    monkeypatch.setattr(wj.subprocess, "run", fake_run)
+
+    with pytest.raises(RuntimeError, match="timed out"):
+        wj.batch_export(["/tmp/a.sysml"])
+

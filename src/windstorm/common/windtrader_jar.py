@@ -2,20 +2,56 @@
 
 import logging
 import os
+import re
 import subprocess
+from shutil import which
 
 logger = logging.getLogger("windstorm")
 
 WINDTRADER_REPO_URL = "https://github.com/Westfall-io/windtrader-java"
+MIN_JAVA_MAJOR = 21
+_JAVA_VERSION_RE = re.compile(r'version "(\d+)(?:\.(\d+))?')
+
+
+def _java_version() -> int:
+    """Return the detected java major version, or 0 if it cannot be determined."""
+    try:
+        proc = subprocess.run(
+            ["java", "-version"], capture_output=True, timeout=10
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return 0
+    text = proc.stderr.decode(errors="replace") + proc.stdout.decode(errors="replace")
+    m = _JAVA_VERSION_RE.search(text)
+    if not m:
+        return 0
+    major = int(m.group(1))
+    if major == 1:  # Java 8 reports "1.8.0_..."
+        return int(m.group(2) or 0)
+    return major
+
+
+def _java_available() -> bool:
+    return which("java") is not None
 
 
 def _jar_path() -> str:
-    """Resolve the WINDTRADER_JAR path, raising a clear preflight error if unset."""
+    """Resolve the WINDTRADER_JAR path, raising a clear preflight error if unusable."""
     if not _java_available():
         raise RuntimeError(
-            "Offline .sysml export requires a Java 21 runtime on PATH.\n"
-            "  Install a JDK 21 (e.g. Temurin) or point PATH at one, then retry.\n"
-            "  JAR to run with: {} ".format(_jar_candidate())
+            "Offline .sysml export requires a Java {} runtime on PATH but `java` "
+            "was not found.\n"
+            "  Install a JDK {} (e.g. Temurin) or point PATH at one, then retry.".format(
+                MIN_JAVA_MAJOR, MIN_JAVA_MAJOR
+            )
+        )
+    detected = _java_version()
+    if detected and detected < MIN_JAVA_MAJOR:
+        raise RuntimeError(
+            "Offline .sysml export requires Java {} but found Java {} on PATH.\n"
+            "  Install a JDK {} (e.g. Temurin) or point PATH at one, then retry.".format(
+                MIN_JAVA_MAJOR, detected, MIN_JAVA_MAJOR
+            )
         )
     jar = os.environ.get("WINDTRADER_JAR", "")
     if not jar:
@@ -36,14 +72,22 @@ def _jar_path() -> str:
     return jar
 
 
-def _jar_candidate() -> str:
-    return os.environ.get("WINDTRADER_JAR", "windtrader-java.jar")
+def _stat_sig(path):
+    """Return the mtime of ``path`` or None if it does not exist."""
+    try:
+        return os.stat(path).st_mtime
+    except OSError:
+        return None
 
 
-def _java_available() -> bool:
-    from shutil import which
-
-    return which("java") is not None
+def _assert_no_newlines(sysml_paths):
+    """Reject paths containing newlines before they hit the newline-delimited stdin."""
+    for p in sysml_paths:
+        if "\n" in p or "\r" in p:
+            raise ValueError(
+                "Refusing to export a .sysml path containing a newline "
+                "character (would break the batch-export stdin protocol): {!r}".format(p)
+            )
 
 
 def batch_export(sysml_paths):
@@ -51,41 +95,77 @@ def batch_export(sysml_paths):
 
     The jar reads newline-separated .sysml paths on stdin and writes
     ``<path>.export.json`` next to each source file. Returns the list of
-    generated export paths.
+    export paths actually written (fresh for this run). A stale export left
+    over from an earlier run is NOT counted as produced.
     """
+    sysml_paths = list(sysml_paths)
+    _assert_no_newlines(sysml_paths)
     jar = _jar_path()
     cmd = ["java", "-jar", jar, "batch-export"]
     logger.info("Running: {}".format(" ".join(cmd)))
+    logger.debug("batch-export paths: %r", sysml_paths)
+
+    # Snapshot expected-output state BEFORE the run so stale files from a
+    # previous (possibly crashed) run can't be mistaken for fresh output.
+    before = {p: _stat_sig(p + ".export.json") for p in sysml_paths}
     # Trailing newline so every path (incl. the last) is a complete stdin line —
     # the batch-export reader relies on newline-delimited lines.
     stdin_data = "\n".join(sysml_paths) + "\n"
-    proc = subprocess.run(
-        cmd,
-        input=stdin_data.encode(),
-        capture_output=True,
-        timeout=600,
-    )
-    # The jar writes <path>.export.json next to each source on success.
+    try:
+        proc = subprocess.run(
+            cmd,
+            input=stdin_data.encode(),
+            capture_output=True,
+            timeout=600,
+        )
+    except subprocess.TimeoutExpired as e:
+        raise RuntimeError(
+            "windtrader batch-export timed out after 600s while exporting "
+            "{} file(s).\n"
+            "  JAR: {}\n"
+            "  Outputs written before timeout are treated as stale (see --debug).".format(
+                len(sysml_paths), jar
+            )
+        ) from e
+    except OSError as e:
+        raise RuntimeError(
+            "Failed to run the windtrader-java JAR: {}\n"
+            "  JAR: {}\n"
+            "  (java may have vanished between preflight and run)".format(e, jar)
+        ) from e
+
+    stderr = proc.stderr.decode(errors="replace")
+    logger.debug("batch-export stdout:\n%s", proc.stdout.decode(errors="replace"))
+    logger.debug("batch-export stderr:\n%s", stderr)
+
+    # The jar writes <path>.export.json next to each source on success. Only
+    # count as produced files that exist now AND changed (or appeared) this run.
     produced = []
     failed = []
     for path in sysml_paths:
         out = path + ".export.json"
-        if os.path.exists(out):
+        sig = _stat_sig(out)
+        if sig is not None and sig != before[path]:
             produced.append(out)
         else:
             failed.append(path)
 
-    stderr = proc.stderr.decode(errors="replace")
     if proc.returncode != 0 or failed:
-        # Surface every per-file failure line the jar reported.
-        fail_lines = [l for l in stderr.splitlines() if l.startswith("FAIL ")]
+        fail_lines = [line for line in stderr.splitlines() if line.startswith("FAIL ")]
         detail = "\n".join(fail_lines) if fail_lines else stderr.strip()[-500:]
+        if not failed:
+            message = (
+                "windtrader jar batch-export exited with status {} but all "
+                "expected outputs are present.".format(proc.returncode)
+            )
+        else:
+            message = "windtrader batch-export failed for {}/{} file(s).".format(
+                len(failed), len(sysml_paths)
+            )
         raise RuntimeError(
-            "windtrader batch-export failed for {}/{} file(s).\n"
+            "{}\n"
             "  JAR: {}\n"
             "{}\n"
-            "  Re-run with --debug for full output.".format(
-                len(failed), len(sysml_paths), jar, detail
-            )
+            "  Re-run with --debug for full output.".format(message, jar, detail)
         )
     return produced
