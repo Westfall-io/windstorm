@@ -156,9 +156,7 @@ def test_dump_export_json_copies_exports(tmp_path, monkeypatch):
     assert (dumpdir / "models" / "m.sysml.export.json").exists()
 
 
-def test_load_local_store_refreshes_stale_export(
-    tmp_path, monkeypatch
-):
+def test_load_local_store_refreshes_stale_export(tmp_path, monkeypatch):
     """A .sysml whose export is older is re-exported (the refresh half)."""
     sub = tmp_path / "src"
     sub.mkdir()
@@ -482,6 +480,7 @@ def test_batch_export_stale_export_not_counted_as_produced(tmp_path, monkeypatch
     export_path.write_text("[]")
 
     real_orig = wj._stat_sig
+
     def fake_stat(p):
         if p.endswith(".export.json"):
             return (10, 123)  # same before + after (unchanged)
@@ -505,10 +504,12 @@ def test_batch_export_failure_surfacing_lists_failed(tmp_path, monkeypatch):
             returncode = 1
             stderr = b"FAIL a.sysml (parse error)\nbatch-export complete\n"
             stdout = b""
+
         return FakeProc()
 
     monkeypatch.setattr(wj.subprocess, "run", fake_run)
     real_orig = wj._stat_sig
+
     def fake_stat(p):
         return real_orig(p)  # no export appears -> failed
 
@@ -536,11 +537,13 @@ def test_load_local_store_exports_only_skips_missing(tmp_path, monkeypatch, capl
         }
     ]
     import json
+
     (sub / "a.sysml.export.json").write_text(json.dumps(export))
     # b.sysml has NO export -> exports_only warns and skips it (no Java).
     (sub / "b.sysml").write_text("part B;")
 
     calls = {"n": 0}
+
     def fake_batch_export(sysml_paths):
         calls["n"] += 1
         raise AssertionError("exports_only must not invoke Java")
@@ -571,9 +574,11 @@ def test_load_local_store_skip_export_errors(tmp_path, monkeypatch, caplog):
         }
     ]
     import json
+
     (sub / "a.sysml.export.json").write_text(json.dumps(export))
     # Make the export STALE so need_export fires and batch_export runs.
     import time as _time
+
     old = _time.time() - 1000
     os.utime(sub / "a.sysml.export.json", (old, old))
 
@@ -609,7 +614,5 @@ def test_collect_source_files_logs_symlinked_dirs(tmp_path, monkeypatch, caplog)
     export_files, sysml_files = _collect_source_files(str(tmp_path))
     # The symlink itself is not followed, so nothing under tmp_path/models/ is
     # collected; real_models/m.sysml IS (walked via its real path).
-    assert not any(
-        os.path.join(str(tmp_path), "models") in s for s in sysml_files
-    )
+    assert not any(os.path.join(str(tmp_path), "models") in s for s in sysml_files)
     assert any("real_models" in s for s in sysml_files)
