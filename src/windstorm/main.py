@@ -20,11 +20,19 @@ def _collect_source_files(source_dir: str):
 
     Returns ``(export_files, sysml_files)`` as sorted lists of absolute paths,
     scanning subdirectories (nested Defias repos like
-    ``models/``, ``requirements/``, ``verification/``).
+    ``models/``, ``requirements/``, ``verification/``). Symlinked directories
+    are NOT followed (would risk cycles); they are logged at DEBUG so a
+    symlinked ``models/`` -> ``../shared-models/`` is never silently invisible.
     """
     export_files = []
     sysml_files = []
-    for dir_path, _dir_names, file_names in os.walk(source_dir):
+    for dir_path, dir_names, file_names in os.walk(source_dir):
+        for dir_name in dir_names:
+            full_dir = os.path.join(dir_path, dir_name)
+            if os.path.islink(full_dir):
+                logger.debug(
+                    "Skipping symlinked directory (not followed): %s", full_dir
+                )
         for name in file_names:
             full = os.path.join(dir_path, name)
             if name.endswith(".export.json"):
@@ -34,7 +42,20 @@ def _collect_source_files(source_dir: str):
     return sorted(export_files), sorted(sysml_files)
 
 
-def _load_local_store(source_dir: str, dump_export_json: str = ""):
+def _file_mtime(path):
+    """Return the mtime_ns of ``path`` or None if it does not exist."""
+    try:
+        return os.stat(path).st_mtime_ns
+    except OSError:
+        return None
+
+
+def _load_local_store(
+    source_dir: str,
+    dump_export_json: str = "",
+    skip_export_errors: bool = False,
+    exports_only: bool = False,
+):
     """Build an offline ElementStore from .sysml / .export.json in a directory.
 
     Recursively scans ``source_dir`` (including subdirectories). Sources and
@@ -45,10 +66,15 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
         (``batch-export`` writes ``<path>.export.json`` next to each source).
         A ``.sysml`` whose export is missing OR older than the source is
         re-exported; a fresh export is reused (so an edit to a model is not
-        silently ignored on the next run).
-      - ``dump_export_json``: after exporting, copy the generated
+        silently ignored on the next run). Pass ``exports_only=True`` to
+        trust the existing exports and never invoke Java.
+      - ``dump_export_json``: after exporting, copy ALL loaded
         ``*.export.json`` files into this directory (mirroring the relative
         tree) so they can be reused directly — the fast, Java-free path.
+
+    Raises ``RuntimeError`` for unusable toolchains and empty results; a
+    single unexportable ``.sysml`` aborts unless ``skip_export_errors=True``
+    (then it is skipped with a warning).
 
     Returns a populated ``ElementStore`` (API-shaped graph keyed by @id).
     """
@@ -58,9 +84,10 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
     if not os.path.isdir(source_dir):
         raise RuntimeError("--source is not a directory: {}".format(source_dir))
 
-    # A dump dir nested under --source would be re-ingested on the next run as
-    # an unchecked standalone export (B-2). Reject it outright.
     if dump_export_json:
+        # A dump dir nested under --source would be re-ingested on the next
+        # run as an unchecked standalone export (B-2). Reject it outright, and
+        # do it up front so bad flag combinations fail in milliseconds.
         dump_dir = os.path.abspath(dump_export_json)
         common = os.path.commonpath([source_dir, dump_dir])
         if common == source_dir:
@@ -73,42 +100,70 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
 
     export_files, sysml_files = _collect_source_files(source_dir)
 
+    if dump_export_json and not sysml_files:
+        raise RuntimeError(
+            "--dump-export-json requires --source pointing at raw .sysml files; "
+            "there were no .sysml files under {}".format(source_dir)
+        )
+
     # Which .sysml files need (re-)exporting: missing or stale export.
+    # exports_only=True trusts existing exports and never asks for Java.
     need_export = []
     for path in sysml_files:
         out = path + ".export.json"
         export_mtime = _file_mtime(out)
         sysml_mtime = _file_mtime(path)
-        if export_mtime is None or (
-            sysml_mtime is not None and export_mtime <= sysml_mtime
+        if (not exports_only) and (
+            export_mtime is None
+            or (sysml_mtime is not None and export_mtime <= sysml_mtime)
         ):
+            need_export.append(path)
+        elif export_mtime is None:
             need_export.append(path)
 
     produced = []
     if need_export:
-        logger.info(
-            "Exporting {} .sysml file(s) (missing/stale export).".format(
-                len(need_export)
+        if exports_only:
+            # exports_only + missing exports: nothing to trust -> skip with a
+            # warning rather than silently rendering a partial graph.
+            logger.warning(
+                "--exports-only set but %d .sysml file(s) have no export JSON; "
+                "they will be skipped: %s",
+                len(need_export),
+                ", ".join(os.path.relpath(p, source_dir) for p in need_export[:5]),
             )
-        )
-        # The jar writes <path>.export.json next to each source — make sure we
-        # tell the user WHY when a read-only tree blocks that write.
-        unwritable = [
-            os.path.dirname(p)
-            for p in need_export
-            if not os.access(os.path.dirname(p), os.W_OK)
-        ]
-        if unwritable:
-            raise RuntimeError(
-                "--source tree is not writable; windtrader writes "
-                "<path>.export.json next to each .sysml.\n"
-                "  First unwritable dir(s): {}\n"
-                "  Make the tree writable or pre-export (see --dump-export-json "
-                "for an output dir outside --source).".format(
-                    sorted(set(unwritable))[:3]
+        else:
+            logger.info(
+                "Exporting {} .sysml file(s) (missing/stale export).".format(
+                    len(need_export)
                 )
             )
-        produced = batch_export(need_export)
+            # The jar writes <path>.export.json next to each source — make
+            # sure we tell the user WHY when a read-only tree blocks that
+            # write.
+            unwritable = [
+                os.path.dirname(p)
+                for p in need_export
+                if not os.access(os.path.dirname(p), os.W_OK)
+            ]
+            if unwritable:
+                raise RuntimeError(
+                    "--source tree is not writable; windtrader writes "
+                    "<path>.export.json next to each .sysml.\n"
+                    "  First unwritable dir(s): {}\n"
+                    "  Make the tree writable or pre-export (see --dump-export-json "
+                    "for an output dir outside --source).".format(
+                        sorted(set(unwritable))[:3]
+                    )
+                )
+            try:
+                produced = batch_export(need_export)
+            except RuntimeError as e:
+                if skip_export_errors:
+                    logger.warning("Skipping export errors: %s", e)
+                    produced = []
+                else:
+                    raise
 
     # Adapt the union: standalone .export.json files + freshly produced exports.
     # Don't double-count a .sysml's export that was produced and also present as
@@ -116,19 +171,24 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
     adapt_paths = []
     seen = set()
     for path in export_files:
-        lo = path.lower()
-        if lo not in seen:
+        key = os.path.normcase(path)
+        if key not in seen:
             adapt_paths.append(path)
-            seen.add(lo)
+            seen.add(key)
     for out in produced:
-        lo = os.path.abspath(out).lower()
+        lo = os.path.normcase(os.path.abspath(out))
         if lo not in seen:
             adapt_paths.append(out)
             seen.add(lo)
 
     for path in adapt_paths:
-        with open(path, "r") as f:
-            adapted = adapt(json.load(f))
+        try:
+            with open(path, "r") as f:
+                adapted = adapt(json.load(f))
+        except (json.JSONDecodeError, OSError, ValueError) as e:
+            raise RuntimeError(
+                "Failed to load export JSON from {}: {}".format(path, e)
+            ) from e
         for eid, payload in adapted.items():
             existing = store.get(eid)
             if existing is not None and existing != payload:
@@ -142,7 +202,7 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
         store.extend(adapted)
     logger.info(
         "Loaded {} export JSON file(s) -> {} element(s).".format(
-            len(adapt_paths), len(store._elements)
+            len(adapt_paths), len(store)
         )
     )
 
@@ -169,22 +229,14 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
             "Dumped {} export JSON file(s) to {}.".format(dumped, dump_export_json)
         )
 
-    if len(store._elements) == 0:
+    if len(store) == 0:
         raise RuntimeError(
             "No elements could be exported from .sysml under {}. "
             "Check WINDTRADER_JAR and the .sysml files.".format(source_dir)
         )
 
-    logger.info("Local store built with {} element(s).".format(len(store._elements)))
+    logger.info("Local store built with {} element(s).".format(len(store)))
     return store
-
-
-def _file_mtime(path):
-    """Return the mtime_ns of ``path`` or None if it does not exist."""
-    try:
-        return os.stat(path).st_mtime_ns
-    except OSError:
-        return None
 
 
 def windstorm(
@@ -192,6 +244,8 @@ def windstorm(
     api: str = "http://sysml2-dev.intercax.com:9000",
     source: str = "",
     dump_export_json: str = "",
+    exports_only: bool = False,
+    skip_export_errors: bool = False,
     insecure: bool = False,
     project_id: str = "",
     element_type: str = "AnalysisCaseDefinition",
@@ -215,7 +269,14 @@ def windstorm(
         dump_export_json: When set with --source and raw .sysml files, copy the
             generated .export.json files into this directory (mirroring the
             relative tree) so they can be used directly on future runs
-            (Java-free, fully offline). Requires --source with .sysml files.
+            (Java-free, fully offline). Requires --source with .sysml files
+            and must point OUTSIDE --source.
+        exports_only: With --source, trust the existing .export.json files and
+            never invoke Java (even if some .sysml files are missing or have
+            stale exports; those are skipped with a warning).
+        skip_export_errors: With --source, if the Java export batch fails for
+            some .sysml files, skip them with a warning instead of aborting
+            the whole run.
     """
     setup_logging(debug)
 
@@ -223,7 +284,12 @@ def windstorm(
     if source:
         # Offline mode: build an ElementStore from local files and run the
         # exact same templating core against it (no network).
-        api_store = _load_local_store(source, dump_export_json)
+        api_store = _load_local_store(
+            source,
+            dump_export_json=dump_export_json,
+            exports_only=exports_only,
+            skip_export_errors=skip_export_errors,
+        )
         project, aj = verify_tool(api_store, "", element_type, element_name, insecure)
     else:
         project, aj = verify_tool(api, project_id, element_type, element_name, insecure)
@@ -233,8 +299,6 @@ def windstorm(
             logger.info("Nothing to do, closing...")
         else:
             logger.info("Copying all files from input to output, no changes...")
-            import shutil
-
             shutil.copytree(in_directory, out_directory, dirs_exist_ok=True)
     else:
         output = init_variables(api_store if source else api, project, aj)

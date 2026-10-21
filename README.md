@@ -149,6 +149,8 @@ Options:
   -p, --project_id UUID      Specific project UUID (default: latest project)
   --source DIR               Read from local .sysml / .export.json files instead of an API
   --dump-export-json DIR     Copy the full export bundle to DIR (must be outside --source)
+  --exports-only             Trust existing .export.json files; never invoke Java
+  --skip-export-errors       Skip .sysml files whose export fails, don't abort
   -t, --element_type TYPE    Analysis element type (default: AnalysisCaseDefinition)
   --in_directory DIR         Template input directory (default: .)
   --out_directory DIR        Rendered output directory (default: .)

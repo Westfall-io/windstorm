@@ -107,8 +107,10 @@ def batch_export(sysml_paths):
     sysml_paths = list(sysml_paths)
     _assert_no_newlines(sysml_paths)
     jar = _jar_path()
-    cmd = ["java", "-jar", jar, "batch-export"]
-    logger.info("Running: {}".format(" ".join(cmd)))
+    # -Dfile.encoding=UTF-8: paths are sent as UTF-8 on stdin; a Windows JVM
+    # defaulting to windows-1252 would mis-decode non-ASCII model paths.
+    cmd = ["java", "-Dfile.encoding=UTF-8", "-jar", jar, "batch-export"]
+    logger.info("Running: %s", " ".join(cmd))
     logger.debug("batch-export paths: %r", sysml_paths)
 
     # Snapshot expected-output state BEFORE the run so stale files from a
@@ -154,28 +156,31 @@ def batch_export(sysml_paths):
     logger.debug("batch-export stderr:\n%s", stderr)
 
     # The jar writes <path>.export.json next to each source on success. Only
-    # count as produced files that exist now AND changed (or appeared) this run.
+    # count as produced files that exist now AND changed (or appeared) this
+    # run. A file that exists but is UNCHANGED is not a failure — the jar
+    # considered it already current (NB-5); only a MISSING output after a
+    # successful run is a real failure.
     produced = []
-    failed = []
+    missing = []
     for path in sysml_paths:
         out = path + ".export.json"
         sig = _stat_sig(out)
         if sig is not None and sig != before[path]:
             produced.append(out)
-        else:
-            failed.append(path)
+        elif sig is None:
+            missing.append(path)
 
-    if proc.returncode != 0 or failed:
+    if proc.returncode != 0 or missing:
         fail_lines = [line for line in stderr.splitlines() if line.startswith("FAIL ")]
         detail = "\n".join(fail_lines) if fail_lines else stderr.strip()[-500:]
-        if not failed:
+        if not missing:
             message = (
                 "windtrader jar batch-export exited with status {} but all "
                 "expected outputs are present.".format(proc.returncode)
             )
         else:
             message = "windtrader batch-export failed for {}/{} file(s).".format(
-                len(failed), len(sysml_paths)
+                len(missing), len(sysml_paths)
             )
         raise RuntimeError(
             "{}\n"

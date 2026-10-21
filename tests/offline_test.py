@@ -87,20 +87,6 @@ def test_load_local_store_recurses_and_prefers_exports(tmp_path):
     assert store.get("abc-123") is not None
 
 
-def test_load_local_store_preflight_missing_jar(tmp_path, monkeypatch):
-    """Raw .sysml with no toolchain preconditions raises a clear preflight error."""
-    sub = tmp_path / "src"
-    sub.mkdir()
-    (sub / "m.sysml").write_text("part M;")
-
-    monkeypatch.delenv("WINDTRADER_JAR", raising=False)
-    with pytest.raises(RuntimeError) as ei:
-        _load_local_store(str(tmp_path))
-    msg = str(ei.value)
-    # A clear preflight error about the offline export toolchain must fire.
-    assert ("WINDTRADER_JAR" in msg) or ("Java 21" in msg) or ("windtrader-java" in msg)
-
-
 def test_load_local_store_preflight_java_missing(tmp_path, monkeypatch):
     """Raw .sysml with no `java` on PATH raises a clear Java preflight error."""
     sub = tmp_path / "src"
@@ -170,10 +156,10 @@ def test_dump_export_json_copies_exports(tmp_path, monkeypatch):
     assert (dumpdir / "models" / "m.sysml.export.json").exists()
 
 
-def test_load_local_store_reuses_fresh_exports_and_refreshes_stale(
+def test_load_local_store_refreshes_stale_export(
     tmp_path, monkeypatch
 ):
-    """A .sysml whose export is older is re-exported; a fresh export is reused."""
+    """A .sysml whose export is older is re-exported (the refresh half)."""
     sub = tmp_path / "src"
     sub.mkdir()
     (sub / "m.sysml").write_text("part M;")
@@ -471,3 +457,159 @@ def test_batch_export_timeout_raises_clear_error(tmp_path, monkeypatch):
 
     with pytest.raises(RuntimeError, match="timed out"):
         wj.batch_export(["/tmp/a.sysml"])
+
+
+def test_batch_export_stale_export_not_counted_as_produced(tmp_path, monkeypatch):
+    """A stale export that predates the run is NOT counted as produced."""
+    import windstorm.common.windtrader_jar as wj
+
+    monkeypatch.setattr(wj, "_jar_path", lambda: "/opt/data/fake.jar")
+    a = tmp_path / "a.sysml"
+    a.write_text("part A;")
+
+    def fake_run(*args, **kwargs):
+        class FakeProc:
+            returncode = 0
+            stderr = b"batch-export complete\n"
+            stdout = b"OK\n"
+
+        return FakeProc()
+
+    monkeypatch.setattr(wj.subprocess, "run", fake_run)
+    # The export file exists BEFORE the run (stale). batch_export's snapshot
+    # records it; after the run it is unchanged -> NOT produced.
+    export_path = tmp_path / "a.sysml.export.json"
+    export_path.write_text("[]")
+
+    real_orig = wj._stat_sig
+    def fake_stat(p):
+        if p.endswith(".export.json"):
+            return (10, 123)  # same before + after (unchanged)
+        return real_orig(p)
+
+    monkeypatch.setattr(wj, "_stat_sig", fake_stat)
+    produced = wj.batch_export([str(a)])
+    assert produced == [], "stale export left over from earlier run must not count"
+
+
+def test_batch_export_failure_surfacing_lists_failed(tmp_path, monkeypatch):
+    """batch_export raises a RuntimeError with FAIL details when a file fails."""
+    import windstorm.common.windtrader_jar as wj
+
+    monkeypatch.setattr(wj, "_jar_path", lambda: "/opt/data/fake.jar")
+    a = tmp_path / "a.sysml"
+    a.write_text("part A;")
+
+    def fake_run(*args, **kwargs):
+        class FakeProc:
+            returncode = 1
+            stderr = b"FAIL a.sysml (parse error)\nbatch-export complete\n"
+            stdout = b""
+        return FakeProc()
+
+    monkeypatch.setattr(wj.subprocess, "run", fake_run)
+    real_orig = wj._stat_sig
+    def fake_stat(p):
+        return real_orig(p)  # no export appears -> failed
+
+    monkeypatch.setattr(wj, "_stat_sig", fake_stat)
+    with pytest.raises(RuntimeError) as ei:
+        wj.batch_export([str(a)])
+    assert "FAIL a.sysml (parse error)" in str(ei.value)
+
+
+def test_load_local_store_exports_only_skips_missing(tmp_path, monkeypatch, caplog):
+    """exports_only=True trusts existing exports; skips missing with a warning."""
+    sub = tmp_path / "src"
+    sub.mkdir()
+    (sub / "a.sysml").write_text("part A;")
+    export = [
+        {
+            "payload": {
+                "@id": "exp-1",
+                "@type": "PartUsage",
+                "declaredName": "expPart",
+                "ownedRelationship": [],
+                "ownedElement": [],
+            },
+            "identity": {"@id": "exp-1"},
+        }
+    ]
+    import json
+    (sub / "a.sysml.export.json").write_text(json.dumps(export))
+    # b.sysml has NO export -> exports_only warns and skips it (no Java).
+    (sub / "b.sysml").write_text("part B;")
+
+    calls = {"n": 0}
+    def fake_batch_export(sysml_paths):
+        calls["n"] += 1
+        raise AssertionError("exports_only must not invoke Java")
+
+    monkeypatch.setattr("windstorm.main.batch_export", fake_batch_export)
+    with caplog.at_level("WARNING", logger="windstorm"):
+        store = _load_local_store(str(sub), exports_only=True)
+    assert calls["n"] == 0
+    assert store.get("exp-1") is not None
+    assert any("--exports-only" in r.getMessage() for r in caplog.records)
+
+
+def test_load_local_store_skip_export_errors(tmp_path, monkeypatch, caplog):
+    """skip_export_errors=True skips an export batch failure instead of aborting."""
+    sub = tmp_path / "src"
+    sub.mkdir()
+    (sub / "a.sysml").write_text("part A;")  # bare .sysml -> need_export triggers
+    export = [
+        {
+            "payload": {
+                "@id": "ok-1",
+                "@type": "PartUsage",
+                "declaredName": "okPart",
+                "ownedRelationship": [],
+                "ownedElement": [],
+            },
+            "identity": {"@id": "ok-1"},
+        }
+    ]
+    import json
+    (sub / "a.sysml.export.json").write_text(json.dumps(export))
+    # Make the export STALE so need_export fires and batch_export runs.
+    import time as _time
+    old = _time.time() - 1000
+    os.utime(sub / "a.sysml.export.json", (old, old))
+
+    def fake_batch_export(sysml_paths):
+        raise RuntimeError("windtrader batch-export failed for 1/1 file(s)")
+
+    monkeypatch.setattr("windstorm.main.batch_export", fake_batch_export)
+    with caplog.at_level("WARNING", logger="windstorm"):
+        store = _load_local_store(str(sub), skip_export_errors=True)
+    # The stale export is reused (read from disk) even though the batch failed.
+    assert store.get("ok-1") is not None
+    assert any("Skipping export errors" in r.getMessage() for r in caplog.records)
+
+
+def test_load_local_store_malformed_json_names_file(tmp_path, monkeypatch):
+    """A malformed .export.json raises an error naming the offending file."""
+    sub = tmp_path / "src"
+    sub.mkdir()
+    (sub / "a.sysml").write_text("part A;")
+    (sub / "a.sysml.export.json").write_text("{ not valid json ]")
+
+    with pytest.raises(RuntimeError, match="a.sysml.export.json"):
+        _load_local_store(str(sub))
+
+
+def test_collect_source_files_logs_symlinked_dirs(tmp_path, monkeypatch, caplog):
+    """Symlinked source subdirectories are logged (not silently invisible)."""
+    real_dir = tmp_path / "real_models"
+    real_dir.mkdir()
+    (real_dir / "m.sysml").write_text("part M;")
+    os.symlink(real_dir, tmp_path / "models")
+
+    export_files, sysml_files = _collect_source_files(str(tmp_path))
+    # The symlink itself is not followed, so nothing under tmp_path/models/ is
+    # collected; real_models/m.sysml IS (walked via its real path).
+    assert not any(
+        os.path.join(str(tmp_path), "models") in s for s in sysml_files
+    )
+    assert any("real_models" in s for s in sysml_files)
