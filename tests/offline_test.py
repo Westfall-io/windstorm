@@ -97,6 +97,7 @@ def test_load_local_store_preflight_java_missing(tmp_path, monkeypatch):
     (sub / "m.sysml").write_text("part M;")
 
     import windstorm.common.windtrader_jar as wj
+
     monkeypatch.setattr(wj, "_java_available", lambda: False)
     monkeypatch.delenv("WINDTRADER_JAR", raising=False)
     with pytest.raises(RuntimeError) as ei:
@@ -112,6 +113,7 @@ def test_load_local_store_preflight_jar_missing_with_java(tmp_path, monkeypatch)
     (sub / "m.sysml").write_text("part M;")
 
     import windstorm.common.windtrader_jar as wj
+
     monkeypatch.setattr(wj, "_java_available", lambda: True)
     monkeypatch.delenv("WINDTRADER_JAR", raising=False)
     with pytest.raises(RuntimeError) as ei:
@@ -174,6 +176,7 @@ def test_batch_export_stdin_has_trailing_newline(monkeypatch):
         return FakeProc()
 
     import windstorm.common.windtrader_jar as wj
+
     monkeypatch.setattr(wj, "_jar_path", lambda: "/opt/data/fake.jar")
     monkeypatch.setattr(wj, "_java_available", lambda: True)
     monkeypatch.setattr(wj.subprocess, "run", fake_run)
@@ -182,4 +185,3 @@ def test_batch_export_stdin_has_trailing_newline(monkeypatch):
     produced = wj.batch_export(["/a.sysml", "/b.sysml"])
     assert captured["input"].endswith(b"\n"), "stdin must end with newline"
     assert captured["input"] == b"/a.sysml\n/b.sysml\n"
-
