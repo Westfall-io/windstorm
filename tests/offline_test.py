@@ -272,11 +272,14 @@ def test_dump_export_json_requires_sysml(tmp_path, monkeypatch):
     (sub / "e.export.json").write_text("[]")  # only an export, no .sysml
 
     with pytest.raises(RuntimeError, match="requires --source"):
-        _load_local_store(str(tmp_path), dump_export_json=str(tmp_path / "dumps"))
+        _load_local_store(
+            str(tmp_path),
+            dump_export_json=str(tmp_path.parent / ("dumps-" + tmp_path.name)),
+        )
 
 
-def test_dump_export_json_noop_when_all_fresh(tmp_path, monkeypatch):
-    """--dump-export-json with no exports generated (all fresh) is a clear no-op."""
+def test_dump_export_json_warm_run_dumps_full_bundle(tmp_path, monkeypatch):
+    """A warm run (all exports fresh) still dumps the FULL bundle, not nothing."""
     sub = tmp_path / "src"
     sub.mkdir()
     (sub / "m.sysml").write_text("part M;")
@@ -294,7 +297,7 @@ def test_dump_export_json_noop_when_all_fresh(tmp_path, monkeypatch):
     ]
     import json
 
-    (sub / "m.sysml.export.json").write_text(json.dumps(export))  # fresh (no utime)
+    (sub / "m.sysml.export.json").write_text(json.dumps(export))  # fresh
 
     calls = {"n": 0}
 
@@ -302,11 +305,83 @@ def test_dump_export_json_noop_when_all_fresh(tmp_path, monkeypatch):
         calls["n"] += 1
         raise AssertionError("should not export when export is fresh")
 
+    dumpdir = tmp_path / "dumps"
     monkeypatch.setattr("windstorm.main.batch_export", fake_batch_export)
-    store = _load_local_store(str(tmp_path), dump_export_json=str(tmp_path / "dumps"))
+    store = _load_local_store(str(sub), dump_export_json=str(dumpdir))
     assert calls["n"] == 0
     assert store.get("fff-7") is not None
-    assert not (tmp_path / "dumps").exists(), "no dump dir when nothing produced"
+    # B-1 fix: even with nothing re-generated, the full loaded set is dumped.
+    assert (dumpdir / "m.sysml.export.json").exists(), "warm run must dump full bundle"
+
+
+def test_dump_export_json_rejects_nested_dump(tmp_path, monkeypatch):
+    """A dump dir nested under --source is rejected (would re-ingest next run)."""
+    sub = tmp_path / "src"
+    sub.mkdir()
+    (sub / "m.sysml").write_text("part M;")
+    nested = sub / "dumps"  # inside source
+
+    with pytest.raises(RuntimeError, match="OUTSIDE --source"):
+        _load_local_store(str(sub), dump_export_json=str(nested))
+
+
+def test_duplicate_id_different_payload_warns(tmp_path, monkeypatch, caplog):
+    """Two files supplying the same @id with different payloads warn loudly."""
+    sub = tmp_path / "src"
+    sub.mkdir()
+    export_a = [
+        {
+            "payload": {
+                "@id": "dup-1",
+                "@type": "PartUsage",
+                "declaredName": "dupPart",
+                "value": "A",
+                "ownedRelationship": [],
+                "ownedElement": [],
+            },
+            "identity": {"@id": "dup-1"},
+        }
+    ]
+    export_b = [
+        {
+            "payload": {
+                "@id": "dup-1",
+                "@type": "PartUsage",
+                "declaredName": "dupPart",
+                "value": "B",
+                "ownedRelationship": [],
+                "ownedElement": [],
+            },
+            "identity": {"@id": "dup-1"},
+        }
+    ]
+    import json
+
+    (sub / "x.sysml").write_text("part X;")  # avoid the requires-.sysml error
+    # Give x.sysml a matching FRESH export so no java export is triggered.
+    (sub / "x.sysml.export.json").write_text(json.dumps([]))
+    (sub / "a.sysml.export.json").write_text(json.dumps(export_a))
+    (sub / "b.sysml.export.json").write_text(json.dumps(export_b))
+
+    with caplog.at_level("WARNING", logger="windstorm"):
+        store = _load_local_store(str(sub))
+    assert store.get("dup-1") is not None
+    warning = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert any("Duplicate @id" in r.getMessage() for r in warning)
+
+
+def test_read_only_source_preflight(tmp_path, monkeypatch):
+    """A read-only source tree with stale exports names permissions, not export failure."""
+    sub = tmp_path / "src"
+    sub.mkdir()
+    (sub / "m.sysml").write_text("part M;")
+    os.chmod(sub, 0o500)  # read-only dir
+
+    try:
+        with pytest.raises(RuntimeError, match="not writable"):
+            _load_local_store(str(sub))
+    finally:
+        os.chmod(sub, 0o700)  # restore so tmp_path cleanup works
 
 
 def test_batch_export_stdin_has_trailing_newline(tmp_path, monkeypatch):

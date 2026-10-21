@@ -71,9 +71,15 @@ def _jar_path() -> str:
 
 
 def _stat_sig(path):
-    """Return the mtime of ``path`` or None if it does not exist."""
+    """Return a signature of ``path`` or None if it does not exist.
+
+    Uses (size, mtime_ns) so that a rewrite landing in the same filesystem
+    timestamp tick is still detected, and so a file the jar intentionally
+    skips (already current) is not misreported as a failure.
+    """
     try:
-        return os.stat(path).st_mtime
+        st = os.stat(path)
+        return (st.st_size, st.st_mtime_ns)
     except OSError:
         return None
 
@@ -119,6 +125,15 @@ def batch_export(sysml_paths):
             timeout=600,
         )
     except subprocess.TimeoutExpired as e:
+        # subprocess.TimeoutExpired carries any output captured before the
+        # timeout — log it, because "see --debug" would otherwise point at
+        # nothing on this path (the post-run logging below is unreachable).
+        partial_out = (e.stdout or b"").decode(errors="replace")
+        partial_err = (e.stderr or b"").decode(errors="replace")
+        if partial_out:
+            logger.debug("batch-export partial stdout before timeout:\n%s", partial_out)
+        if partial_err:
+            logger.debug("batch-export partial stderr before timeout:\n%s", partial_err)
         raise RuntimeError(
             "windtrader batch-export timed out after 600s while exporting "
             "{} file(s).\n"

@@ -55,6 +55,24 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
     store = ElementStore()
 
     source_dir = os.path.abspath(source_dir)
+    if not os.path.isdir(source_dir):
+        raise RuntimeError(
+            "--source is not a directory: {}".format(source_dir)
+        )
+
+    # A dump dir nested under --source would be re-ingested on the next run as
+    # an unchecked standalone export (B-2). Reject it outright.
+    if dump_export_json:
+        dump_dir = os.path.abspath(dump_export_json)
+        common = os.path.commonpath([source_dir, dump_dir])
+        if common == source_dir:
+            raise RuntimeError(
+                "--dump-export-json must point OUTSIDE --source "
+                "(would be re-ingested on the next run): {} is under {}".format(
+                    dump_dir, source_dir
+                )
+            )
+
     export_files, sysml_files = _collect_source_files(source_dir)
 
     # Which .sysml files need (re-)exporting: missing or stale export.
@@ -64,7 +82,7 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
         export_mtime = _file_mtime(out)
         sysml_mtime = _file_mtime(path)
         if export_mtime is None or (
-            sysml_mtime is not None and export_mtime < sysml_mtime
+            sysml_mtime is not None and export_mtime <= sysml_mtime
         ):
             need_export.append(path)
 
@@ -75,6 +93,22 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
                 len(need_export)
             )
         )
+        # The jar writes <path>.export.json next to each source — make sure we
+        # tell the user WHY when a read-only tree blocks that write.
+        unwritable = [
+            os.path.dirname(p) for p in need_export
+            if not os.access(os.path.dirname(p), os.W_OK)
+        ]
+        if unwritable:
+            raise RuntimeError(
+                "--source tree is not writable; windtrader writes "
+                "<path>.export.json next to each .sysml.\n"
+                "  First unwritable dir(s): {}\n"
+                "  Make the tree writable or pre-export (see --dump-export-json "
+                "for an output dir outside --source).".format(
+                    sorted(set(unwritable))[:3]
+                )
+            )
         produced = batch_export(need_export)
 
     # Adapt the union: standalone .export.json files + freshly produced exports.
@@ -96,6 +130,16 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
     for path in adapt_paths:
         with open(path, "r") as f:
             adapted = adapt(json.load(f))
+        for eid, payload in adapted.items():
+            existing = store.get(eid)
+            if existing is not None and existing != payload:
+                logger.warning(
+                    "Duplicate @id %s supplied by %s differs from an "
+                    "already-loaded element; last writer wins (sorted file "
+                    "order). This can silently render stale data.",
+                    eid,
+                    path,
+                )
         store.extend(adapted)
     logger.info(
         "Loaded {} export JSON file(s) -> {} element(s).".format(
@@ -103,31 +147,28 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
         )
     )
 
-    # Dump the generated exports for this run (only after a raw .sysml export),
-    # mirroring the relative tree so nested subdir collisions are avoided.
+    # Dump exports for this run (mirroring the relative tree so nested subdir
+    # collisions are avoided). Dump EVERY export we loaded, not just the ones
+    # re-generated this run — otherwise a warm run yields a partial bundle
+    # that renders a silently incomplete graph on the next --source dumps/.
     if dump_export_json:
         if not sysml_files:
             raise RuntimeError(
                 "--dump-export-json requires --source pointing at raw .sysml files; "
                 "there were no .sysml files under {}".format(source_dir)
             )
-        if not produced:
-            logger.info(
-                "No exports were generated this run (all .sysml exports fresh); "
-                "nothing to dump to {}.".format(dump_export_json)
-            )
-        else:
-            os.makedirs(dump_export_json, exist_ok=True)
-            dumped = 0
-            for out in produced:
-                rel = os.path.relpath(out, source_dir)
-                dst = os.path.join(dump_export_json, rel)
-                os.makedirs(os.path.dirname(dst), exist_ok=True)
-                shutil.copy2(out, dst)
-                dumped += 1
-            logger.info(
-                "Dumped {} export JSON file(s) to {}.".format(dumped, dump_export_json)
-            )
+        os.makedirs(dump_export_json, exist_ok=True)
+        dumped = 0
+        dumped_from = sorted(set(adapt_paths))
+        for out in dumped_from:
+            rel = os.path.relpath(out, source_dir)
+            dst = os.path.join(dump_export_json, rel)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy2(out, dst)
+            dumped += 1
+        logger.info(
+            "Dumped {} export JSON file(s) to {}.".format(dumped, dump_export_json)
+        )
 
     if len(store._elements) == 0:
         raise RuntimeError(
@@ -140,9 +181,9 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
 
 
 def _file_mtime(path):
-    """Return the mtime of ``path`` or None if it does not exist."""
+    """Return the mtime_ns of ``path`` or None if it does not exist."""
     try:
-        return os.stat(path).st_mtime
+        return os.stat(path).st_mtime_ns
     except OSError:
         return None
 
