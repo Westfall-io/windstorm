@@ -100,7 +100,8 @@ windstorm uses in live mode), so templating behaves identically.
 > **Note:** `--source` is deterministic *given a stable set of exports*.
 > The jar writes `<path>.export.json` **next to each source** (the tree must
 > be writable), and re-export happens only when an export is missing or
-> older than its `.sysml`. `--dump-export-json DIR` (must be **outside**
+> **older than or equal to** its `.sysml` (equal catches same-tick writes).
+> `--dump-export-json DIR` (must be **outside**
 > `--source`) copies the full export bundle to a directory you can reuse as
 > a Java-free `--source` on later runs.
 

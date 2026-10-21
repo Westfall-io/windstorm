@@ -84,13 +84,22 @@ def _load_local_store(
     if not os.path.isdir(source_dir):
         raise RuntimeError("--source is not a directory: {}".format(source_dir))
 
+    dump_dir = os.path.abspath(dump_export_json) if dump_export_json else ""
     if dump_export_json:
         # A dump dir nested under --source would be re-ingested on the next
         # run as an unchecked standalone export (B-2). Reject it outright, and
-        # do it up front so bad flag combinations fail in milliseconds.
-        dump_dir = os.path.abspath(dump_export_json)
-        common = os.path.commonpath([source_dir, dump_dir])
-        if common == source_dir:
+        # do it up front so bad flag combinations fail in milliseconds. Use
+        # realpath so a symlinked dump dir pointing inside --source can't
+        # bypass the guard (nit, round 3).
+        try:
+            common = os.path.commonpath(
+                [os.path.realpath(source_dir), os.path.realpath(dump_dir)]
+            )
+        except ValueError:
+            # Cross-drive paths (e.g. C:\models vs D:\dumps on Windows) are
+            # definitionally outside --source; allow.
+            common = ""
+        if common == os.path.realpath(source_dir):
             raise RuntimeError(
                 "--dump-export-json must point OUTSIDE --source "
                 "(would be re-ingested on the next run): {} is under {}".format(
@@ -160,8 +169,15 @@ def _load_local_store(
                 produced = batch_export(need_export)
             except RuntimeError as e:
                 if skip_export_errors:
-                    logger.warning("Skipping export errors: %s", e)
-                    produced = []
+                    # Keep the outputs that DID succeed; only the failed
+                    # .sysml files are dropped (NB-1 round-3).
+                    partial = getattr(e, "produced", None) or []
+                    logger.warning(
+                        "Skipping export errors: %s (%d output(s) kept)",
+                        e,
+                        len(partial),
+                    )
+                    produced = partial
                 else:
                     raise
 
@@ -185,10 +201,12 @@ def _load_local_store(
         try:
             with open(path, "r") as f:
                 adapted = adapt(json.load(f))
-        except (json.JSONDecodeError, OSError, ValueError) as e:
+        except (json.JSONDecodeError, OSError, ValueError, AttributeError, TypeError, KeyError) as e:
             raise RuntimeError(
                 "Failed to load export JSON from {}: {}".format(path, e)
             ) from e
+        if len(adapted) == 0:
+            logger.warning("Export JSON contributed 0 elements: %s", path)
         for eid, payload in adapted.items():
             existing = store.get(eid)
             if existing is not None and existing != payload:
@@ -210,26 +228,31 @@ def _load_local_store(
     # collisions are avoided). Dump EVERY export we loaded, not just the ones
     # re-generated this run — otherwise a warm run yields a partial bundle
     # that renders a silently incomplete graph on the next --source dumps/.
+    # (The requires-.sysml check ran up front; dump_dir is the abspath.)
     if dump_export_json:
-        if not sysml_files:
-            raise RuntimeError(
-                "--dump-export-json requires --source pointing at raw .sysml files; "
-                "there were no .sysml files under {}".format(source_dir)
-            )
-        os.makedirs(dump_export_json, exist_ok=True)
+        os.makedirs(dump_dir, exist_ok=True)
         dumped = 0
         dumped_from = sorted(set(adapt_paths))
         for out in dumped_from:
             rel = os.path.relpath(out, source_dir)
-            dst = os.path.join(dump_export_json, rel)
+            dst = os.path.join(dump_dir, rel)
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copy2(out, dst)
             dumped += 1
         logger.info(
-            "Dumped {} export JSON file(s) to {}.".format(dumped, dump_export_json)
+            "Dumped {} export JSON file(s) to {}.".format(dumped, dump_dir)
         )
 
     if len(store) == 0:
+        if not sysml_files and not export_files:
+            raise RuntimeError(
+                "No .export.json or .sysml files found under {}".format(source_dir)
+            )
+        if exports_only:
+            raise RuntimeError(
+                "--exports-only set but no .export.json files with elements "
+                "were found under {}.".format(source_dir)
+            )
         raise RuntimeError(
             "No elements could be exported from .sysml under {}. "
             "Check WINDTRADER_JAR and the .sysml files.".format(source_dir)

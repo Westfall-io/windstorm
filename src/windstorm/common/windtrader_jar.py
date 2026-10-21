@@ -182,10 +182,15 @@ def batch_export(sysml_paths):
             message = "windtrader batch-export failed for {}/{} file(s).".format(
                 len(missing), len(sysml_paths)
             )
-        raise RuntimeError(
+        err = RuntimeError(
             "{}\n"
             "  JAR: {}\n"
             "{}\n"
             "  Re-run with --debug for full output.".format(message, jar, detail)
         )
+        # Attach the outputs that DID succeed so a caller handling partial
+        # failure (--skip-export-errors) can still load them instead of
+        # discarding the successful part of the batch.
+        err.produced = produced  # type: ignore[attr-defined]
+        raise err
     return produced

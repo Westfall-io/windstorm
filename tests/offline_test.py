@@ -112,6 +112,7 @@ def test_load_local_store_preflight_jar_missing_with_java(tmp_path, monkeypatch)
     import windstorm.common.windtrader_jar as wj
 
     monkeypatch.setattr(wj, "_java_available", lambda: True)
+    monkeypatch.setattr(wj, "_java_version", lambda: 21)  # pin so host Java is irrelevant
     monkeypatch.delenv("WINDTRADER_JAR", raising=False)
     with pytest.raises(RuntimeError) as ei:
         _load_local_store(str(tmp_path))
@@ -354,6 +355,7 @@ def test_duplicate_id_different_payload_warns(tmp_path, monkeypatch, caplog):
     assert any("Duplicate @id" in r.getMessage() for r in warning)
 
 
+@pytest.mark.skipif(os.geteuid() == 0, reason="root ignores W_OK/chmod")
 def test_read_only_source_preflight(tmp_path, monkeypatch):
     """A read-only source tree with stale exports names permissions, not export failure."""
     sub = tmp_path / "src"
@@ -561,6 +563,7 @@ def test_load_local_store_skip_export_errors(tmp_path, monkeypatch, caplog):
     sub = tmp_path / "src"
     sub.mkdir()
     (sub / "a.sysml").write_text("part A;")  # bare .sysml -> need_export triggers
+    (sub / "b.sysml").write_text("part B;")  # second .sysml for the partial batch
     export = [
         {
             "payload": {
@@ -583,12 +586,33 @@ def test_load_local_store_skip_export_errors(tmp_path, monkeypatch, caplog):
     os.utime(sub / "a.sysml.export.json", (old, old))
 
     def fake_batch_export(sysml_paths):
-        raise RuntimeError("windtrader batch-export failed for 1/1 file(s)")
+        # Simulate a PARTIAL failure: a.sysml fails, but the jar successfully
+        # wrote b.sysml.export.json (returned in e.produced, NB-1 round-3).
+        b_out = sub / "b.sysml.export.json"
+        b_export = [
+            {
+                "payload": {
+                    "@id": "b-ok",
+                    "@type": "PartUsage",
+                    "declaredName": "bPart",
+                    "ownedRelationship": [],
+                    "ownedElement": [],
+                },
+                "identity": {"@id": "b-ok"},
+            }
+        ]
+        b_out.write_text(json.dumps(b_export))
+        err = RuntimeError("windtrader batch-export failed for 1/2 file(s)")
+        produced = [str(b_out)]
+        err.produced = produced
+        raise err
 
     monkeypatch.setattr("windstorm.main.batch_export", fake_batch_export)
     with caplog.at_level("WARNING", logger="windstorm"):
         store = _load_local_store(str(sub), skip_export_errors=True)
-    # The stale export is reused (read from disk) even though the batch failed.
+    # The batch's SUCCESSFUL output (b) is kept, not discarded (NB-1 fix).
+    assert store.get("b-ok") is not None
+    # The stale a.sysml.export.json is loaded via export_files (jar skipped it).
     assert store.get("ok-1") is not None
     assert any("Skipping export errors" in r.getMessage() for r in caplog.records)
 
