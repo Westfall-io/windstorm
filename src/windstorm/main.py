@@ -56,9 +56,7 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
 
     source_dir = os.path.abspath(source_dir)
     if not os.path.isdir(source_dir):
-        raise RuntimeError(
-            "--source is not a directory: {}".format(source_dir)
-        )
+        raise RuntimeError("--source is not a directory: {}".format(source_dir))
 
     # A dump dir nested under --source would be re-ingested on the next run as
     # an unchecked standalone export (B-2). Reject it outright.
@@ -96,7 +94,8 @@ def _load_local_store(source_dir: str, dump_export_json: str = ""):
         # The jar writes <path>.export.json next to each source — make sure we
         # tell the user WHY when a read-only tree blocks that write.
         unwritable = [
-            os.path.dirname(p) for p in need_export
+            os.path.dirname(p)
+            for p in need_export
             if not os.access(os.path.dirname(p), os.W_OK)
         ]
         if unwritable:
