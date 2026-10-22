@@ -45,6 +45,31 @@ _IMPORT_TYPES = {"NamespaceImport"}
 _TYPING_TYPES = {"FeatureTyping", "Subclassification"}
 _VALUE_TYPES = {"FeatureValue"}
 
+# "Windstorm-visible cases": element @types that own ToolExecution metadata (the
+# marker saying "this is a windstorm tool entry point"). Scope is intentionally
+# Analysis + Verification only (issue #95) — no general broadening.
+_CASE_TYPES = frozenset(
+    {
+        "AnalysisCaseDefinition",
+        "AnalysisCaseUsage",
+        "VerificationCaseDefinition",
+        "VerificationCaseUsage",
+        "ActionUsage",
+        "ActionDefinition",
+    }
+)
+# Element @types that get an adapter-reconstructed qualifiedName.
+_QUALIFIED_NAME_TYPES = frozenset(
+    {
+        "Namespace",
+        "Package",
+        "AnalysisCaseDefinition",
+        "AnalysisCaseUsage",
+        "VerificationCaseDefinition",
+        "VerificationCaseUsage",
+    }
+)
+
 
 def _resolve(ref: Any, index: dict[str, dict]) -> dict | None:
     """Resolve a reference (``{"@id": ...}`` or list of such) via the @id index."""
@@ -262,14 +287,7 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
         # verification case defs/usages. Metadata on any OTHER owned element
         # (e.g. an input feature) is a ToolVariable (carries the variable name/
         # value). Scope is intentionally Analysis + Verification only (issue #95).
-        is_case = payload.get("@type") in (
-            "AnalysisCaseDefinition",
-            "AnalysisCaseUsage",
-            "VerificationCaseDefinition",
-            "VerificationCaseUsage",
-            "ActionUsage",
-            "ActionDefinition",
-        )
+        is_case = payload.get("@type") in _CASE_TYPES
         for child in element_children:
             cp = child.get("payload", {})
             if cp.get("@type") == "MetadataUsage":
@@ -282,14 +300,16 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
                 #     (the windstorm-tool marker; its child reference carries toolName "Windstorm")
                 #   - owned by an input feature -> AnalysisTooling::ToolVariable
                 #     (its child reference carries the variable's name / value, e.g. name -> "deltaT")
-                if is_case:
-                    meta_api.setdefault(
-                        "metadataDefinition", {"@id": "AnalysisTooling::ToolExecution"}
-                    )
-                else:
-                    meta_api.setdefault(
-                        "metadataDefinition", {"@id": "AnalysisTooling::ToolVariable"}
-                    )
+                #
+                # Real windtrader-java exports always resolve metadataDefinition to
+                # an actual @id that IS in the store. setdefault is a defensive
+                # fallback ONLY for exports that omit it; leave it as the
+                # qualified-name id so the marker check (api.py) still matches —
+                # but do not synthesize an id with no store payload.
+                if is_case and "metadataDefinition" not in meta_api:
+                    meta_api["metadataDefinition"] = {
+                        "@id": "AnalysisTooling::ToolExecution"
+                    }
 
                 # The MetadataUsage's child reference(s): the export carries the value chain
                 # (ReferenceUsage -> FeatureValue -> literal) but not the API shape windstorm
@@ -390,18 +410,13 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
     # Fourth pass: qualifiedName for namespaces/packages (walk owner chain + imports).
     for eid, payload in api.items():
         t = payload.get("@type", "")
-        if t in (
-            "Namespace",
-            "Package",
-            "AnalysisCaseDefinition",
-            "AnalysisCaseUsage",
-            "VerificationCaseDefinition",
-            "VerificationCaseUsage",
-        ):
+        if t in _QUALIFIED_NAME_TYPES:
             elem = index.get(eid, {})
             qn = _namespace_qualified_name(elem, index)
-            if qn:
-                payload["qualifiedName"] = qn
+            # setdefault: the export usually ships the qualifiedName already; only
+            # reconstruct when it is missing (never overwrite the export's value —
+            # reconstruction from declaredName alone can drift on short/escaped names).
+            payload.setdefault("qualifiedName", qn) if qn else None
             # Also fold in imported members as ownedElement names for lookups.
             imported = _collect_imported_members(elem, index)
             for name, child in imported.items():

@@ -804,10 +804,13 @@ def test_verification_case_metadata_tagged_tool_execution():
     raw = _json.load(open(export))
     adapted = adapt(raw)
 
-    # find the verification case
+    # find the verification case, matching BOTH @type and name (not just first-by-name)
     case_eid = None
     for eid, p in adapted.items():
-        if p.get("declaredName") == "verify_case1":
+        if (
+            p.get("@type") == "VerificationCaseDefinition"
+            and p.get("declaredName") == "verify_case1"
+        ):
             case_eid = eid
             break
     assert case_eid is not None
@@ -827,3 +830,40 @@ def test_verification_case_metadata_tagged_tool_execution():
         assert (
             md_payload.get("qualifiedName") == "AnalysisTooling::ToolExecution"
         ), f"verification case metadata should be ToolExecution, got {md_payload.get('qualifiedName')}"
+
+
+def test_verification_case_renders_offline(tmp_path):
+    """#95 regression: a VerificationCaseDefinition selected via --element_type
+    actually renders through the walk — selection + toolName naming + the
+    tool-variable walk + template substitution, all in one offline run.
+
+    Without the is_case broadening (the 'toolName' name assignment for a
+    verification case's ToolExecution child), this test fails: aj comes back
+    empty and nothing is substituted."""
+    (tmp_path / "input").mkdir()
+    (tmp_path / "output").mkdir()
+    (tmp_path / "input" / "template.txt").write_text(
+        'deltaT={{ windstorm("deltaT") }}; deltaE={{ windstorm("deltaE") }}'
+    )
+
+    # Use ONLY the already-exported JSON (Java-free, fully-offline).
+    src = tmp_path / "src"
+    src.mkdir()
+    mocks = os.path.join(os.path.dirname(__file__), "mocks", "verification")
+    export = os.path.join(mocks, "verify_defs.sysml.export.json")
+    shutil.copy2(export, src / "verify_defs.sysml.export.json")
+
+    with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
+        rsps.add_passthru("http://placeholder.invalid")  # ensure nothing matches
+
+        windstorm(
+            "verify_case1",
+            source=str(src),
+            element_type="VerificationCaseDefinition",
+            in_directory=str(tmp_path / "input"),
+            out_directory=str(tmp_path / "output"),
+        )
+
+    out = tmp_path / "output" / "template.txt"
+    assert out.exists()
+    assert out.read_text().strip() == "deltaT=5.0; deltaE=4.0"
