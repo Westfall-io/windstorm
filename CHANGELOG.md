@@ -3,6 +3,32 @@
 
 
 
+## v0.6.1 (2026-10-22)
+### Features
+### Fixes
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
+#### :zap:
+
+* :zap: offline --source: recursive dirs, preflight + failure surfacing, --dump-export-json (#94)
+
+:zap: offline --source: recursive dirs, preflight + failure surfacing, --dump-export-json (#94)
+
+Closes #92. 10-round independent review cycle (final: APPROVE, 0 blocking, 0 non-blocking).
+
+- Recursive --source dirs (nested Defias repos: models/ requirements/ verification/)
+- Complementary .sysml + .export.json union with mtime-based freshness (stale = not newer)
+- Preflight: java version + WINDTRADER_JAR resolution, writable source tree, no-network-required
+- --dump-export-json DIR (outside --source): dump full loaded set, mirrored relative tree
+- --exports-only (trust existing exports, no Java) and --skip-export-errors (keep batch partial successes)
+- Duplicate-@id warning only on differing payloads; malformed/non-UTF-8 export errors name the file
+- Real-jar E2E verified: Temurin 21 + windtrader-java-0.1.0.jar, 722-element store, action walk, exit 0
+- Fix PEP 621 entrypoint (windstorm.windstorm:main -&gt; windstorm.main:main) + regression-guard test
+- 60/60 tests, fresh-venv drafted ([`53affb0`](https://github.com/Westfall-io/windstorm/commit/53affb0e46aabc4fc2906f12461a3713704649f2))
+
 ## v0.6.0 (2026-10-19)
 ### Features
 #### :sparkles:
