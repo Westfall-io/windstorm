@@ -122,4 +122,4 @@ classifiers = [
 ]
 
 [project.scripts]
-windstorm = "windstorm.windstorm:main"
+windstorm = "windstorm.main:main"

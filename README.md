@@ -80,21 +80,30 @@ no API address and no network required:
 windstorm --source ./models element_name
 ```
 
-`--source DIR` accepts either:
+`--source DIR` accepts a directory that may contain **both**:
 
 - **Raw `.sysml` files** — windstorm runs the
   [windtrader-java](https://github.com/Westfall-io/windtrader-java)
-  `batch-export` CLI to produce the export JSON, then loads it. Set the
-  jar location with the `WINDTRADER_JAR` environment variable.
+  `batch-export` CLI (Java 21+) to produce the export JSON next to each
+  source, then loads it. Set the jar location with the `WINDTRADER_JAR`
+  environment variable.
 - **Already-exported JSON** (`*.export.json`) — loaded directly, no Java
   needed. This is the fastest path and is fully offline.
 
-Both paths build an in-memory element store (the same API-shaped graph
+The two are **complementary**: a `.sysml` whose export is missing or older
+than the source is (re-)exported; an up-to-date export is reused. Mixing
+both in one tree is fine.
+
+All files build an in-memory element store (the same API-shaped graph
 windstorm uses in live mode), so templating behaves identically.
 
-> **Note:** the `--source` mode is deterministic — the same files always
-> produce the same rendered output, which makes it ideal for CI, tests,
-> and reproducible builds.
+> **Note:** `--source` is deterministic *given a stable set of exports*.
+> The jar writes `<path>.export.json` **next to each source** (the tree must
+> be writable), and re-export happens only when an export is missing or
+> **older than or equal to** its `.sysml` (equal catches same-tick writes).
+> `--dump-export-json DIR` (must be **outside**
+> `--source`) copies the full export bundle to a directory you can reuse as
+> a Java-free `--source` on later runs.
 
 ---
 
@@ -140,6 +149,9 @@ Options:
   -a, --api URL              SysMLv2 API address (default: http://sysml2-dev.intercax.com:9000)
   -p, --project_id UUID      Specific project UUID (default: latest project)
   --source DIR               Read from local .sysml / .export.json files instead of an API
+  --dump-export-json DIR     Copy the full export bundle to DIR (must be outside --source)
+  --exports-only             Trust existing .export.json files; never invoke Java
+  --skip-export-errors       Skip .sysml files whose export fails, don't abort
   -t, --element_type TYPE    Analysis element type (default: AnalysisCaseDefinition)
   --in_directory DIR         Template input directory (default: .)
   --out_directory DIR        Rendered output directory (default: .)

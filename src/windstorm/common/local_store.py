@@ -55,6 +55,9 @@ class ElementStore:
     def __contains__(self, key: str) -> bool:
         return key in self._meta or key in self._elements
 
+    def __len__(self) -> int:
+        return len(self._elements)
+
     def add(self, eid: str, payload: dict) -> None:
         self._elements[eid] = payload
 
