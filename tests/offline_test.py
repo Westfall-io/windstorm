@@ -708,9 +708,7 @@ def test_skip_export_errors_stale_info_when_present(tmp_path, monkeypatch, caplo
     with caplog.at_level("INFO", logger="windstorm"):
         store = _load_local_store(str(sub))
     assert store.get("st-1") is not None
-    assert any(
-        "not refreshed this run" in r.getMessage() for r in caplog.records
-    )
+    assert any("not refreshed this run" in r.getMessage() for r in caplog.records)
     assert not any(
         "No export for" in r.getMessage() and r.levelname == "WARNING"
         for r in caplog.records
@@ -731,9 +729,5 @@ def test_missing_export_after_batch_warns(tmp_path, monkeypatch, caplog):
     with caplog.at_level("WARNING", logger="windstorm"):
         with pytest.raises(RuntimeError, match="No elements could be exported"):
             _load_local_store(str(sub))
-    assert any(
-        "No export for" in r.getMessage() for r in caplog.records
-    )
-    assert any(
-        "not refreshed this run" not in r.getMessage() for r in caplog.records
-    )
+    assert any("No export for" in r.getMessage() for r in caplog.records)
+    assert any("not refreshed this run" not in r.getMessage() for r in caplog.records)
