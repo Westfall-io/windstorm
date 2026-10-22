@@ -751,3 +751,26 @@ def test_missing_export_after_batch_warns(tmp_path, monkeypatch, caplog):
     # Positive control: INFO-level records ARE captured this run (self-proving
     # the negative assertion above actually had INFO in scope, round-7 nit).
     assert any("Exporting 1 .sysml file(s)" in r.getMessage() for r in caplog.records)
+
+
+def test_console_script_targets_importable():
+    """Both script tables name an importable, callable entrypoint.
+
+    Guards against the round-9 / fbc88b2 regression: PEP 621
+    [project.scripts] and [tool.poetry.scripts] must both point at a module
+    that exists and has a main(). The suite never executes the console
+    script (pytest imports modules directly), so without this, a broken
+    entrypoint can survive every green run.
+    """
+    import importlib
+    import pathlib
+    import re
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    text = (root / "pyproject.toml").read_text()
+    # Both script tables (poetry + PEP 621) must agree on one target.
+    targets = set(re.findall(r'^windstorm\s*=\s*"([^"]+)"', text, re.M))
+    assert targets == {"windstorm.main:main"}, targets
+    for target in targets:
+        mod, _, attr = target.partition(":")
+        assert callable(getattr(importlib.import_module(mod), attr))
