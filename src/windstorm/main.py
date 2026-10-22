@@ -64,7 +64,8 @@ def _load_local_store(
       - ``*.export.json`` files are adapted directly.
       - Raw ``.sysml`` files are exported via the windtrader-java JAR
         (``batch-export`` writes ``<path>.export.json`` next to each source).
-        A ``.sysml`` whose export is missing OR older than the source is
+        A ``.sysml`` whose export is missing OR still not newer than
+        (<=) the source is
         re-exported; a fresh export is reused (so an edit to a model is not
         silently ignored on the next run). Pass ``exports_only=True`` to
         trust the existing exports and never invoke Java.
