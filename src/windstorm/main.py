@@ -197,8 +197,8 @@ def _load_local_store(
                 if os.path.exists(p + ".export.json"):
                     logger.info(
                         "Export for %s was not refreshed this run; its export "
-                        "is still older than the source, so rendered output "
-                        "may be stale.",
+                        "is still not newer than the source, so rendered "
+                        "output may be stale.",
                         p,
                     )
                 else:

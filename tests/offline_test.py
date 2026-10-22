@@ -620,7 +620,7 @@ def test_load_local_store_skip_export_errors(tmp_path, monkeypatch, caplog):
     assert any("Skipping export errors" in r.getMessage() for r in caplog.records)
 
 
-def test_load_local_store_malformed_json_names_file(tmp_path, monkeypatch):
+def test_load_local_store_malformed_json_names_file(tmp_path):
     """A malformed .export.json raises an error naming the offending file."""
     sub = tmp_path / "src"
     sub.mkdir()
@@ -640,7 +640,7 @@ def test_load_local_store_malformed_json_names_file(tmp_path, monkeypatch):
         _load_local_store(str(sub))
 
 
-def test_load_local_store_non_utf8_export_names_file(tmp_path, monkeypatch):
+def test_load_local_store_non_utf8_export_names_file(tmp_path):
     """A non-UTF-8 export is wrapped and names the offending file
     (UnicodeDecodeError is a ValueError subclass, round-5 catch fix)."""
     sub = tmp_path / "src"
@@ -748,3 +748,6 @@ def test_missing_export_after_batch_warns(tmp_path, monkeypatch, caplog):
     assert any("No export for" in r.getMessage() for r in caplog.records)
     # The absent-export case must NOT log the present-but-unrefreshed INFO line.
     assert not any("not refreshed this run" in r.getMessage() for r in caplog.records)
+    # Positive control: INFO-level records ARE captured this run (self-proving
+    # the negative assertion above actually had INFO in scope, round-7 nit).
+    assert any("Exporting 1 .sysml file(s)" in r.getMessage() for r in caplog.records)
