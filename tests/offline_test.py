@@ -824,6 +824,6 @@ def test_verification_case_metadata_tagged_tool_execution():
         md = adapted[mu_eid].get("metadataDefinition", {}).get("@id")
         # resolve to the real MetadataDefinition payload
         md_payload = adapted.get(md, {})
-        assert md_payload.get("qualifiedName") == "AnalysisTooling::ToolExecution", (
-            f"verification case metadata should be ToolExecution, got {md_payload.get('qualifiedName')}"
-        )
+        assert (
+            md_payload.get("qualifiedName") == "AnalysisTooling::ToolExecution"
+        ), f"verification case metadata should be ToolExecution, got {md_payload.get('qualifiedName')}"
