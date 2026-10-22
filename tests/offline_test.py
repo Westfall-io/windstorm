@@ -631,6 +631,7 @@ def test_load_local_store_malformed_json_names_file(tmp_path, monkeypatch):
     # needs re-export, so the real java preflight can't run — hermetic on
     # coarse-mtime filesystems, round-6 nit).
     import time as _time
+
     fut = _time.time() + 500
     os.utime(p, (fut, fut))
     os.utime(sub / "a.sysml", (_time.time(), _time.time()))
@@ -649,6 +650,7 @@ def test_load_local_store_non_utf8_export_names_file(tmp_path, monkeypatch):
     p.write_bytes(b"\xff\xfe not utf8 json ]")
     # Same future-mtime pin so the export is FRESH (hermetic, round-6 nit).
     import time as _time
+
     fut = _time.time() + 500
     os.utime(p, (fut, fut))
     os.utime(sub / "a.sysml", (_time.time(), _time.time()))
@@ -745,6 +747,4 @@ def test_missing_export_after_batch_warns(tmp_path, monkeypatch, caplog):
             _load_local_store(str(sub))
     assert any("No export for" in r.getMessage() for r in caplog.records)
     # The absent-export case must NOT log the present-but-unrefreshed INFO line.
-    assert not any(
-        "not refreshed this run" in r.getMessage() for r in caplog.records
-    )
+    assert not any("not refreshed this run" in r.getMessage() for r in caplog.records)
