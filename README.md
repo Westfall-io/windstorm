@@ -152,7 +152,7 @@ Options:
   --dump-export-json DIR     Copy the full export bundle to DIR (must be outside --source)
   --exports-only             Trust existing .export.json files; never invoke Java
   --skip-export-errors       Skip .sysml files whose export fails, don't abort
-  -t, --element_type TYPE    Analysis element type (default: AnalysisCaseDefinition)
+  -t, --element_type TYPE    Element type to select (default: AnalysisCaseDefinition; also AnalysisCaseUsage, VerificationCaseDefinition, VerificationCaseUsage)
   --in_directory DIR         Template input directory (default: .)
   --out_directory DIR        Rendered output directory (default: .)
   --insecure                 Disable TLS verification
@@ -162,6 +162,52 @@ Options:
 
 ---
 
+## What windstorm extracts (element/marker contract)
+
+Windstorm renders a model by selecting a *case* — an element of a supported
+element type — and walking its owned inputs for tool variables. For an element
+to be **windstorm-visible**, two things must line up:
+
+1. **The element type is selectable.** Pass it with `-t / --element_type`:
+   - `AnalysisCaseDefinition` (the default) / `AnalysisCaseUsage`
+   - `VerificationCaseDefinition` / `VerificationCaseUsage`
+   Selection matches the element's exported `@type` exactly.
+
+2. **The case carries a `ToolExecution` marker.** The case (or its action)
+   declares `metadata ToolExecution { toolName = "Windstorm"; }`. This is the
+   marker windstorm uses to recognize a tool entry point. Its inputs then hang
+   `ToolVariable` metadata: `in <var> = <expr> {@ToolVariable {name = "<name>";}}`
+   — that `<name>` is the key you reference in templates via
+   `{{ windstorm("<name>") }}`.
+
+The supported scope is **Analysis and Verification** cases (issue #95). A
+minimal verification case looks like:
+
+```sysml
+package Verify {
+    public import AnalysisTooling::*;
+
+    verification def verify_case1 {       // -> VerificationCaseDefinition
+        subject A;
+        metadata ToolExecution {          // -> windstorm-visible marker
+            toolName = "Windstorm";
+        }
+        in engine_weight = 5.0 {@ToolVariable {name = "deltaT";}}
+    }
+}
+```
+
+Render it with:
+
+```bash
+windstorm verify_case1 --source models/ -t VerificationCaseDefinition
+```
+
+The adapter preserves these markers when reconstructing API-shaped payloads
+from the real Java export, so the contract holds end-to-end through the
+`windtrader-java` export round-trip.
+
+---
 ## Development
 
 ```bash

@@ -774,3 +774,56 @@ def test_console_script_targets_importable():
     for target in targets:
         mod, _, attr = target.partition(":")
         assert callable(getattr(importlib.import_module(mod), attr))
+
+
+def test_verification_case_selectable_by_name_type(tmp_path):
+    """#95: a VerificationCaseDefinition from a real-jar export is selectable
+    by name+type (the selection already keys off element_type)."""
+    mocks = os.path.join(os.path.dirname(__file__), "mocks", "verification")
+    export = os.path.join(mocks, "verify_defs.sysml.export.json")
+    assert os.path.exists(export), "committed real-jar verification export"
+    src = tmp_path / "src"
+    src.mkdir()
+    shutil.copy2(export, src / "verify_defs.sysml.export.json")
+
+    store = _load_local_store(str(src), exports_only=True)
+    case = store.get_element_by_name_type("verify_case1", "VerificationCaseDefinition")
+    assert case["@type"] == "VerificationCaseDefinition"
+    assert case["declaredName"] == "verify_case1"
+
+
+def test_verification_case_metadata_tagged_tool_execution():
+    """#95: the adapter tags a verification case's own metadata as
+    AnalysisTooling::ToolExecution (windstorm-visible marker), not ToolVariable."""
+    import json as _json
+
+    from windstorm.common.export_adapter import adapt
+
+    mocks = os.path.join(os.path.dirname(__file__), "mocks", "verification")
+    export = os.path.join(mocks, "verify_defs.sysml.export.json")
+    raw = _json.load(open(export))
+    adapted = adapt(raw)
+
+    # find the verification case
+    case_eid = None
+    for eid, p in adapted.items():
+        if p.get("declaredName") == "verify_case1":
+            case_eid = eid
+            break
+    assert case_eid is not None
+
+    # its MetadataUsage children should be tagged ToolExecution
+    case = adapted[case_eid]
+    metadata_usage_eids = [
+        oe.get("@id")
+        for oe in case.get("ownedElement", [])
+        if adapted.get(oe.get("@id"), {}).get("@type") == "MetadataUsage"
+    ]
+    assert metadata_usage_eids, "expected case to own MetadataUsage element(s)"
+    for mu_eid in metadata_usage_eids:
+        md = adapted[mu_eid].get("metadataDefinition", {}).get("@id")
+        # resolve to the real MetadataDefinition payload
+        md_payload = adapted.get(md, {})
+        assert md_payload.get("qualifiedName") == "AnalysisTooling::ToolExecution", (
+            f"verification case metadata should be ToolExecution, got {md_payload.get('qualifiedName')}"
+        )
