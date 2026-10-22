@@ -196,8 +196,9 @@ def _load_local_store(
             if os.path.abspath(p + ".export.json") not in produced_abs:
                 if os.path.exists(p + ".export.json"):
                     logger.info(
-                        "Export for %s was not refreshed this run (jar "
-                        "considered it current); using existing export.",
+                        "Export for %s was not refreshed this run; its export "
+                        "is still older than the source, so rendered output "
+                        "may be stale.",
                         p,
                     )
                 else:
@@ -224,7 +225,7 @@ def _load_local_store(
 
     for path in adapt_paths:
         try:
-            with open(path, "r") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 adapted = adapt(json.load(f))
         except (
             OSError,

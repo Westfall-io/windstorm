@@ -625,7 +625,15 @@ def test_load_local_store_malformed_json_names_file(tmp_path, monkeypatch):
     sub = tmp_path / "src"
     sub.mkdir()
     (sub / "a.sysml").write_text("part A;")
-    (sub / "a.sysml.export.json").write_text("{ not valid json ]")
+    p = sub / "a.sysml.export.json"
+    p.write_text("{ not valid json ]")
+    # Pin the export strictly newer than the source so it is FRESH (never
+    # needs re-export, so the real java preflight can't run — hermetic on
+    # coarse-mtime filesystems, round-6 nit).
+    import time as _time
+    fut = _time.time() + 500
+    os.utime(p, (fut, fut))
+    os.utime(sub / "a.sysml", (_time.time(), _time.time()))
 
     with pytest.raises(RuntimeError, match="a.sysml.export.json"):
         _load_local_store(str(sub))
@@ -637,7 +645,13 @@ def test_load_local_store_non_utf8_export_names_file(tmp_path, monkeypatch):
     sub = tmp_path / "src"
     sub.mkdir()
     (sub / "a.sysml").write_text("part A;")
-    (sub / "a.sysml.export.json").write_bytes(b"\xff\xfe not utf8 json ]")
+    p = sub / "a.sysml.export.json"
+    p.write_bytes(b"\xff\xfe not utf8 json ]")
+    # Same future-mtime pin so the export is FRESH (hermetic, round-6 nit).
+    import time as _time
+    fut = _time.time() + 500
+    os.utime(p, (fut, fut))
+    os.utime(sub / "a.sysml", (_time.time(), _time.time()))
 
     with pytest.raises(RuntimeError, match="a.sysml.export.json"):
         _load_local_store(str(sub))
@@ -726,8 +740,11 @@ def test_missing_export_after_batch_warns(tmp_path, monkeypatch, caplog):
         return []  # jar produced nothing
 
     monkeypatch.setattr("windstorm.main.batch_export", fake_batch_export)
-    with caplog.at_level("WARNING", logger="windstorm"):
+    with caplog.at_level("INFO", logger="windstorm"):
         with pytest.raises(RuntimeError, match="No elements could be exported"):
             _load_local_store(str(sub))
     assert any("No export for" in r.getMessage() for r in caplog.records)
-    assert any("not refreshed this run" not in r.getMessage() for r in caplog.records)
+    # The absent-export case must NOT log the present-but-unrefreshed INFO line.
+    assert not any(
+        "not refreshed this run" in r.getMessage() for r in caplog.records
+    )
