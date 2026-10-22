@@ -97,8 +97,9 @@ def test_load_local_store_preflight_java_missing(tmp_path, monkeypatch):
 
     monkeypatch.setattr(wj, "_java_available", lambda: False)
     monkeypatch.delenv("WINDTRADER_JAR", raising=False)
+    # --skip-export-errors must NOT swallow this toolchain preflight (NB-A).
     with pytest.raises(RuntimeError) as ei:
-        _load_local_store(str(tmp_path))
+        _load_local_store(str(tmp_path), skip_export_errors=True)
     msg = str(ei.value)
     assert "Java 21" in msg
 
@@ -630,6 +631,18 @@ def test_load_local_store_malformed_json_names_file(tmp_path, monkeypatch):
         _load_local_store(str(sub))
 
 
+def test_load_local_store_non_utf8_export_names_file(tmp_path, monkeypatch):
+    """A non-UTF-8 export is wrapped and names the offending file
+    (UnicodeDecodeError is a ValueError subclass, round-5 catch fix)."""
+    sub = tmp_path / "src"
+    sub.mkdir()
+    (sub / "a.sysml").write_text("part A;")
+    (sub / "a.sysml.export.json").write_bytes(b"\xff\xfe not utf8 json ]")
+
+    with pytest.raises(RuntimeError, match="a.sysml.export.json"):
+        _load_local_store(str(sub))
+
+
 def test_collect_source_files_logs_symlinked_dirs(tmp_path, monkeypatch, caplog):
     """Symlinked source subdirectories are logged (not silently invisible)."""
     real_dir = tmp_path / "real_models"
@@ -660,8 +673,8 @@ def test_skip_export_errors_does_not_swallow_preflight(tmp_path, monkeypatch):
         _load_local_store(str(sub), skip_export_errors=True)
 
 
-def test_skip_export_errors_stale_warned(tmp_path, monkeypatch, caplog):
-    """When a batch output is not refreshed, windstorm warns (NB-B round 4)."""
+def test_skip_export_errors_stale_info_when_present(tmp_path, monkeypatch, caplog):
+    """Present-but-unrefreshed export is INFO (jar skipped current), not a WARNING."""
     sub = tmp_path / "src"
     sub.mkdir()
     (sub / "a.sysml").write_text("part A;")  # bare .sysml -> need_export triggers
@@ -688,11 +701,39 @@ def test_skip_export_errors_stale_warned(tmp_path, monkeypatch, caplog):
 
     def fake_batch_export(sysml_paths):
         # The jar "succeeds" but writes NOTHING (returns []): the existing
-        # stale export will be loaded silently. NB-B must warn.
+        # stale export is loaded. Round-5: this is INFO, not WARNING.
         return []
 
     monkeypatch.setattr("windstorm.main.batch_export", fake_batch_export)
-    with caplog.at_level("WARNING", logger="windstorm"):
+    with caplog.at_level("INFO", logger="windstorm"):
         store = _load_local_store(str(sub))
     assert store.get("st-1") is not None
-    assert any("not refreshed this run" in r.getMessage() for r in caplog.records)
+    assert any(
+        "not refreshed this run" in r.getMessage() for r in caplog.records
+    )
+    assert not any(
+        "No export for" in r.getMessage() and r.levelname == "WARNING"
+        for r in caplog.records
+    )
+
+
+def test_missing_export_after_batch_warns(tmp_path, monkeypatch, caplog):
+    """A genuinely absent export after a no-op batch is a WARNING (NB-B)."""
+    sub = tmp_path / "src"
+    sub.mkdir()
+    (sub / "a.sysml").write_text("part A;")  # bare .sysml -> need_export triggers
+    # NO a.sysml.export.json exists at all.
+
+    def fake_batch_export(sysml_paths):
+        return []  # jar produced nothing
+
+    monkeypatch.setattr("windstorm.main.batch_export", fake_batch_export)
+    with caplog.at_level("WARNING", logger="windstorm"):
+        with pytest.raises(RuntimeError, match="No elements could be exported"):
+            _load_local_store(str(sub))
+    assert any(
+        "No export for" in r.getMessage() for r in caplog.records
+    )
+    assert any(
+        "not refreshed this run" not in r.getMessage() for r in caplog.records
+    )

@@ -185,18 +185,27 @@ def _load_local_store(
                 else:
                     raise
 
-    if need_export:
+    if need_export and not exports_only:
         # Any .sysml in this batch whose export was not freshly produced are
-        # about to be loaded from a STALE export (or skipped). Make it loud
-        # rather than silent (NB-B, round 4).
+        # about to be loaded from a STALE export (or skipped). A present-but-
+        # unrefreshed file is the round-3-blessed "jar skipped an already
+        # current file" state -> INFO; only a genuinely ABSENT export gets the
+        # WARNING (NB-B round 4 + round-5 refinement).
         produced_abs = {os.path.abspath(x) for x in produced}
         for p in need_export:
             if os.path.abspath(p + ".export.json") not in produced_abs:
-                logger.warning(
-                    "Export for %s was not refreshed this run; loading any "
-                    "existing export (possibly stale) or skipping if none.",
-                    p,
-                )
+                if os.path.exists(p + ".export.json"):
+                    logger.info(
+                        "Export for %s was not refreshed this run (jar "
+                        "considered it current); using existing export.",
+                        p,
+                    )
+                else:
+                    logger.warning(
+                        "No export for %s was produced this run; skipping this "
+                        "file (missing export).",
+                        p,
+                    )
 
     # Adapt the union: standalone .export.json files + freshly produced exports.
     # Don't double-count a .sysml's export that was produced and also present as
@@ -218,8 +227,8 @@ def _load_local_store(
             with open(path, "r") as f:
                 adapted = adapt(json.load(f))
         except (
-            json.JSONDecodeError,
             OSError,
+            ValueError,
             AttributeError,
             TypeError,
             KeyError,
@@ -281,8 +290,9 @@ def _load_local_store(
                 "bundle).".format(source_dir)
             )
         raise RuntimeError(
-            "No elements could be exported from .sysml under {}. "
-            "Check WINDTRADER_JAR and the .sysml files.".format(source_dir)
+            "No elements could be exported from the .sysml under {}. Either "
+            "the export toolchain failed (check WINDTRADER_JAR / java) or the "
+            "files exported no elements.".format(source_dir)
         )
 
     logger.info("Local store built with {} element(s).".format(len(store)))
