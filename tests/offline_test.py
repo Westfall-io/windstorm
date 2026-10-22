@@ -678,9 +678,11 @@ def test_skip_export_errors_stale_warned(tmp_path, monkeypatch, caplog):
         }
     ]
     import json
+
     (sub / "a.sysml.export.json").write_text(json.dumps(export))
     # Make the export STALE so a.sysml is in need_export (refresh attempted).
     import time as _time
+
     old = _time.time() - 1000
     os.utime(sub / "a.sysml.export.json", (old, old))
 
