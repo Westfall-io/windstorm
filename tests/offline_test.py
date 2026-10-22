@@ -642,3 +642,55 @@ def test_collect_source_files_logs_symlinked_dirs(tmp_path, monkeypatch, caplog)
     # collected; real_models/m.sysml IS (walked via its real path).
     assert not any(os.path.join(str(tmp_path), "models") in s for s in sysml_files)
     assert any("real_models" in s for s in sysml_files)
+
+
+def test_skip_export_errors_does_not_swallow_preflight(tmp_path, monkeypatch):
+    """A toolchain preflight failure is NOT swallowed by --skip-export-errors
+    (it has no .produced attribute -> must propagate, NB-A round 4)."""
+    sub = tmp_path / "src"
+    sub.mkdir()
+    (sub / "a.sysml").write_text("part A;")  # bare .sysml -> need_export triggers
+
+    def fake_batch_export(sysml_paths):
+        # A PREFLIGHT RuntimeError: java/jar missing. No .produced attribute.
+        raise RuntimeError("java not found: no toolchain")
+
+    monkeypatch.setattr("windstorm.main.batch_export", fake_batch_export)
+    with pytest.raises(RuntimeError, match="java not found"):
+        _load_local_store(str(sub), skip_export_errors=True)
+
+
+def test_skip_export_errors_stale_warned(tmp_path, monkeypatch, caplog):
+    """When a batch output is not refreshed, windstorm warns (NB-B round 4)."""
+    sub = tmp_path / "src"
+    sub.mkdir()
+    (sub / "a.sysml").write_text("part A;")  # bare .sysml -> need_export triggers
+    export = [
+        {
+            "payload": {
+                "@id": "st-1",
+                "@type": "PartUsage",
+                "declaredName": "stPart",
+                "ownedRelationship": [],
+                "ownedElement": [],
+            },
+            "identity": {"@id": "st-1"},
+        }
+    ]
+    import json
+    (sub / "a.sysml.export.json").write_text(json.dumps(export))
+    # Make the export STALE so a.sysml is in need_export (refresh attempted).
+    import time as _time
+    old = _time.time() - 1000
+    os.utime(sub / "a.sysml.export.json", (old, old))
+
+    def fake_batch_export(sysml_paths):
+        # The jar "succeeds" but writes NOTHING (returns []): the existing
+        # stale export will be loaded silently. NB-B must warn.
+        return []
+
+    monkeypatch.setattr("windstorm.main.batch_export", fake_batch_export)
+    with caplog.at_level("WARNING", logger="windstorm"):
+        store = _load_local_store(str(sub))
+    assert store.get("st-1") is not None
+    assert any("not refreshed this run" in r.getMessage() for r in caplog.records)

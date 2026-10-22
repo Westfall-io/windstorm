@@ -168,10 +168,14 @@ def _load_local_store(
             try:
                 produced = batch_export(need_export)
             except RuntimeError as e:
-                if skip_export_errors:
-                    # Keep the outputs that DID succeed; only the failed
-                    # .sysml files are dropped (NB-1 round-3).
-                    partial = getattr(e, "produced", None) or []
+                # Only skip a PER-FILE batch failure: distinguish it from a
+                # toolchain preflight error (java not found, Java < 21,
+                # WINDTRADER_JAR unset, jar missing) — a missing JVM must NOT
+                # be swallowed and exit 0 with a partial graph (NB-A, round 4).
+                # batch_export attaches .produced (the successful outputs) to
+                # the batch-failure exception; preflight errors never do.
+                if skip_export_errors and hasattr(e, "produced"):
+                    partial = e.produced or []
                     logger.warning(
                         "Skipping export errors: %s (%d output(s) kept)",
                         e,
@@ -181,6 +185,19 @@ def _load_local_store(
                 else:
                     raise
 
+    if need_export:
+        # Any .sysml in this batch whose export was not freshly produced are
+        # about to be loaded from a STALE export (or skipped). Make it loud
+        # rather than silent (NB-B, round 4).
+        produced_abs = {os.path.abspath(x) for x in produced}
+        for p in need_export:
+            if os.path.abspath(p + ".export.json") not in produced_abs:
+                logger.warning(
+                    "Export for %s was not refreshed this run; loading any "
+                    "existing export (possibly stale) or skipping if none.",
+                    p,
+                )
+
     # Adapt the union: standalone .export.json files + freshly produced exports.
     # Don't double-count a .sysml's export that was produced and also present as
     # a standalone file (they are the same file path).
@@ -188,9 +205,8 @@ def _load_local_store(
     seen = set()
     for path in export_files:
         key = os.path.normcase(path)
-        if key not in seen:
-            adapt_paths.append(path)
-            seen.add(key)
+        adapt_paths.append(path)
+        seen.add(key)
     for out in produced:
         lo = os.path.normcase(os.path.abspath(out))
         if lo not in seen:
@@ -204,7 +220,6 @@ def _load_local_store(
         except (
             json.JSONDecodeError,
             OSError,
-            ValueError,
             AttributeError,
             TypeError,
             KeyError,
@@ -258,6 +273,13 @@ def _load_local_store(
                 "--exports-only set but no .export.json files with elements "
                 "were found under {}.".format(source_dir)
             )
+        if export_files and not sysml_files:
+            # An exports-only tree that adapts to zero elements (NB-C, round 4).
+            raise RuntimeError(
+                "No elements could be loaded from the .export.json files under "
+                "{} (none contained elements; check the files or the export "
+                "bundle).".format(source_dir)
+            )
         raise RuntimeError(
             "No elements could be exported from .sysml under {}. "
             "Check WINDTRADER_JAR and the .sysml files.".format(source_dir)
@@ -300,11 +322,13 @@ def windstorm(
             (Java-free, fully offline). Requires --source with .sysml files
             and must point OUTSIDE --source.
         exports_only: With --source, trust the existing .export.json files and
-            never invoke Java (even if some .sysml files are missing or have
-            stale exports; those are skipped with a warning).
-        skip_export_errors: With --source, if the Java export batch fails for
-            some .sysml files, skip them with a warning instead of aborting
-            the whole run.
+            never invoke Java. .sysml files with a MISSING export are skipped
+            with a warning; a STALE export is trusted as-is (no re-check).
+        skip_export_errors: With --source, if the Java export batch reports a
+            per-file failure, keep the outputs that succeeded and skip the
+            failed .sysml files with a warning instead of aborting the whole
+            run. Toolchain failures (java missing, WINDTRADER_JAR unset) are
+            NOT swallowed — they abort.
     """
     setup_logging(debug)
 
