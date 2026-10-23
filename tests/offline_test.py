@@ -867,3 +867,49 @@ def test_verification_case_renders_offline(tmp_path):
     out = tmp_path / "output" / "template.txt"
     assert out.exists()
     assert out.read_text().strip() == "deltaT=5.0; deltaE=4.0"
+
+
+def test_library_missing_element_raises_windstorm_lookup_error(tmp_path):
+    """#96: a library caller (not the CLI) gets a catchable WindstormLookupError
+    when the element doesn't exist — it is a data-level UNVERIFIABLE, not a
+    process-killing KeyError or sys.exit()."""
+    from windstorm.common.errors import WindstormLookupError
+
+    src = tmp_path / "src"
+    src.mkdir()
+    mocks = os.path.join(os.path.dirname(__file__), "mocks", "verification")
+    shutil.copy2(
+        os.path.join(mocks, "verify_defs.sysml.export.json"),
+        src / "verify_defs.sysml.export.json",
+    )
+    store = _load_local_store(str(src), exports_only=True)
+
+    # Catchable: trap it and record, don't abort.
+    unverifiable = False
+    try:
+        store.get_element_by_name_type("nope", "VerificationCaseDefinition")
+    except WindstormLookupError as e:
+        unverifiable = True
+        assert "nope" in str(e) or "No VerificationCaseDefinition" in str(e)
+    assert unverifiable, "library caller must be able to trap the missing element"
+
+
+def test_cli_missing_element_exits_1(tmp_path):
+    """#96: the CLI boundary converts WindstormLookupError into a clean exit
+    code 1 (so scripts can distinguish lookup-failure from success)."""
+    import pytest as _pytest
+
+    src = tmp_path / "src"
+    src.mkdir()
+    mocks = os.path.join(os.path.dirname(__file__), "mocks", "verification")
+    shutil.copy2(
+        os.path.join(mocks, "verify_defs.sysml.export.json"),
+        src / "verify_defs.sysml.export.json",
+    )
+    with _pytest.raises(SystemExit) as e:
+        windstorm(
+            "nope",
+            source=str(src),
+            element_type="VerificationCaseDefinition",
+        )
+    assert e.value.code == 1

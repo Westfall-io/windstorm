@@ -2,11 +2,13 @@ import json
 import logging
 import os
 import shutil
+import sys
 
 logger = logging.getLogger("windstorm")
 
 import fire
 
+from windstorm.common.errors import WindstormLookupError
 from windstorm.common.functions import setup_logging
 from windstorm.common.api import verify_tool
 from windstorm.common.sysml import init_variables, template_files
@@ -345,28 +347,42 @@ def windstorm(
     setup_logging(debug)
 
     api_store = None
-    if source:
-        # Offline mode: build an ElementStore from local files and run the
-        # exact same templating core against it (no network).
-        api_store = _load_local_store(
-            source,
-            dump_export_json=dump_export_json,
-            exports_only=exports_only,
-            skip_export_errors=skip_export_errors,
-        )
-        project, aj = verify_tool(api_store, "", element_type, element_name, insecure)
-    else:
-        project, aj = verify_tool(api, project_id, element_type, element_name, insecure)
-
-    if len(aj) == 0:
-        if in_directory == out_directory:
-            logger.info("Nothing to do, closing...")
+    try:
+        if source:
+            # Offline mode: build an ElementStore from local files and run the
+            # exact same templating core against it (no network).
+            api_store = _load_local_store(
+                source,
+                dump_export_json=dump_export_json,
+                exports_only=exports_only,
+                skip_export_errors=skip_export_errors,
+            )
+            project, aj = verify_tool(
+                api_store, "", element_type, element_name, insecure
+            )
         else:
-            logger.info("Copying all files from input to output, no changes...")
-            shutil.copytree(in_directory, out_directory, dirs_exist_ok=True)
-    else:
-        output = init_variables(api_store if source else api, project, aj)
-        template_files(in_directory, out_directory, output, force_render_error_continue)
+            project, aj = verify_tool(
+                api, project_id, element_type, element_name, insecure
+            )
+
+        if len(aj) == 0:
+            if in_directory == out_directory:
+                logger.info("Nothing to do, closing...")
+            else:
+                logger.info("Copying all files from input to output, no changes...")
+                shutil.copytree(in_directory, out_directory, dirs_exist_ok=True)
+        else:
+            output = init_variables(api_store if source else api, project, aj)
+            template_files(
+                in_directory, out_directory, output, force_render_error_continue
+            )
+    except WindstormLookupError as e:
+        # CLI boundary: a missing element/marker/template key is a data-level
+        # condition, not a process crash. Report and exit non-zero so callers can
+        # distinguish "lookup failed" from success. Library callers of windstorm()
+        # see the exception instead (issue #96).
+        logger.error("windstorm: {}".format(e))
+        sys.exit(1)
 
 
 def main():

@@ -9,6 +9,7 @@ import requests
 
 headers = {"Content-type": "application/json", "Accept": "text/plain"}
 
+from windstorm.common.errors import WindstormLookupError
 from windstorm.common.functions import github_issue_error, is_valid_uuid
 
 
@@ -111,9 +112,11 @@ def query_for_element(api, project, base_query, verify=False):
             return results[0]
         elif len(results) == 0:
             logger.error("Failed to find this element name.")
-            sys.exit()
+            raise WindstormLookupError("element not found in local store")
         logger.error("Unexpected {} results".format(len(results)))
-        sys.exit()
+        raise WindstormLookupError(
+            "unexpected {} results for query".format(len(results))
+        )
 
     logger.debug(base_query)
 
@@ -176,9 +179,9 @@ def _verify_action_walk(api, project, element_type, element_name, verify):
     for a in actions:
         try:
             eid = get_element_by_id(api, project, a["@id"], verify)
-        except KeyError:
+        except KeyError as e:
             print("{}".format(sorted(list(a.keys()))))
-            raise KeyError
+            raise WindstormLookupError(str(e)) from None
 
         logger.info("Action: {}".format(eid["declaredName"]))
 
@@ -257,7 +260,7 @@ def verify_tool(api, project_id, element_type, element_name, verify=False):
             )
         else:
             logger.info("Response was {}.".format(project))
-            raise KeyError
+            raise WindstormLookupError("local store is not a project")
         return _verify_action_walk(api, project, element_type, element_name, verify)
 
     # Grab the project from the API - either the latest or a specific one
@@ -266,6 +269,6 @@ def verify_tool(api, project_id, element_type, element_name, verify=False):
         logger.info('Found project "{}" - {}'.format(project["name"], project["@id"]))
     else:
         logger.info("Response was {}.".format(project))
-        raise KeyError
+        raise WindstormLookupError("project response missing name/@id")
 
     return _verify_action_walk(api, project, element_type, element_name, verify)

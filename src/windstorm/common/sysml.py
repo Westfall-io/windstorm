@@ -12,6 +12,7 @@ from jinja2 import Template
 from jinja2.exceptions import TemplateSyntaxError
 
 from windstorm.common.api import get_element_by_id
+from windstorm.common.errors import WindstormLookupError
 from windstorm.common.functions import remove_file, rename_file, zip_file
 
 
@@ -274,7 +275,11 @@ def template_files(
                     string
                 )
             )
-            sys.exit()
+            raise WindstormLookupError(
+                "Key {} was not found in the model and no default value was given for template.".format(
+                    string
+                )
+            )
 
     logger.info("Replacing variables in files with values.")
     for dir_path, dir_names, file_names in os.walk(in_directory):

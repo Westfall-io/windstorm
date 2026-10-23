@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Jul 23 20:12:45 2023
+"""windstorm — SysML 2.0 templating (Westfall-io/windstorm)."""
 
-@author: christophercox
-"""
+from importlib import metadata
 
-__version__ = "0.1.0"
+try:
+    __version__ = metadata.version("sysml-windstorm")
+except metadata.PackageNotFoundError:  # pragma: no cover - dev checkout fallback
+    __version__ = "0.0.0.dev0"

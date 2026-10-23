@@ -42,7 +42,10 @@ def test_500_response():
 
 @responses.activate
 def test_wrong_type_response():
-    with pytest.raises(KeyError) as e_info:
+    # #96: a project response without name/@id is a lookup failure — the CLI
+    # boundary turns WindstormLookupError into a clean SystemExit (exit 1),
+    # rather than leaking a bare KeyError. Library callers see the exception.
+    with pytest.raises(SystemExit) as e_info:
         responses.add(
             responses.GET,
             defaultUrl + "/projects?page%5Bsize%5D=1",
@@ -51,6 +54,7 @@ def test_wrong_type_response():
         )
 
         windstorm("case1", api=defaultUrl)
+    assert e_info.value.code == 1
 
 
 @responses.activate
