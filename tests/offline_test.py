@@ -895,17 +895,28 @@ def test_library_missing_element_raises_windstorm_lookup_error(tmp_path):
         )
     except WindstormLookupError as e:
         unverifiable = True
-        assert "nope" in str(e) or "VerificationCaseDefinition" in str(e)
+        # The message must identify the missing element (not just the type —
+        # both could match, so assert the full identify-the-element message).
+        assert "No VerificationCaseDefinition named nope in local store" == str(e)
     assert unverifiable, "library caller must be able to trap the missing element"
 
 
-def test_cli_missing_element_exits_1():
+def test_cli_missing_element_exits_1(tmp_path):
     """#96: the CLI boundary (main()) converts WindstormLookupError into a clean
     exit code 1, so shell scripts can distinguish lookup-failure from success."""
     from windstorm.main import main
 
+    # Copy the fixture into tmp_path so no mtime race on the committed fixture,
+    # and pass --exports_only so no Java batch-export is attempted.
+    src = tmp_path / "src"
+    src.mkdir()
+    mocks = os.path.join(os.path.dirname(__file__), "mocks", "verification")
+    shutil.copy2(
+        os.path.join(mocks, "verify_defs.sysml.export.json"),
+        src / "verify_defs.sysml.export.json",
+    )
+
     with pytest.raises(SystemExit) as e:
-        # main() wraps fire.Fire(windstorm); --source with a missing element.
         with patch.object(
             sys,
             "argv",
@@ -913,7 +924,8 @@ def test_cli_missing_element_exits_1():
                 "windstorm",
                 "nope",
                 "--source",
-                "tests/mocks/verification",
+                str(src),
+                "--exports_only",
                 "--element_type",
                 "VerificationCaseDefinition",
             ],

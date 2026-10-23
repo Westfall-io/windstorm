@@ -45,9 +45,6 @@ build-backend = "poetry.core.masonry.api"
 #build_command = "pip install poetry && poetry build"
 
 [tool.semantic_release]
-version_variable = [
-    "src/windstorm/__init__.py:version",
-]
 version_toml=[
     "pyproject.toml:tool.poetry.version",
     "pyproject.toml:project.version",
