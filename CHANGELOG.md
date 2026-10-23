@@ -3,6 +3,20 @@
 
 
 
+## v0.8.0 (2026-10-23)
+### Features
+#### :sparkles:
+
+* :sparkles: catchable WindstormLookupError + version cleanup (#96, #97)
+
+Closes #96, closes #97. WindstormLookupError (KeyError subclass) on lookup failure in offline + online paths + Jinja helper; CLI converts to exit 1. __version__ via importlib.metadata. 65/65 tests. ([`9d1b8cb`](https://github.com/Westfall-io/windstorm/commit/9d1b8cb9a7ee762e3784820d5ccdf8f46c6bba9b))
+
+### Fixes
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
 ## v0.7.0 (2026-10-23)
 ### Features
 #### :sparkles:
