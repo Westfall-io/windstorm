@@ -414,7 +414,8 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
             # setdefault: the export usually ships the qualifiedName already; only
             # reconstruct when it is missing (never overwrite the export's value —
             # reconstruction from declaredName alone can drift on short/escaped names).
-            payload.setdefault("qualifiedName", qn) if qn else None
+            if qn:
+                payload.setdefault("qualifiedName", qn)
             # Also fold in imported members as ownedElement names for lookups.
             imported = _collect_imported_members(elem, index)
             for name, child in imported.items():
