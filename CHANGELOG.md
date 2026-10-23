@@ -3,6 +3,80 @@
 
 
 
+## v0.7.0 (2026-10-23)
+### Features
+#### :sparkles:
+
+* :sparkles: Open element selection to Verification cases (#95)
+
+* :sparkles: open element selection to Verification cases (issue #95)
+
+Selecting a model case was hardcoded to Analysis* element types. Rikki&#39;s
+sensor-verification pipeline drives windstorm with VerificationCaseDefinition
+elements, which the adapter&#39;s metadata-resolution branch mis-tagged as
+ToolVariable (not ToolExecution), so verification cases were never
+windstorm-visible.
+
+Broaden the adapter&#39;s &#34;windstorm-visible case&#34; set (is_analysis -&gt; is_case) to
+include VerificationCaseDefinition/Usage alongside Analysis* and actions, and
+add the verification types to the qualifiedName pass. Selection was already
+parameterized by --element_type, so verification cases are now selectable and
+walked end-to-end.
+
+Scope is intentionally Analysis + Verification only (no general broadening).
+
+Verified with a real-jar export of a minimal `verification def` fixture
+(validated by windtrader-java, 324KB export) committed under
+tests/mocks/verification/. 62/62 tests pass, fresh-venv-proven.
+
+* :robot: Format code with black
+
+* :bug: address review-1: real verification render regression test + adapter hardening
+
+Independent review of PR #99 flagged a blocking gap: the new tests passed
+unmodified on main, so the behavior change shipped untested (only the
+is_case-&gt;toolName broadening in export_adapter actually implements #95, and it
+had zero coverage).
+
+- Add test_verification_case_renders_offline: a full offline render through the
+  committed real-jar verification fixture selecting via
+  element_type=&#34;VerificationCaseDefinition&#34;, asserting deltaT/deltaE -&gt; 5.0/4.0.
+  Proven to FAIL on main&#39;s adapter (&#34;Copying all files... no changes&#34;) and PASS
+  with the fix — a genuine regression test.
+- Tighten test_verification_case_metadata_tagged_tool_execution to match the
+  case by @type AND declaredName (was first-by-name).
+- Adapter hardening (review NB-1/3/4): shared _CASE_TYPES constant (no drift,
+  single-site type addition); qualifiedName pass uses the shared constant +
+  setdefault (never overwrites the export&#39;s value); metadataDefinition fallback
+  only fires when the export omitted it (no dangling synthetic-id risk).
+
+* :bulb: resolve round-2 NB-1: skip unresolved metadata marker (no dangling id)
+
+Round-2 confirming review APPROVED (0 blocking, 0 non-blocking) but flagged that
+the round-1 NB-1 comment had been rewritten to assert the opposite of the code.
+Honest fix: when a windstorm-visible case&#39;s metadata is missing its
+metadataDefinition (never happens with real windtrader-java exports), skip that
+metadata usage instead of synthesizing a bare id that has no store payload
+(which would surface as a bare KeyError in the walk). An unresolved marker simply
+isn&#39;t windstorm-visible.
+
+* :bulb: clarify qualifiedName setdefault (Tock nit)
+
+Tock&#39;s review nit: the ternary-for-side-effect style was obscure. Plain
+`if qn: payload.setdefault(...)` reads better; behavior unchanged (only fills
+qualifiedName when missing, never overwrites the export&#39;s value).
+
+---------
+
+Co-authored-by: dazka-windfray &lt;dazka.windfray@westfall.io&gt;
+Co-authored-by: dazka-windfray &lt;dazka-windfray@users.noreply.github.com&gt; ([`ff3a4aa`](https://github.com/Westfall-io/windstorm/commit/ff3a4aa250ed18b3df215b2bb794e4873fc55c52))
+
+### Fixes
+
+### Tests and Documentation
+
+### Others (CI/CD, Dependencies)
+
 ## v0.6.1 (2026-10-22)
 ### Features
 ### Fixes
