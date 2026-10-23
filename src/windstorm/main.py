@@ -347,47 +347,43 @@ def windstorm(
     setup_logging(debug)
 
     api_store = None
-    try:
-        if source:
-            # Offline mode: build an ElementStore from local files and run the
-            # exact same templating core against it (no network).
-            api_store = _load_local_store(
-                source,
-                dump_export_json=dump_export_json,
-                exports_only=exports_only,
-                skip_export_errors=skip_export_errors,
-            )
-            project, aj = verify_tool(
-                api_store, "", element_type, element_name, insecure
-            )
-        else:
-            project, aj = verify_tool(
-                api, project_id, element_type, element_name, insecure
-            )
+    if source:
+        # Offline mode: build an ElementStore from local files and run the
+        # exact same templating core against it (no network).
+        api_store = _load_local_store(
+            source,
+            dump_export_json=dump_export_json,
+            exports_only=exports_only,
+            skip_export_errors=skip_export_errors,
+        )
+        project, aj = verify_tool(api_store, "", element_type, element_name, insecure)
+    else:
+        project, aj = verify_tool(api, project_id, element_type, element_name, insecure)
 
-        if len(aj) == 0:
-            if in_directory == out_directory:
-                logger.info("Nothing to do, closing...")
-            else:
-                logger.info("Copying all files from input to output, no changes...")
-                shutil.copytree(in_directory, out_directory, dirs_exist_ok=True)
+    if len(aj) == 0:
+        if in_directory == out_directory:
+            logger.info("Nothing to do, closing...")
         else:
-            output = init_variables(api_store if source else api, project, aj)
-            template_files(
-                in_directory, out_directory, output, force_render_error_continue
-            )
-    except WindstormLookupError as e:
-        # CLI boundary: a missing element/marker/template key is a data-level
-        # condition, not a process crash. Report and exit non-zero so callers can
-        # distinguish "lookup failed" from success. Library callers of windstorm()
-        # see the exception instead (issue #96).
-        logger.error("windstorm: {}".format(e))
-        sys.exit(1)
+            logger.info("Copying all files from input to output, no changes...")
+            shutil.copytree(in_directory, out_directory, dirs_exist_ok=True)
+    else:
+        output = init_variables(api_store if source else api, project, aj)
+        template_files(in_directory, out_directory, output, force_render_error_continue)
 
 
 def main():
-    """This function uses Fire to generate a command-line interface"""
-    fire.Fire(windstorm)
+    """This function uses Fire to generate a command-line interface.
+
+    The CLI boundary: windstorm() raises WindstormLookupError for a missing
+    element/marker/template key so library callers can trap it. Here at the CLI
+    we convert that into a clean non-zero exit (issue #96) so shell scripts can
+    distinguish "lookup failed" from success.
+    """
+    try:
+        fire.Fire(windstorm)
+    except WindstormLookupError as e:
+        logger.error("windstorm: {}".format(e))
+        sys.exit(1)
 
 
 if __name__ == "__main__":

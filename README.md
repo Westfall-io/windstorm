@@ -186,7 +186,12 @@ failed" from success).
 
 > Windstorm used to call `sys.exit()` / raise a bare `KeyError` from its
 > internal lookup paths, which made programmatic driving impossible — a missing
-> element killed the process. That behaviour landed in **#96**.
+> element killed the process. The fix landed in **#96**.
+
+**Behavior note:** a missing template key used to exit with **code 0** (looking
+like success); it now aborts that render with `WindstormLookupError` (exit
+`1` at the CLI). Pipelines that previously treated a missing key as a silent
+no-op will now see it fail — that is the intended, safer behaviour.
 
 ---
 

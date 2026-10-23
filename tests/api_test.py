@@ -7,6 +7,7 @@ import pytest
 import responses
 
 from windstorm.main import windstorm
+from windstorm.common.errors import WindstormLookupError
 from tests.common.functions import *
 
 # Get the default project endpoint response.
@@ -17,7 +18,9 @@ defaultUrl = "http://sysml2-dev.intercax.com:9000"
 
 @responses.activate
 def test_404_response():
-    with pytest.raises(SystemExit):
+    # #96: library (windstorm()) raises WindstormLookupError; CLI (main())
+    # converts to exit. Not SystemExit from the library path.
+    with pytest.raises(WindstormLookupError):
         responses.add(
             responses.GET,
             defaultUrl + "/projects?page%5Bsize%5D=1",
@@ -42,10 +45,10 @@ def test_500_response():
 
 @responses.activate
 def test_wrong_type_response():
-    # #96: a project response without name/@id is a lookup failure — the CLI
-    # boundary turns WindstormLookupError into a clean SystemExit (exit 1),
-    # rather than leaking a bare KeyError. Library callers see the exception.
-    with pytest.raises(SystemExit) as e_info:
+    # #96: a project response without name/@id is a lookup failure. windstorm()
+    # (the library entrypoint) raises WindstormLookupError so a programmatic
+    # caller can trap it; the CLI boundary (main()) converts it to exit 1.
+    with pytest.raises(WindstormLookupError):
         responses.add(
             responses.GET,
             defaultUrl + "/projects?page%5Bsize%5D=1",
@@ -54,7 +57,6 @@ def test_wrong_type_response():
         )
 
         windstorm("case1", api=defaultUrl)
-    assert e_info.value.code == 1
 
 
 @responses.activate
@@ -72,7 +74,7 @@ def test_no_json_response():
 
 @responses.activate
 def test_no_project_response():
-    with pytest.raises(SystemExit) as e_info:
+    with pytest.raises(WindstormLookupError):
         responses.add(
             responses.GET,
             defaultUrl + "/projects?page%5Bsize%5D=1",
@@ -118,7 +120,8 @@ def test_bad_project_response():
 
 @responses.activate
 def test_no_element_found():
-    with pytest.raises(SystemExit) as e_info:
+    # #96: no element found in API query is a WindstormLookupError (not sys.exit).
+    with pytest.raises(WindstormLookupError):
         responses.add(
             responses.GET,
             defaultUrl + "/projects?page%5Bsize%5D=1",

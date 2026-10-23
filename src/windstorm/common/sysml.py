@@ -136,7 +136,7 @@ def handle_feature_chain(api, project, voeid, thisvar):
     else:
         # No chaining feature
         logger.error("No chaining feature found.")
-        raise AttributeError
+        raise WindstormLookupError("no chaining feature found")
 
     return thisvar
 
@@ -231,7 +231,7 @@ def init_variables(api, project, aj):
                 else:
                     # No chaining feature
                     logger.error("No ownedElement found.")
-                    raise AttributeError
+                    raise WindstormLookupError("no ownedElement found")
 
                 vars.append(thisvar)
             else:

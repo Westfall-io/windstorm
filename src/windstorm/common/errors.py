@@ -17,3 +17,9 @@ class WindstormLookupError(KeyError):
     record it as evidence (e.g. ``UNVERIFIABLE`` per requirement), and continue
     the run instead of aborting the process.
     """
+
+    def __str__(self) -> str:
+        # KeyError.__str__ returns repr(args[0]) (quote-wrapped); a lookup error
+        # reads better and is friendlier to ``record["detail"] = str(e)``
+        # without the surrounding quotes.
+        return str(self.args[0]) if self.args else ""

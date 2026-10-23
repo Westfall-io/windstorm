@@ -7,6 +7,7 @@ import pytest
 import responses
 
 from windstorm.main import windstorm
+from windstorm.common.errors import WindstormLookupError
 from tests.common.functions import *
 
 # Get the default project endpoint response.
@@ -167,12 +168,12 @@ def test_analysis_units():
 
 @responses.activate
 def test_failed_template():
-    """This should succeed and replace a file with 'No'"""
+    """A missing template key raises WindstormLookupError from the library path."""
     add_responses(project_response, "1_analysis")
 
     template("{{ windstorm('deltaE') }}")
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(WindstormLookupError):
         windstorm(
             "case3",
             api="http://sysml2.intercax.com:9000",
@@ -253,7 +254,7 @@ def test_analysis_novariables():
 
     template("{{ windstorm('deltaT') }}")
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(WindstormLookupError):
         windstorm(
             "case7",
             api="http://sysml2.intercax.com:9000",

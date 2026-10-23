@@ -22,7 +22,7 @@ def handle_request_response(r):
     """This validates an API response and ensures the format"""
     if r.status_code == 404:
         logger.error("The project id could not be found.")
-        sys.exit()
+        raise WindstormLookupError("project not found (HTTP 404)")
     if r.status_code != 200:
         # The address is reachable
         logger.error("API returned {} status code".format(r.status_code))
@@ -59,7 +59,7 @@ def check_for_api(api, project_id, verify=False):
         return response[0]
     elif len(response) == 0:
         logger.error("Failed to find this project name.")
-        sys.exit()
+        raise WindstormLookupError("project not found")
     else:
         logger.error(response)
         github_issue_error()
@@ -128,7 +128,12 @@ def query_for_element(api, project, base_query, verify=False):
         return response[0]
     elif len(response) == 0:
         logger.error("Failed to find this element name.")
-        sys.exit()
+        raise WindstormLookupError("element not found in API query")
+    else:
+        logger.error("Unexpected {} results".format(len(response)))
+        raise WindstormLookupError(
+            "unexpected {} results for API query".format(len(response))
+        )
 
 
 def get_element_by_id(api, project, eid, verify=False):
@@ -180,8 +185,8 @@ def _verify_action_walk(api, project, element_type, element_name, verify):
         try:
             eid = get_element_by_id(api, project, a["@id"], verify)
         except KeyError as e:
-            print("{}".format(sorted(list(a.keys()))))
-            raise WindstormLookupError(str(e)) from None
+            logger.debug("action element keys: {}".format(sorted(list(a.keys()))))
+            raise WindstormLookupError(str(e)) from e
 
         logger.info("Action: {}".format(eid["declaredName"]))
 
