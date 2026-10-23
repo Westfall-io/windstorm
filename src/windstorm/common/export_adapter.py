@@ -45,6 +45,31 @@ _IMPORT_TYPES = {"NamespaceImport"}
 _TYPING_TYPES = {"FeatureTyping", "Subclassification"}
 _VALUE_TYPES = {"FeatureValue"}
 
+# "Windstorm-visible cases": element @types that own ToolExecution metadata (the
+# marker saying "this is a windstorm tool entry point"). Scope is intentionally
+# Analysis + Verification only (issue #95) — no general broadening.
+_CASE_TYPES = frozenset(
+    {
+        "AnalysisCaseDefinition",
+        "AnalysisCaseUsage",
+        "VerificationCaseDefinition",
+        "VerificationCaseUsage",
+        "ActionUsage",
+        "ActionDefinition",
+    }
+)
+# Element @types that get an adapter-reconstructed qualifiedName.
+_QUALIFIED_NAME_TYPES = frozenset(
+    {
+        "Namespace",
+        "Package",
+        "AnalysisCaseDefinition",
+        "AnalysisCaseUsage",
+        "VerificationCaseDefinition",
+        "VerificationCaseUsage",
+    }
+)
+
 
 def _resolve(ref: Any, index: dict[str, dict]) -> dict | None:
     """Resolve a reference (``{"@id": ...}`` or list of such) via the @id index."""
@@ -257,11 +282,12 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
                 payload["input"] = inputs
 
         # metadataDefinition resolution
-        is_analysis = payload.get("@type") in (
-            "AnalysisCaseDefinition",
-            "ActionUsage",
-            "ActionDefinition",
-        )
+        # A "windstorm-visible case" owns ToolExecution metadata (the marker that
+        # says "this is a windstorm action/tool entry point"): analysis and
+        # verification case defs/usages. Metadata on any OTHER owned element
+        # (e.g. an input feature) is a ToolVariable (carries the variable name/
+        # value). Scope is intentionally Analysis + Verification only (issue #95).
+        is_case = payload.get("@type") in _CASE_TYPES
         for child in element_children:
             cp = child.get("payload", {})
             if cp.get("@type") == "MetadataUsage":
@@ -270,18 +296,18 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
                     continue
                 meta_api = api[cid]
                 # Distinguish the two metadata kinds by the owning element:
-                #   - owned directly by an analysis case / action -> AnalysisTooling::ToolExecution
-                #     (the analysis-tool marker; its child reference carries toolName "Windstorm")
+                #   - owned directly by an analysis/verification case or action -> AnalysisTooling::ToolExecution
+                #     (the windstorm-tool marker; its child reference carries toolName "Windstorm")
                 #   - owned by an input feature -> AnalysisTooling::ToolVariable
                 #     (its child reference carries the variable's name / value, e.g. name -> "deltaT")
-                if is_analysis:
-                    meta_api.setdefault(
-                        "metadataDefinition", {"@id": "AnalysisTooling::ToolExecution"}
-                    )
-                else:
-                    meta_api.setdefault(
-                        "metadataDefinition", {"@id": "AnalysisTooling::ToolVariable"}
-                    )
+                #
+                # Real windtrader-java exports ALWAYS resolve metadataDefinition to an
+                # actual @id that IS in the store (a MetadataDefinition payload). If one
+                # is ever missing, synthesizing a bare id would create a dangling key with
+                # no store payload (api.py -> local_store.get_element_by_id -> bare KeyError),
+                # so instead we skip: an unresolved marker simply isn't windstorm-visible.
+                if is_case and "metadataDefinition" not in meta_api:
+                    continue
 
                 # The MetadataUsage's child reference(s): the export carries the value chain
                 # (ReferenceUsage -> FeatureValue -> literal) but not the API shape windstorm
@@ -330,9 +356,9 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
                                     lit_str = (
                                         str(lit).strip('"') if lit is not None else None
                                     )
-                                    if is_analysis and lit_str == "Windstorm":
+                                    if is_case and lit_str == "Windstorm":
                                         ref_api["name"] = "toolName"
-                                    elif not is_analysis:
+                                    elif not is_case:
                                         ref_api["name"] = "name"
                                     elif lit is not None and "name" not in ref_api:
                                         ref_api.setdefault("name", "value")
@@ -382,11 +408,14 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
     # Fourth pass: qualifiedName for namespaces/packages (walk owner chain + imports).
     for eid, payload in api.items():
         t = payload.get("@type", "")
-        if t in ("Namespace", "Package", "AnalysisCaseDefinition", "AnalysisCaseUsage"):
+        if t in _QUALIFIED_NAME_TYPES:
             elem = index.get(eid, {})
             qn = _namespace_qualified_name(elem, index)
+            # setdefault: the export usually ships the qualifiedName already; only
+            # reconstruct when it is missing (never overwrite the export's value —
+            # reconstruction from declaredName alone can drift on short/escaped names).
             if qn:
-                payload["qualifiedName"] = qn
+                payload.setdefault("qualifiedName", qn)
             # Also fold in imported members as ownedElement names for lookups.
             imported = _collect_imported_members(elem, index)
             for name, child in imported.items():
