@@ -906,6 +906,17 @@ def test_cli_missing_element_exits_1():
 
     with pytest.raises(SystemExit) as e:
         # main() wraps fire.Fire(windstorm); --source with a missing element.
-        with patch.object(sys, "argv", ["windstorm", "nope", "--source", "tests/mocks/verification", "--element_type", "VerificationCaseDefinition"]):
+        with patch.object(
+            sys,
+            "argv",
+            [
+                "windstorm",
+                "nope",
+                "--source",
+                "tests/mocks/verification",
+                "--element_type",
+                "VerificationCaseDefinition",
+            ],
+        ):
             main()
     assert e.value.code == 1
