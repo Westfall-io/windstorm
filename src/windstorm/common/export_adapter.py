@@ -301,15 +301,13 @@ def adapt(export_json: dict | list) -> dict[str, dict]:
                 #   - owned by an input feature -> AnalysisTooling::ToolVariable
                 #     (its child reference carries the variable's name / value, e.g. name -> "deltaT")
                 #
-                # Real windtrader-java exports always resolve metadataDefinition to
-                # an actual @id that IS in the store. setdefault is a defensive
-                # fallback ONLY for exports that omit it; leave it as the
-                # qualified-name id so the marker check (api.py) still matches —
-                # but do not synthesize an id with no store payload.
+                # Real windtrader-java exports ALWAYS resolve metadataDefinition to an
+                # actual @id that IS in the store (a MetadataDefinition payload). If one
+                # is ever missing, synthesizing a bare id would create a dangling key with
+                # no store payload (api.py -> local_store.get_element_by_id -> bare KeyError),
+                # so instead we skip: an unresolved marker simply isn't windstorm-visible.
                 if is_case and "metadataDefinition" not in meta_api:
-                    meta_api["metadataDefinition"] = {
-                        "@id": "AnalysisTooling::ToolExecution"
-                    }
+                    continue
 
                 # The MetadataUsage's child reference(s): the export carries the value chain
                 # (ReferenceUsage -> FeatureValue -> literal) but not the API shape windstorm
