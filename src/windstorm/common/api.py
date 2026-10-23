@@ -9,6 +9,7 @@ import requests
 
 headers = {"Content-type": "application/json", "Accept": "text/plain"}
 
+from windstorm.common.errors import WindstormLookupError
 from windstorm.common.functions import github_issue_error, is_valid_uuid
 
 
@@ -21,7 +22,7 @@ def handle_request_response(r):
     """This validates an API response and ensures the format"""
     if r.status_code == 404:
         logger.error("The project id could not be found.")
-        sys.exit()
+        raise WindstormLookupError("project not found (HTTP 404)")
     if r.status_code != 200:
         # The address is reachable
         logger.error("API returned {} status code".format(r.status_code))
@@ -58,7 +59,7 @@ def check_for_api(api, project_id, verify=False):
         return response[0]
     elif len(response) == 0:
         logger.error("Failed to find this project name.")
-        sys.exit()
+        raise WindstormLookupError("project not found")
     else:
         logger.error(response)
         github_issue_error()
@@ -111,9 +112,11 @@ def query_for_element(api, project, base_query, verify=False):
             return results[0]
         elif len(results) == 0:
             logger.error("Failed to find this element name.")
-            sys.exit()
+            raise WindstormLookupError("element not found in local store")
         logger.error("Unexpected {} results".format(len(results)))
-        sys.exit()
+        raise WindstormLookupError(
+            "unexpected {} results for query".format(len(results))
+        )
 
     logger.debug(base_query)
 
@@ -125,7 +128,12 @@ def query_for_element(api, project, base_query, verify=False):
         return response[0]
     elif len(response) == 0:
         logger.error("Failed to find this element name.")
-        sys.exit()
+        raise WindstormLookupError("element not found in API query")
+    else:
+        logger.error("Unexpected {} results".format(len(response)))
+        raise WindstormLookupError(
+            "unexpected {} results for API query".format(len(response))
+        )
 
 
 def get_element_by_id(api, project, eid, verify=False):
@@ -176,9 +184,9 @@ def _verify_action_walk(api, project, element_type, element_name, verify):
     for a in actions:
         try:
             eid = get_element_by_id(api, project, a["@id"], verify)
-        except KeyError:
-            print("{}".format(sorted(list(a.keys()))))
-            raise KeyError
+        except KeyError as e:
+            logger.debug("action element keys: {}".format(sorted(list(a.keys()))))
+            raise WindstormLookupError(str(e)) from e
 
         logger.info("Action: {}".format(eid["declaredName"]))
 
@@ -257,7 +265,7 @@ def verify_tool(api, project_id, element_type, element_name, verify=False):
             )
         else:
             logger.info("Response was {}.".format(project))
-            raise KeyError
+            raise WindstormLookupError("local store is not a project")
         return _verify_action_walk(api, project, element_type, element_name, verify)
 
     # Grab the project from the API - either the latest or a specific one
@@ -266,6 +274,6 @@ def verify_tool(api, project_id, element_type, element_name, verify=False):
         logger.info('Found project "{}" - {}'.format(project["name"], project["@id"]))
     else:
         logger.info("Response was {}.".format(project))
-        raise KeyError
+        raise WindstormLookupError("project response missing name/@id")
 
     return _verify_action_walk(api, project, element_type, element_name, verify)

@@ -162,6 +162,39 @@ Options:
 
 ---
 
+## Using windstorm as a library (exception contract)
+
+`windstorm()` is the programmatic entrypoint (the CLI is a thin wrapper around
+it). When it cannot resolve a requested element, marker, or template key it
+raises **`WindstormLookupError`** (a subclass of `KeyError`) — a *data-level*
+condition, not a process crash:
+
+```python
+from windstorm.main import windstorm
+from windstorm.common.errors import WindstormLookupError
+
+try:
+    windstorm("verify_case1", source="./models", element_type="VerificationCaseDefinition")
+except WindstormLookupError as e:
+    record = {"requirement": "REQ-12", "status": "UNVERIFIABLE", "detail": str(e)}
+```
+
+This lets an automation pipeline record a per-requirement result and keep going
+instead of aborting. The CLI boundary catches `WindstormLookupError` at the top
+level and exits with **code 1** (so shell scripts can distinguish "lookup
+failed" from success).
+
+> Windstorm used to call `sys.exit()` / raise a bare `KeyError` from its
+> internal lookup paths, which made programmatic driving impossible — a missing
+> element killed the process. The fix landed in **#96**.
+
+**Behavior note:** a missing template key used to exit with **code 0** (looking
+like success); it now aborts that render with `WindstormLookupError` (exit
+`1` at the CLI). Pipelines that previously treated a missing key as a silent
+no-op will now see it fail — that is the intended, safer behaviour.
+
+---
+
 ## What windstorm extracts (element/marker contract)
 
 Windstorm renders a model by selecting a *case* — an element of a supported

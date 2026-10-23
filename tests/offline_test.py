@@ -6,8 +6,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 
 import pytest
 import responses
+from unittest.mock import patch
 
 from windstorm.main import windstorm, _load_local_store, _collect_source_files
+from windstorm.common.errors import WindstormLookupError
 from windstorm.common.local_store import ElementStore
 
 
@@ -867,3 +869,66 @@ def test_verification_case_renders_offline(tmp_path):
     out = tmp_path / "output" / "template.txt"
     assert out.exists()
     assert out.read_text().strip() == "deltaT=5.0; deltaE=4.0"
+
+
+def test_library_missing_element_raises_windstorm_lookup_error(tmp_path):
+    """#96: a library caller invoking windstorm() directly (the README contract)
+    gets a catchable WindstormLookupError when the element doesn't exist — a
+    data-level UNVERIFIABLE, not a process-killing KeyError or sys.exit()."""
+
+    src = tmp_path / "src"
+    src.mkdir()
+    mocks = os.path.join(os.path.dirname(__file__), "mocks", "verification")
+    shutil.copy2(
+        os.path.join(mocks, "verify_defs.sysml.export.json"),
+        src / "verify_defs.sysml.export.json",
+    )
+
+    # Catchable: trap it and record, don't abort. This is Rikki's pattern —
+    # windstorm() itself raises (no SystemExit leaked from the library path).
+    unverifiable = False
+    try:
+        windstorm(
+            "nope",
+            source=str(src),
+            element_type="VerificationCaseDefinition",
+        )
+    except WindstormLookupError as e:
+        unverifiable = True
+        # The message must identify the missing element (not just the type —
+        # both could match, so assert the full identify-the-element message).
+        assert "No VerificationCaseDefinition named nope in local store" == str(e)
+    assert unverifiable, "library caller must be able to trap the missing element"
+
+
+def test_cli_missing_element_exits_1(tmp_path):
+    """#96: the CLI boundary (main()) converts WindstormLookupError into a clean
+    exit code 1, so shell scripts can distinguish lookup-failure from success."""
+    from windstorm.main import main
+
+    # Copy the fixture into tmp_path so no mtime race on the committed fixture,
+    # and pass --exports_only so no Java batch-export is attempted.
+    src = tmp_path / "src"
+    src.mkdir()
+    mocks = os.path.join(os.path.dirname(__file__), "mocks", "verification")
+    shutil.copy2(
+        os.path.join(mocks, "verify_defs.sysml.export.json"),
+        src / "verify_defs.sysml.export.json",
+    )
+
+    with pytest.raises(SystemExit) as e:
+        with patch.object(
+            sys,
+            "argv",
+            [
+                "windstorm",
+                "nope",
+                "--source",
+                str(src),
+                "--exports_only",
+                "--element_type",
+                "VerificationCaseDefinition",
+            ],
+        ):
+            main()
+    assert e.value.code == 1

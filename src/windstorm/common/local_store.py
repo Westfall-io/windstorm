@@ -22,6 +22,8 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from windstorm.common.errors import WindstormLookupError
+
 logger = logging.getLogger("windstorm.common.api")
 
 
@@ -72,7 +74,7 @@ class ElementStore:
             return self._elements[eid]
         except KeyError:
             logger.error("Element not found in local store: {}".format(eid))
-            raise KeyError(eid)
+            raise WindstormLookupError(eid) from None
 
     def get_element_by_name_type(self, element_name: str, element_type: str) -> dict:
         """Find an element by (declaredName, @type) — mirrors the API query."""
@@ -91,19 +93,19 @@ class ElementStore:
                     element_type, element_name
                 )
             )
-            raise KeyError(
+            raise WindstormLookupError(
                 "No {} named {} in local store".format(element_type, element_name)
-            )
+            ) from None
         logger.error(
             "Found {} matches for {} named {}; expected 1.".format(
                 len(matches), element_type, element_name
             )
         )
-        raise KeyError(
+        raise WindstormLookupError(
             "{} matches for {} named {}".format(
                 len(matches), element_type, element_name
             )
-        )
+        ) from None
 
     def query(self, base_query: dict) -> list[dict]:
         """Best-effort query resolver for the queries windstorm actually sends.

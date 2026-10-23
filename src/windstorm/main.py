@@ -2,11 +2,13 @@ import json
 import logging
 import os
 import shutil
+import sys
 
 logger = logging.getLogger("windstorm")
 
 import fire
 
+from windstorm.common.errors import WindstormLookupError
 from windstorm.common.functions import setup_logging
 from windstorm.common.api import verify_tool
 from windstorm.common.sysml import init_variables, template_files
@@ -370,8 +372,18 @@ def windstorm(
 
 
 def main():
-    """This function uses Fire to generate a command-line interface"""
-    fire.Fire(windstorm)
+    """This function uses Fire to generate a command-line interface.
+
+    The CLI boundary: windstorm() raises WindstormLookupError for a missing
+    element/marker/template key so library callers can trap it. Here at the CLI
+    we convert that into a clean non-zero exit (issue #96) so shell scripts can
+    distinguish "lookup failed" from success.
+    """
+    try:
+        fire.Fire(windstorm)
+    except WindstormLookupError as e:
+        logger.error("windstorm: {}".format(e))
+        sys.exit(1)
 
 
 if __name__ == "__main__":
